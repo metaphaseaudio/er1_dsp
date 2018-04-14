@@ -37,11 +37,11 @@ TEST_F(VoiceTest, generate_no_pitch_modulation)
 {
     meta::ER1::Voice voice;
     voice.oscillator.params.waveType = meta::ER1::Oscillator::WaveType::SINE;
-    voice.ampModulator.params.modAmp = 1.0f;
-    voice.ampModulator.params.modSpeed = 1.0f;
-    voice.pitchModulator.params.modAmp = 200.0f;
-    voice.pitchModulator.params.modSpeed = 1.5f;
-    voice.params.oscPitch = 20;
+    voice.amplifier.envelope.amp = 1.0f;
+    voice.amplifier.envelope.speed = 1.0f;
+    voice.pitchModulator.amp = 200.0f;
+    voice.pitchModulator.speed = 1.5f;
+    voice.oscPitch = 20;
     voice.updateParams();
     voice.reset();
     voice.start();

@@ -4,18 +4,23 @@
 
 #include "../inc/er1_dsp/Voice.h"
 
+
+meta::ER1::Voice::Voice()
+    : oscPitch(250)
+    , pan(0.5f)
+{}
+
 void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offset)
 {
     for (int i = offset; i < samps + offset; i++)
     {
         auto p = pitchModulator.tick();
-        oscillator.params.freq = params.oscPitch + p;
+        oscillator.params.freq = oscPitch + p;
         oscillator.updateParams();
-
-        auto a = ampModulator.tick();
         auto o = oscillator.tick();
 
-        auto sample = a * o;
+        auto sample = amplifier.processSample(o);
+
         // TODO: set things up for stereo pan
         for (int c = 0; c < chans; c++)
             { data[c][i] += sample; }
@@ -25,7 +30,7 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 void meta::ER1::Voice::reset()
 {
     oscillator.reset();
-    ampModulator.reset();
+    amplifier.reset();
     pitchModulator.reset();
 }
 
@@ -33,11 +38,12 @@ void meta::ER1::Voice::updateParams()
 {
     oscillator.updateParams();
     pitchModulator.updateParams();
-    ampModulator.updateParams();
+    amplifier.updateParams();
 }
 
 void meta::ER1::Voice::start()
 {
-    ampModulator.start();
+    amplifier.start();
     pitchModulator.start();
 }
+

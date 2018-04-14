@@ -4,6 +4,8 @@
 #pragma once
 
 #include <meta/audio/Asymp.h>
+#include "Oscillator.h"
+#include "Noise.h"
 
 namespace meta
 {
@@ -22,26 +24,30 @@ namespace meta
                 , DECAY
             };
 
-            struct Params
-            {
-                ModType modType = ModType::DECAY;
-                float modAmp = 0.0f;     // -100 - 100
-                float modSpeed = 0.1f;   // 0.1Hz - 5000Hz
-            };
-
-
 			void start();
 
             void reset();
 
             void updateParams();
 
-            float tick();
+            inline float tick()
+            {
+                switch(modType)
+                {
+                    case meta::ER1::Modulator::ModType::DECAY: return m_Ramp.tick();
+                }
 
-            Params params;
+                return 0.0;
+            }
+
+            ModType modType = ModType::DECAY;
+            float amp = 0.0f;     // -100 - 100
+            float speed = 0.1f;   // 0.1Hz - 5000Hz
 
         private:
-            meta::Asymp m_Ramp; // For Decay modulations
+            meta::ER1::Oscillator m_AnalogWave;
+            meta::ER1::Noise m_Noise;
+            meta::Asymp m_Ramp;
         };
     }
 }

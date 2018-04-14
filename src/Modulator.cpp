@@ -12,13 +12,8 @@ void meta::ER1::Modulator::reset()
 
 void meta::ER1::Modulator::start()
 {
-    m_Ramp.setValue(params.modAmp);
+    m_Ramp.setValue(amp);
 	m_Ramp.setTarget(0.0f);
-}
-
-float meta::ER1::Modulator::tick()
-{
-    return m_Ramp.tick();
 }
 
 void meta::ER1::Modulator::updateParams()
@@ -26,6 +21,6 @@ void meta::ER1::Modulator::updateParams()
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
 
     m_Ramp.init(sampleRate);
-    m_Ramp.setTime(1 / params.modSpeed, sampleRate);
+    m_Ramp.setTime(1 / speed, sampleRate);
 }
 
