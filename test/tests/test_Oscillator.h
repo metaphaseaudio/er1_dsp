@@ -12,22 +12,22 @@ class OscillatorTest
 {
 public:
     OscillatorTest()
-        : testFile(juce::File::getSpecialLocation
-                  (juce::File::SpecialLocationType::tempDirectory)
-                  .getChildFile("er1osctest.wav"))
     {
+        osc.params.freq = 100;
+    };
+
+    void initializeTestFile(const juce::String& filename)
+    {
+        testFile = meta::ER1::TestHelpers::testFolder.getChildFile(filename);
         if (testFile.exists()) { testFile.deleteFile(); }
         testFile.create();
         m_Writer.reset(meta::AudioFileHelpers::createWriter(testFile, 48000, 2));
-
-        osc.params.freq = 100;
-    };
+    }
 
     virtual void TearDown()
     {
         m_Writer->flush();
         m_Writer.reset(nullptr);
-        if (testFile.exists()) { testFile.deleteFile(); }
     }
 
     juce::File testFile;
@@ -37,6 +37,7 @@ public:
 
 TEST_F(OscillatorTest, generate_square)
 {
+    initializeTestFile("Square.wav");
     osc.params.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
     osc.updateParams();
 
@@ -55,6 +56,7 @@ TEST_F(OscillatorTest, generate_square)
 
 TEST_F(OscillatorTest, generate_triangle)
 {
+    initializeTestFile("Triangle.wav");
     osc.params.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
     osc.updateParams();
 
@@ -73,6 +75,7 @@ TEST_F(OscillatorTest, generate_triangle)
 
 TEST_F(OscillatorTest, generate_sine)
 {
+    initializeTestFile("Sine.wav");
     osc.params.waveType = meta::ER1::Oscillator::WaveType::SINE;
     osc.updateParams();
 
@@ -91,6 +94,7 @@ TEST_F(OscillatorTest, generate_sine)
 
 TEST_F(OscillatorTest, generate_saw)
 {
+    initializeTestFile("Saw.wav");
     osc.params.waveType = meta::ER1::Oscillator::WaveType::SAW;
     osc.updateParams();
 

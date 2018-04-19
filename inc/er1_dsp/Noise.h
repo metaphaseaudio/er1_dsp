@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstdint>
+#include <meta/dsp/FixedPointRandom.h>
 
 namespace meta
 {
@@ -11,17 +12,18 @@ namespace meta
     {
         class Noise
         {
+        public:
+            Noise();
+
             /// Produce the next sample of the waveform
             float tick();
 
-            /// refreshes the internal values based on changes to the parameters
-            void updateParams();
-
             float freqLFSR;
             float freqSAH;
-
         private:
-            int64_t m_LFSR;
+            meta::FixedPointRandom<uint32_t> m_Random;
+            uint16_t m_Value;
+            int m_SAHCount;
         };
     }
 }
