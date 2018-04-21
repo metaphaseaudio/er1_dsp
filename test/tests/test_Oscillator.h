@@ -8,7 +8,7 @@
 #include <er1_dsp/Oscillator.h>
 
 class OscillatorTest
-    : public testing::Test
+    : public meta::TestBase
 {
 public:
     OscillatorTest()
@@ -16,12 +16,9 @@ public:
         osc.params.freq = 100;
     };
 
-    void initializeTestFile(const juce::String& filename)
+    void initializeTestFile(const juce::String& f)
     {
-        testFile = meta::ER1::TestHelpers::testFolder.getChildFile(filename);
-        if (testFile.exists()) { testFile.deleteFile(); }
-        testFile.create();
-        m_Writer.reset(meta::AudioFileHelpers::createWriter(testFile, 48000, 2));
+        meta::TestBase::initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile(f));
     }
 
     virtual void TearDown()
@@ -30,9 +27,7 @@ public:
         m_Writer.reset(nullptr);
     }
 
-    juce::File testFile;
     meta::ER1::Oscillator osc;
-    std::unique_ptr<juce::AudioFormatWriter> m_Writer;
 };
 
 TEST_F(OscillatorTest, generate_square)

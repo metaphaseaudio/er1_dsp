@@ -7,20 +7,14 @@
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Oscillator.h>
 #include <er1_dsp/Voice.h>
+#include <meta/util/testing/TestBase.h>
 
 class VoiceTest
-    : public testing::Test
+    : public meta::TestBase
 {
 public:
     VoiceTest()
-        : testFile(juce::File::getSpecialLocation
-                  (juce::File::SpecialLocationType::tempDirectory)
-                  .getChildFile("er1voicetest.wav"))
-    {
-        if (testFile.exists()) { testFile.deleteFile(); }
-        testFile.create();
-        m_Writer.reset(meta::AudioFileHelpers::createWriter(testFile, 48000, 2));
-    };
+    {};
 
     virtual void TearDown()
     {
@@ -29,12 +23,13 @@ public:
         if (testFile.exists()) { testFile.deleteFile(); }
     }
 
-    juce::File testFile;
     std::unique_ptr<juce::AudioFormatWriter> m_Writer;
 };
 
-TEST_F(VoiceTest, generate_no_pitch_modulation)
+TEST_F(VoiceTest, generate_synth_bass_drum)
 {
+    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
+
     meta::ER1::Voice voice;
     voice.oscillator.params.waveType = meta::ER1::Oscillator::WaveType::SINE;
     voice.amplifier.envelope.amp = 1.0f;

@@ -4,7 +4,6 @@ message("-- Building ER-1 DSP Test Suite")
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-
 file(GLOB_RECURSE ER1DSP_TEST_SHARED_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h
                                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
 list(SORT ER1DSP_TEST_SHARED_SOURCE)
