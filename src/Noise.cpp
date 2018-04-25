@@ -3,22 +3,28 @@
 //
 
 #include <er1_dsp/Noise.h>
+#include <meta/audio/SingletonSampleRate.h>
 
 meta::ER1::Noise::Noise()
     : m_SAHCount(0)
-    , freqSAH(0)
-    , freqLFSR(0)
+    , m_ResetValue(0)
 {}
 
 float meta::ER1::Noise::tick()
 {
-    for (int i = freqLFSR; --i >= 0;) { m_Random.next(); }
-    if (m_SAHCount <= 0)
+    m_SAHCount++;
+    if (m_SAHCount > m_ResetValue)
     {
-        m_SAHCount = freqSAH;
+        m_SAHCount = 0;
         m_Value = m_Random.next();
     }
 
-    m_SAHCount--;
-    return static_cast<float>(m_Value) / static_cast<float>(UINT16_MAX);
+    return static_cast<float>(m_Value) / static_cast<float>(UINT32_MAX);
 }
+
+void meta::ER1::Noise::setSAHFreq(float freq)
+{
+    m_ResetValue = static_cast<int>(freq /  meta::SingletonSampleRate<float>::getValue());
+}
+
+void meta::ER1::Noise::start() { m_Value = m_Random.next(); }

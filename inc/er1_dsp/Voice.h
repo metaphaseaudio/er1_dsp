@@ -4,8 +4,8 @@
 #pragma once
 
 #include "Oscillator.h"
-#include "Modulator.h"
-#include "Amp.h"
+#include "Noise.h"
+#include "Envelope.h"
 
 namespace meta
 {
@@ -19,6 +19,7 @@ namespace meta
         class Voice
         {
         public:
+
             Voice();
 
             /// fill an array of floats with data from the voice
@@ -30,15 +31,38 @@ namespace meta
             /// trigger the voice
             void start();
 
-            /// updates every parameter for all modulators and the oscillator
-            void updateParams();
+            enum ModType
+            {
+                SAW = 0
+                , SQUARE
+                , TRIANGLE
+                , SANDH
+                , NOISE
+                , DECAY
+            };
 
-            float oscPitch; // The global pitch of the voice
+
+            void setModulationType(ModType type);
+            void setModulationSpeed(float speed);
+            void setModulationDepth(float depth);
+
+            float level;
             float pan;
+            float pitch;
 
             meta::ER1::Oscillator oscillator;
-            meta::ER1::Modulator pitchModulator;
-            meta::ER1::Amp       amplifier;
+            meta::ER1::Envelope envelope;
+
+        private:
+
+            float m_ModSpeed;
+            float m_ModDepth;
+
+            ModType m_ModType = ModType::DECAY;
+            meta::ER1::Oscillator m_ModOsc;
+            meta::ER1::Noise m_ModNoise;
+            meta::ER1::Envelope m_ModEnv;
+
         };
     }
 }

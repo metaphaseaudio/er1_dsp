@@ -36,11 +36,7 @@ namespace meta
                 , SAW
             };
 
-            struct Params
-            {
-                WaveType waveType = WaveType::SINE;
-                int freq = 20 ;         // 20 - 12,000 Hz
-            };
+            WaveType waveType = WaveType::SINE;
 
             /// Makes an ER-1 Oscillator
             Oscillator();
@@ -57,12 +53,10 @@ namespace meta
              */
             void reset();
 
-            /// refreshes the internal values based on changes to the parameters
-            void updateParams();
-
-            Params params;
+            void setFrequency(float freq);
 
         private:
+
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
 

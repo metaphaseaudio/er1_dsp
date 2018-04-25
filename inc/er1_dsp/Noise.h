@@ -15,15 +15,17 @@ namespace meta
         public:
             Noise();
 
+            void start();
+
             /// Produce the next sample of the waveform
             float tick();
 
-            float freqLFSR;
-            float freqSAH;
+            void setSAHFreq(float freq);
         private:
             meta::FixedPointRandom<uint32_t> m_Random;
-            uint16_t m_Value;
+            uint32_t m_Value;
             int m_SAHCount;
+            int m_ResetValue;
         };
     }
 }
