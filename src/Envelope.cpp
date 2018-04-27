@@ -7,7 +7,8 @@
 
 void meta::ER1::Envelope::reset()
 {
-    m_Ramp.setValue(0.0f);
+    auto sampleRate = meta::SingletonSampleRate<float>::getValue();
+    m_Ramp.init(sampleRate);
 }
 
 void meta::ER1::Envelope::start()
@@ -18,9 +19,8 @@ void meta::ER1::Envelope::start()
 
 void meta::ER1::Envelope::setSpeed(float speed)
 {
-    m_Speed = speed;
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
 
-    m_Ramp.init(sampleRate);
+    m_Speed = speed;
     m_Ramp.setTime(1 / speed, sampleRate);
 }
