@@ -3,6 +3,10 @@
 //
 
 #pragma once
+
+#include <vector>
+#include <array>
+
 namespace meta
 {
     namespace ER1
@@ -14,6 +18,10 @@ namespace meta
             {
                 char delayDepth; // 0 - 100
                 char delayTime;  // 5ms - 2s
+            };
+
+            Delay()
+            {
             };
         };
     }

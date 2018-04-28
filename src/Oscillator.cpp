@@ -29,6 +29,10 @@ float Oscillator::tick()
     const auto sine   = m_SineFilter.processSample(tri);
 
     m_TablePhase += m_PhaseDelta;
+
+	while (m_TablePhase < 0.0f)
+		{ m_TablePhase += static_cast<float>(tableSize);}
+
 	m_TablePhase = fmodf(m_TablePhase, tableSize);
 
     switch(waveType)
@@ -54,7 +58,7 @@ void Oscillator::setFrequency(float freq)
 {
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
 
-    m_Integrate.setCutoff(sampleRate, freq / 2.0f);
-    m_SineFilter.setCutoff(sampleRate, freq / 2.0f);
+    m_Integrate.setCutoff(sampleRate, abs(freq) / 2.0f);
+    m_SineFilter.setCutoff(sampleRate, abs(freq) / 2.0f);
     m_PhaseDelta = static_cast<float>(m_SquareTable.size()) * freq / sampleRate;
 }
