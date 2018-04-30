@@ -63,8 +63,8 @@ namespace meta
             float m_TablePhase;
             float m_PhaseDelta;
 
-            static std::array<float, 4800> m_SquareTable;
-            static std::array<float, 4800> m_SawTable;
+            static std::array<float, 1024> m_SquareTable;
+            static std::array<float, 1024> m_SawTable;
         };
     }
 }

@@ -7,11 +7,11 @@
 
 using namespace meta::ER1;
 
-std::array<float, 4800> Oscillator::m_SquareTable =
-        meta::BandlimitedWavetable<float, 4800>::makeSquare(30, 0.2f);
+std::array<float, 1024> Oscillator::m_SquareTable =
+        meta::BandlimitedWavetable<float, 1024>::makeSquare(14, 1, 0.2f);
 
-std::array<float, 4800> Oscillator::m_SawTable =
-        meta::BandlimitedWavetable<float, 4800>::makeSaw(30, 0.2f);
+std::array<float, 1024> Oscillator::m_SawTable =
+        meta::BandlimitedWavetable<float, 1024>::makeSaw(14, 1, 0.2f);
 
 Oscillator::Oscillator()
 	: m_TablePhase(0.0f)

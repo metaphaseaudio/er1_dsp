@@ -13,7 +13,7 @@ class OscillatorTest
 public:
     OscillatorTest()
     {
-        osc.params.freq = 100;
+        osc.setFrequency(100);
     };
 
     void initializeTestFile(const juce::String& f)
@@ -33,9 +33,8 @@ public:
 TEST_F(OscillatorTest, generate_square)
 {
     initializeTestFile("Square.wav");
-    osc.params.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
-    osc.updateParams();
-
+    osc.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
+    
     // print one cycle
     juce::AudioBuffer<float> buffer(2, 4800);
     buffer.clear();
@@ -52,8 +51,7 @@ TEST_F(OscillatorTest, generate_square)
 TEST_F(OscillatorTest, generate_triangle)
 {
     initializeTestFile("Triangle.wav");
-    osc.params.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
-    osc.updateParams();
+    osc.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
 
     // print one cycle
     juce::AudioBuffer<float> buffer(2, 4800);
@@ -71,9 +69,8 @@ TEST_F(OscillatorTest, generate_triangle)
 TEST_F(OscillatorTest, generate_sine)
 {
     initializeTestFile("Sine.wav");
-    osc.params.waveType = meta::ER1::Oscillator::WaveType::SINE;
-    osc.updateParams();
-
+    osc.waveType = meta::ER1::Oscillator::WaveType::SINE;
+    
     // print one cycle
     juce::AudioBuffer<float> buffer(2, 4800);
     buffer.clear();
@@ -90,8 +87,7 @@ TEST_F(OscillatorTest, generate_sine)
 TEST_F(OscillatorTest, generate_saw)
 {
     initializeTestFile("Saw.wav");
-    osc.params.waveType = meta::ER1::Oscillator::WaveType::SAW;
-    osc.updateParams();
+    osc.waveType = meta::ER1::Oscillator::WaveType::SAW;
 
     // print one cycle
     juce::AudioBuffer<float> buffer(2, 4800);

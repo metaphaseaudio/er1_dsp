@@ -35,8 +35,7 @@ public:
 TEST_F(NoiseTest, generate_white_noise)
 {
     initializeTestFile("white.wav");
-    noise.freqSAH = 0;
-
+    
     juce::AudioBuffer<float> buffer(2, 4800);
     buffer.clear();
     for (int i = 0; i < 4800; i++)
@@ -51,7 +50,6 @@ TEST_F(NoiseTest, generate_white_noise)
 TEST_F(NoiseTest, generate_single_value)
 {
     initializeTestFile("single_value.wav");
-    noise.freqSAH = 4800;
 
     // print one cycle
     juce::AudioBuffer<float> buffer(2, 4800);

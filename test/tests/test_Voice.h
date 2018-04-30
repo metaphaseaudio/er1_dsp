@@ -31,13 +31,12 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
     meta::ER1::Voice voice;
-    voice.oscillator.params.waveType = meta::ER1::Oscillator::WaveType::SINE;
-    voice.amplifier.envelope.amp = 1.0f;
-    voice.amplifier.envelope.speed = 1.0f;
-    voice.pitchModulator.amp = 200.0f;
-    voice.pitchModulator.speed = 1.5f;
-    voice.oscPitch = 20;
-    voice.updateParams();
+    voice.oscillator.waveType = meta::ER1::Oscillator::WaveType::SINE;
+    voice.level = 1.0f;
+    voice.envelope.setSpeed(1.0f);
+    voice.setModulationDepth(200.0f);
+    voice.setModulationSpeed(1.5f);
+    voice.pitch = 20;
     voice.reset();
     voice.start();
 
