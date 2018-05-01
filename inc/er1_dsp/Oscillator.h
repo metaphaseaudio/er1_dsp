@@ -10,6 +10,7 @@
 #include <meta/dsp/OnePoleLowPassFilter.h>
 #include <meta/dsp/BandlimitedWavetable.h>
 
+#define PARTIAL_COUNT 28
 namespace meta
 {
     namespace ER1
@@ -56,13 +57,21 @@ namespace meta
             void setFrequency(float freq);
 
         private:
+            float advanceAndSumEvens();
+            float advanceAndSumOdds();
 
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
 
+            float m_TablePhases[PARTIAL_COUNT];
+            float m_TableDeltas[PARTIAL_COUNT];
+            float m_Coeffs[PARTIAL_COUNT];
+
             float m_TablePhase;
+			float m_MaxDelta;
             float m_PhaseDelta;
 
+            static std::array<float, 4800> m_SinTable;
             static std::array<float, 1024> m_SquareTable;
             static std::array<float, 1024> m_SawTable;
         };

@@ -21,12 +21,6 @@ public:
         meta::TestBase::initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile(f));
     }
 
-    virtual void TearDown()
-    {
-        m_Writer->flush();
-        m_Writer.reset(nullptr);
-    }
-
     meta::ER1::Oscillator osc;
 };
 
