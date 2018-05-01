@@ -14,7 +14,7 @@ class VoiceTest
 {
 public:
     VoiceTest()
-    {};
+    {}; 
 
     virtual void TearDown()
     {
@@ -22,8 +22,6 @@ public:
         m_Writer.reset(nullptr);
         if (testFile.exists()) { testFile.deleteFile(); }
     }
-
-    std::unique_ptr<juce::AudioFormatWriter> m_Writer;
 };
 
 TEST_F(VoiceTest, generate_synth_bass_drum)
