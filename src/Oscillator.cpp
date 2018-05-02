@@ -17,7 +17,7 @@ std::array<float, 1024> Oscillator::m_SawTable =
         meta::BandlimitedWavetable<float, 1024>::makeSaw(14, 1, 0.2f);
 
 Oscillator::Oscillator()
-	: m_TablePhase(0.0f)
+	: m_RootPhaseDelta(0.0f)
 	, m_PhaseDelta(0.0f)
     , m_TablePhases{0}
     , m_TableDeltas{0}
@@ -31,21 +31,21 @@ Oscillator::Oscillator()
 float Oscillator::tick()
 {
     const float tableSize = m_SinTable.size();
-	const auto i = static_cast<int>(m_TablePhase);
+	const auto i = static_cast<int>(m_RootPhaseDelta);
 
 //    const auto saw    = m_SawTable[i] * 0.5;
 //    const auto square = m_SquareTable[i];
-    const auto square = advanceAndSumOdds();
-    const auto saw    = (advanceAndSumEvens() + square) * 0.5;
+    const auto square = sumPartials(odds);
+    const auto saw    = (sumPartials(evens) + square) * 0.5;
     const auto tri    = m_Integrate.processSample(square) * 1.41254f;
     const auto sine   = m_SineFilter.processSample(tri);
 
-    m_TablePhase += m_PhaseDelta;
+    m_RootPhaseDelta += m_PhaseDelta;
 
-	while (m_TablePhase < 0.0f)
-		{ m_TablePhase += static_cast<float>(tableSize);}
+	while (m_RootPhaseDelta < 0.0f)
+		{ m_RootPhaseDelta += static_cast<float>(tableSize);}
 
-	m_TablePhase = fmodf(m_TablePhase, tableSize);
+	m_RootPhaseDelta = fmodf(m_RootPhaseDelta, tableSize);
 
     switch(waveType)
     {
@@ -59,7 +59,7 @@ float Oscillator::tick()
 
 void Oscillator::reset()
 {
-    m_TablePhase = float(m_SquareTable.size()) / 2.0f;
+    m_RootPhaseDelta = float(m_SquareTable.size()) / 2.0f;
     m_Integrate.reset();
     m_Integrate.setLastSample(0.5f);
     m_SineFilter.reset();
@@ -81,40 +81,27 @@ void Oscillator::setFrequency(float freq)
 
 }
 
-float Oscillator::advanceAndSumEvens()
+void Oscillator::advanceAllPartials()
 {
-    float retval = 0;
-
-    for (int harm = 1; harm < PARTIAL_COUNT; harm += 2)
-    {
-        const auto tableSize = m_SinTable.size();
-		const auto sinIndex = static_cast<int>(m_TablePhases[harm]);
-
-		if (m_TableDeltas[harm] <= m_MaxDelta) { retval += m_SinTable[sinIndex] * m_Coeffs[harm]; }
-        m_TablePhases[harm] += m_TableDeltas[harm];
-
-        while (m_TablePhases[harm] < 0.0f) { m_TablePhases[harm] += static_cast<float>(tableSize);}
-		m_TablePhases[harm] = fmodf(m_TablePhases[harm], tableSize);
-    }
-
-    return retval;
+    for (int harm = 0; harm < PARTIAL_COUNT; harm++)
+        { m_TablePhases[harm] += m_TableDeltas[harm]; }
 }
 
-float Oscillator::advanceAndSumOdds()
+float Oscillator::sumPartials(Oscillator::Partials p)
 {
-    float retval = 0;
+	float retval = 0.0;
 
-    for (int harm = 0; harm < PARTIAL_COUNT; harm += 2)
+    for (int harm = (p == Partials::evens) ? 1 : 0; harm < PARTIAL_COUNT; harm += 2)
     {
         const auto tableSize = m_SinTable.size();
         const auto sinIndex = static_cast<int>(m_TablePhases[harm]);
 
-		if (m_TableDeltas[harm] <= m_MaxDelta) { retval += m_SinTable[sinIndex] * m_Coeffs[harm]; }
+        if (m_TableDeltas[harm] <= m_MaxDelta) { retval += m_SinTable[sinIndex] * m_Coeffs[harm]; }
         m_TablePhases[harm] += m_TableDeltas[harm];
-        
+
         while (m_TablePhases[harm] < 0.0f) { m_TablePhases[harm] += static_cast<float>(tableSize);}
         m_TablePhases[harm] = fmodf(m_TablePhases[harm], m_SinTable.size());
     }
 
-    return retval;
+	return retval;
 }

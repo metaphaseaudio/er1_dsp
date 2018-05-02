@@ -57,8 +57,15 @@ namespace meta
             void setFrequency(float freq);
 
         private:
-            float advanceAndSumEvens();
-            float advanceAndSumOdds();
+            void advanceAllPartials();
+
+            enum Partials
+            {
+                odds
+                , evens
+            };
+
+            float sumPartials(Partials p);
 
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
@@ -67,7 +74,7 @@ namespace meta
             float m_TableDeltas[PARTIAL_COUNT];
             float m_Coeffs[PARTIAL_COUNT];
 
-            float m_TablePhase;
+            float m_RootPhaseDelta;
 			float m_MaxDelta;
             float m_PhaseDelta;
 
