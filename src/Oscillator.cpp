@@ -7,19 +7,11 @@
 
 using namespace meta::ER1;
 
-std::array<float, 4800> Oscillator::m_SinTable =
+std::array<float, 4800> Oscillator::m_WaveTable =
         meta::BandlimitedWavetable<float, 4800>::makeSquare(1, 1, 0.0f);
 
-std::array<float, 1024> Oscillator::m_SquareTable =
-        meta::BandlimitedWavetable<float, 1024>::makeSquare(14, 1, 0.2f);
-
-std::array<float, 1024> Oscillator::m_SawTable =
-        meta::BandlimitedWavetable<float, 1024>::makeSaw(14, 1, 0.2f);
-
 Oscillator::Oscillator()
-	: m_RootPhaseDelta(0.0f)
-	, m_PhaseDelta(0.0f)
-    , m_TablePhases{0}
+    : m_TablePhases{0}
     , m_TableDeltas{0}
 {
     for (int harmonic = 0; harmonic < PARTIAL_COUNT; harmonic++)
@@ -30,22 +22,12 @@ Oscillator::Oscillator()
 
 float Oscillator::tick()
 {
-    const float tableSize = m_SinTable.size();
-	const auto i = static_cast<int>(m_RootPhaseDelta);
-
-//    const auto saw    = m_SawTable[i] * 0.5;
-//    const auto square = m_SquareTable[i];
     const auto square = sumPartials(odds);
     const auto saw    = (sumPartials(evens) + square) * 0.5;
     const auto tri    = m_Integrate.processSample(square) * 1.41254f;
     const auto sine   = m_SineFilter.processSample(tri);
 
-    m_RootPhaseDelta += m_PhaseDelta;
-
-	while (m_RootPhaseDelta < 0.0f)
-		{ m_RootPhaseDelta += static_cast<float>(tableSize);}
-
-	m_RootPhaseDelta = fmodf(m_RootPhaseDelta, tableSize);
+	advanceAllPartials();
 
     switch(waveType)
     {
@@ -59,9 +41,15 @@ float Oscillator::tick()
 
 void Oscillator::reset()
 {
-    m_RootPhaseDelta = float(m_SquareTable.size()) / 2.0f;
+    for (int harm = PARTIAL_COUNT; --harm >=0;)
+    {
+        m_TablePhases[harm] = 0.0f;
+        m_TableDeltas[harm] = 0.0f;
+    }
+
     m_Integrate.reset();
     m_Integrate.setLastSample(0.5f);
+
     m_SineFilter.reset();
     m_SineFilter.setLastSample(0.5f);
 }
@@ -72,19 +60,24 @@ void Oscillator::setFrequency(float freq)
 
     m_Integrate.setCutoff(sampleRate, abs(freq) / 2.0f);
     m_SineFilter.setCutoff(sampleRate, abs(freq) / 2.0f);
-    m_PhaseDelta = static_cast<float>(m_SinTable.size()) * freq / sampleRate;
-	m_MaxDelta = static_cast<float>(m_SinTable.size()) * (sampleRate / 2.0f) / sampleRate;
-    m_TableDeltas[0] = m_PhaseDelta;
+    const auto phaseDelta = static_cast<float>(m_WaveTable.size()) * freq / sampleRate;
+	m_MaxDelta = static_cast<float>(m_WaveTable.size()) * (sampleRate / 2.0f) / sampleRate;
 
-    for (int harm = 1; harm <= PARTIAL_COUNT; harm++)
-        { m_TableDeltas[harm - 1] = m_TableDeltas[0] * harm; }
-
+    for (int harm = 0; harm < PARTIAL_COUNT; harm++)
+	{
+		m_TableDeltas[harm] = phaseDelta + ((harm > 0) ? m_TableDeltas[harm - 1] : 0);
+	}
 }
 
 void Oscillator::advanceAllPartials()
 {
+    const auto tableSize = m_WaveTable.size();
     for (int harm = 0; harm < PARTIAL_COUNT; harm++)
-        { m_TablePhases[harm] += m_TableDeltas[harm]; }
+    {
+        m_TablePhases[harm] += m_TableDeltas[harm];
+        while (m_TablePhases[harm] < 0.0f) { m_TablePhases[harm] += static_cast<float>(tableSize);}
+        m_TablePhases[harm] = fmodf(m_TablePhases[harm], m_WaveTable.size());
+    }
 }
 
 float Oscillator::sumPartials(Oscillator::Partials p)
@@ -93,14 +86,13 @@ float Oscillator::sumPartials(Oscillator::Partials p)
 
     for (int harm = (p == Partials::evens) ? 1 : 0; harm < PARTIAL_COUNT; harm += 2)
     {
-        const auto tableSize = m_SinTable.size();
-        const auto sinIndex = static_cast<int>(m_TablePhases[harm]);
+        // resolve the wavetable index
+        const auto i = static_cast<int>(m_TablePhases[harm]);
 
-        if (m_TableDeltas[harm] <= m_MaxDelta) { retval += m_SinTable[sinIndex] * m_Coeffs[harm]; }
-        m_TablePhases[harm] += m_TableDeltas[harm];
-
-        while (m_TablePhases[harm] < 0.0f) { m_TablePhases[harm] += static_cast<float>(tableSize);}
-        m_TablePhases[harm] = fmodf(m_TablePhases[harm], m_SinTable.size());
+        // add the current partial to the sum if it's below nyquist. Otherwise, mute.
+        retval += (m_TableDeltas[harm] <= m_MaxDelta)
+                ? m_WaveTable[i] * m_Coeffs[harm]
+                : 0;
     }
 
 	return retval;

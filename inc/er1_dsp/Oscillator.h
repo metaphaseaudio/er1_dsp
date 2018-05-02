@@ -73,14 +73,9 @@ namespace meta
             float m_TablePhases[PARTIAL_COUNT];
             float m_TableDeltas[PARTIAL_COUNT];
             float m_Coeffs[PARTIAL_COUNT];
-
-            float m_RootPhaseDelta;
 			float m_MaxDelta;
-            float m_PhaseDelta;
 
-            static std::array<float, 4800> m_SinTable;
-            static std::array<float, 1024> m_SquareTable;
-            static std::array<float, 1024> m_SawTable;
+            static std::array<float, 4800> m_WaveTable;
         };
     }
 }
