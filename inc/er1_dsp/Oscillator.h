@@ -75,7 +75,7 @@ namespace meta
             float m_Coeffs[PARTIAL_COUNT];
 			float m_MaxDelta;
 
-            static std::array<float, 4800> m_WaveTable;
+            static std::array<float, 256> m_WaveTable;
         };
     }
 }

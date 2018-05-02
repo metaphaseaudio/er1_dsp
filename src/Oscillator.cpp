@@ -7,8 +7,8 @@
 
 using namespace meta::ER1;
 
-std::array<float, 4800> Oscillator::m_WaveTable =
-        meta::BandlimitedWavetable<float, 4800>::makeSquare(1, 1, 0.0f);
+std::array<float, 256> Oscillator::m_WaveTable =
+        meta::BandlimitedWavetable<float, 256>::makeSquare(1, 1, 0.0f);
 
 Oscillator::Oscillator()
     : m_TablePhases{0}
