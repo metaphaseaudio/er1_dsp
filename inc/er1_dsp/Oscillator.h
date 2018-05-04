@@ -9,8 +9,9 @@
 #include <meta/audio/Asymp.h>
 #include <meta/dsp/OnePoleLowPassFilter.h>
 #include <meta/dsp/BandlimitedWavetable.h>
+#include <meta/util/fixed_point/Value.h>
 
-#define PARTIAL_COUNT 28
+#define HARMONIC_COUNT 28
 namespace meta
 {
     namespace ER1
@@ -43,7 +44,24 @@ namespace meta
             Oscillator();
 
             /// Produce the next sample of the waveform
-            float tick();
+            inline float tick()
+			{
+				const auto square = sumPartials(odds);
+				const auto saw = (sumPartials(evens) + square) * 0.5f;
+				const auto tri = m_Integrate.processSample(square) * 1.41254f;
+				const auto sine = m_SineFilter.processSample(tri);
+
+				advanceAllPartials();
+
+				switch (waveType)
+				{
+				default:
+				case WaveType::SINE:     return sine;
+				case WaveType::TRIANGLE: return tri;
+				case WaveType::SQUARE:   return square;
+				case WaveType::SAW:      return float(saw);
+				}
+			}
 
             /**
              * Reset the Oscillator to pi (not 0!)
@@ -52,7 +70,7 @@ namespace meta
              * underlying function needs to either start at pi or be generated
              * from cosine instead of sine.
              */
-            void reset();
+            void sync();
 
             void setFrequency(float freq);
 
@@ -70,10 +88,10 @@ namespace meta
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
 
-            float m_TablePhases[PARTIAL_COUNT];
-            float m_TableDeltas[PARTIAL_COUNT];
-            float m_Coeffs[PARTIAL_COUNT];
-			float m_MaxDelta;
+            meta::FixedPointValue<uint32_t, 16> m_TablePhases[HARMONIC_COUNT];
+            meta::FixedPointValue<uint32_t, 16> m_TableDeltas[HARMONIC_COUNT];
+            float m_Coeffs[HARMONIC_COUNT];
+			meta::FixedPointValue<uint32_t, 16> m_MaxDelta;
 
             static std::array<float, 256> m_WaveTable;
         };

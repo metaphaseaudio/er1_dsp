@@ -53,8 +53,8 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 
 void meta::ER1::Voice::reset()
 {
-    oscillator.reset();
-    m_ModOsc.reset();
+    oscillator.sync();
+    m_ModOsc.sync();
     envelope.reset();
     m_ModEnv.reset();
 }
