@@ -13,7 +13,7 @@ meta::ER1::Noise::Noise()
 
 void meta::ER1::Noise::setSAHFreq(float freq)
 {
-    m_ResetValue = static_cast<int>(freq /  meta::SingletonSampleRate<float>::getValue());
+    m_ResetValue = static_cast<int>(meta::SingletonSampleRate<float>::getValue() / freq);
 }
 
 void meta::ER1::Noise::start() { m_Value = m_Random.next(); }

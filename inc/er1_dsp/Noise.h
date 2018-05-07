@@ -32,6 +32,7 @@ namespace meta
 
 
             void setSAHFreq(float freq);
+
         private:
             meta::FixedPointRandom<uint32_t> m_Random;
             uint32_t m_Value;

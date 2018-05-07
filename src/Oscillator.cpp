@@ -83,7 +83,7 @@ float Oscillator::sumPartials(Oscillator::Partials p)
     // from either the first odd or even harmonic, iterate to include all allowed harmonic
     for (int harm = (p == Partials::evens) ? 1 : 0; harm <= maxHarm; harm += 2)
     {
-        const auto i = m_TablePhases[harm].rawValue >> 16;
+		const auto i = m_TablePhases[harm].integralPart();
         retval += m_WaveTable[i] * m_Coeffs[harm];
     }
 

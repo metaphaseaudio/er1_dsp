@@ -26,7 +26,7 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 			case ModType::SQUARE:
 			case ModType::TRIANGLE: oscillator.setFrequency(pitch + m_ModDepth * m_ModOsc.tick()); break;
 			case ModType::DECAY:    oscillator.setFrequency(pitch + m_ModDepth * m_ModEnv.tick()); break;
-			case ModType::SANDH:
+			case ModType::SANDH:    oscillator.setFrequency(pitch + m_ModDepth * m_ModNoise.tick()); break;
 			case ModType::NOISE:
 			{
 				const auto mod = m_ModDepth * m_ModNoise.tick();
@@ -80,6 +80,7 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
     m_ModSpeed = speed;
     m_ModEnv.setSpeed(speed);
     m_ModOsc.setFrequency(speed);
+	m_ModNoise.setSAHFreq(speed);
 }
 
 void meta::ER1::Voice::setModulationDepth(float depth)
