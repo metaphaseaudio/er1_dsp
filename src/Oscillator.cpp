@@ -45,12 +45,12 @@ void Oscillator::setFrequency(float freq)
 
     // Calculate base delta
     const FixedPointValue<uint32_t, 16> phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
-	m_MaxDelta = static_cast<float>(m_WaveTable.size()) * (sampleRate / 2.0f) / sampleRate;
-	m_TableDeltas[0] = phaseDelta;
+    m_MaxDelta = static_cast<float>(m_WaveTable.size()) * (sampleRate / 2.0f) / sampleRate;
+    m_TableDeltas[0] = phaseDelta;
 
-	// update all partials
+    // update all partials
     for (int harm = 1; harm < HARMONIC_COUNT; harm++)
-	    { m_TableDeltas[harm].rawValue = phaseDelta.rawValue + m_TableDeltas[harm - 1].rawValue; }
+    { m_TableDeltas[harm] = phaseDelta + m_TableDeltas[harm - 1]; }
 
     // update filtering
     m_Integrate.setCutoff(sampleRate, abs(freq) / 2.0f);
@@ -58,21 +58,17 @@ void Oscillator::setFrequency(float freq)
 }
 
 void Oscillator::advanceAllPartials()
-{;
+{
     for (int harm = 0; harm < HARMONIC_COUNT; harm++)
     {
-		const size_t tableSize = m_WaveTable.size();
+		const auto tableSize = m_WaveTable.size();
         m_TablePhases[harm].rawValue += m_TableDeltas[harm].rawValue;
 
-		const uint32_t& inRaw = m_TablePhases[harm].rawValue;
+		uint32_t absPos = m_TablePhases[harm].integralPart() % tableSize;
+		if (m_TablePhases[harm].rawValue & -0) { absPos = tableSize - absPos; }
 
-		uint32_t absPos = (inRaw >> 16) & 0x7FFF;
-		absPos = absPos % tableSize;
-		if (inRaw & -0) { absPos = tableSize - absPos; }
-		const uint32_t integralPart = absPos << 16;
-		const uint32_t factionalPart = m_TablePhases[harm].raw() & 0xFFFF;
-
-		m_TablePhases[harm].rawValue = integralPart | factionalPart;
+		m_TablePhases[harm].rawValue = (absPos << m_TablePhases[harm].Radix)
+		                             | m_TablePhases[harm].fractionalPart();
     }
 }
 
@@ -82,7 +78,7 @@ float Oscillator::sumPartials(Oscillator::Partials p)
 
     // mute upper partials if above nyquist
     int maxHarm = HARMONIC_COUNT - 1;
-    while (maxHarm >= 0 && m_TableDeltas[maxHarm].rawValue >= m_MaxDelta.rawValue) { maxHarm--; }
+    while (maxHarm >= 0 && m_TableDeltas[maxHarm] >= m_MaxDelta) { maxHarm--; }
 
     // from either the first odd or even harmonic, iterate to include all allowed harmonic
     for (int harm = (p == Partials::evens) ? 1 : 0; harm <= maxHarm; harm += 2)

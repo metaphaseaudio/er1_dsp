@@ -54,9 +54,9 @@ namespace meta
             meta::ER1::Envelope envelope;
 
         private:
-
             float m_ModSpeed;
             float m_ModDepth;
+			int m_ModCount;
 
             ModType m_ModType = ModType::DECAY;
             meta::ER1::Oscillator m_ModOsc;

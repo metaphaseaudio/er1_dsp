@@ -5,11 +5,13 @@
 #include <meta/audio/SingletonSampleRate.h>
 #include "../inc/er1_dsp/Voice.h"
 
+#define MOD_RATE_FACTOR 1
 
 meta::ER1::Voice::Voice()
     : pitch(250)
     , pan(0.5f)
     , level(1.0f)
+	, m_ModCount(MOD_RATE_FACTOR)
     , m_ModDepth(0.0f)
     , m_ModSpeed(0.01f)
 {}
@@ -18,33 +20,23 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 {
     for (int i = offset; i < samps + offset; i++)
     {
-        float sample = 0.0f;
-        float mod = m_ModDepth;
+		switch (m_ModType)
+		{
+			case ModType::SAW:
+			case ModType::SQUARE:
+			case ModType::TRIANGLE: oscillator.setFrequency(pitch + m_ModDepth * m_ModOsc.tick()); break;
+			case ModType::DECAY:    oscillator.setFrequency(pitch + m_ModDepth * m_ModEnv.tick()); break;
+			case ModType::SANDH:
+			case ModType::NOISE:
+			{
+				const auto mod = m_ModDepth * m_ModNoise.tick();
+				const auto invMod = -mod;
+				break;
+			}
+		}
 
-        switch (m_ModType)
-        {
-            case ModType::SAW:
-            case ModType::SQUARE:
-            case ModType::TRIANGLE: mod *= m_ModOsc.tick(); break;
-            
-            case ModType::SANDH:
-            case ModType::NOISE: mod *= m_ModNoise.tick(); break;
-            
-            case ModType::DECAY: mod *= m_ModEnv.tick(); break;
-        }
-        
-        if (m_ModType != ModType::NOISE)
-        {
-            oscillator.setFrequency(float(pitch + mod));
-        }
-        else
-        {
-            mod *= m_ModOsc.tick();
-            auto invMod = -mod;
-        }
-        
-        auto o = oscillator.tick();
-        sample = o * level * envelope.tick();
+		auto o = oscillator.tick();
+        auto sample = o * level * envelope.tick();
 
         // TODO: set things up for stereo pan
         for (int c = 0; c < chans; c++) { data[c][i] += sample; }
@@ -84,6 +76,7 @@ void meta::ER1::Voice::setModulationType(meta::ER1::Voice::ModType type)
 
 void meta::ER1::Voice::setModulationSpeed(float speed)
 {
+	speed *= MOD_RATE_FACTOR;
     m_ModSpeed = speed;
     m_ModEnv.setSpeed(speed);
     m_ModOsc.setFrequency(speed);
@@ -93,6 +86,3 @@ void meta::ER1::Voice::setModulationDepth(float depth)
 {
     m_ModDepth = depth;
 }
-
-
-

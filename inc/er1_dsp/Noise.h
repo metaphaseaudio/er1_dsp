@@ -18,7 +18,18 @@ namespace meta
             void start();
 
             /// Produce the next sample of the waveform
-            float tick();
+			inline float tick()
+			{
+				m_SAHCount++;
+				if (m_SAHCount > m_ResetValue)
+				{
+					m_SAHCount = 0;
+					m_Value = m_Random.next();
+				}
+
+				return static_cast<float>(m_Value) / static_cast<float>(UINT32_MAX);
+			}
+
 
             void setSAHFreq(float freq);
         private:

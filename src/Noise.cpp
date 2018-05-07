@@ -10,17 +10,6 @@ meta::ER1::Noise::Noise()
     , m_ResetValue(0)
 {}
 
-float meta::ER1::Noise::tick()
-{
-    m_SAHCount++;
-    if (m_SAHCount > m_ResetValue)
-    {
-        m_SAHCount = 0;
-        m_Value = m_Random.next();
-    }
-
-    return static_cast<float>(m_Value) / static_cast<float>(UINT32_MAX);
-}
 
 void meta::ER1::Noise::setSAHFreq(float freq)
 {
