@@ -6,6 +6,7 @@
 #include "Oscillator.h"
 #include "Noise.h"
 #include "Envelope.h"
+#include "SampleAndHold.h"
 
 namespace meta
 {
@@ -61,6 +62,7 @@ namespace meta
             ModType m_ModType = ModType::DECAY;
             meta::ER1::Oscillator m_ModOsc;
             meta::ER1::Noise m_ModNoise;
+            meta::ER1::SampleAndHold m_SAH;
             meta::ER1::Envelope m_ModEnv;
 
         };

@@ -31,13 +31,12 @@ namespace meta
                 if (!m_Bypass)
                 {
                     m_Count++;
-                    m_Noise.tick();
                     if (m_Count > m_ResetCount)
                     {
+                        m_Value = tmp;
                         m_Count = 0;
                     }
                 }
-
 
                 return m_Value;
             }

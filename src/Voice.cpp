@@ -26,10 +26,13 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 			case ModType::SQUARE:
 			case ModType::TRIANGLE: oscillator.setFrequency(pitch + m_ModDepth * m_ModOsc.tick()); break;
 			case ModType::DECAY:    oscillator.setFrequency(pitch + m_ModDepth * m_ModEnv.tick()); break;
-			case ModType::SANDH:    oscillator.setFrequency(pitch + m_ModDepth * m_ModNoise.tick()); break;
+			case ModType::SANDH:
+                m_SAH.setCenterFrequency(fp1616_t(pitch));
+                oscillator.setFrequency(static_cast<float>(m_SAH.tick(m_ModNoise.tick())));
+                break;
 			case ModType::NOISE:
 			{
-				const auto mod = m_ModDepth * m_ModNoise.tick();
+				const auto mod = m_ModDepth * static_cast<float>(m_ModNoise.tick());
 				const auto invMod = -mod;
 				break;
 			}
@@ -65,8 +68,8 @@ void meta::ER1::Voice::setModulationType(meta::ER1::Voice::ModType type)
         case ModType::SQUARE:   m_ModOsc.waveType = Oscillator::WaveType::SQUARE;   break;
         case ModType::TRIANGLE: m_ModOsc.waveType = Oscillator::WaveType::TRIANGLE; break;
 
-        case ModType::SANDH: m_ModNoise.setSAHFreq(m_ModSpeed); break;
-        case ModType::NOISE: m_ModNoise.setSAHFreq(0);          break;
+        case ModType::SANDH: m_SAH.bypass(false); break;
+        case ModType::NOISE: m_SAH.bypass(true);  break;
 
         case ModType::DECAY: break;
     }
@@ -80,10 +83,12 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
     m_ModSpeed = speed;
     m_ModEnv.setSpeed(speed / 500.0f);
     m_ModOsc.setFrequency(speed);
-	m_ModNoise.setSAHFreq(speed * 2);
+	m_SAH.setResetCount
+            (static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)));
 }
 
 void meta::ER1::Voice::setModulationDepth(float depth)
 {
+    m_SAH.setWidth(fp1616_t(fabsf(depth)));
     m_ModDepth = depth;
 }

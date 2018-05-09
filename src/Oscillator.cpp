@@ -15,8 +15,8 @@ std::array<float, 256> Oscillator::m_WaveTable =
         meta::BandlimitedWavetable<float, 256>::makeSquare(1, 1, 0.0f);
 
 Oscillator::Oscillator()
-    : m_TablePhases{FixedPointValue<uint32_t, 16>(0)}
-    , m_TableDeltas{FixedPointValue<uint32_t, 16>(0)}
+    : m_TablePhases{fp1616_t(0)}
+    , m_TableDeltas{fp1616_t(0)}
 {
     for (int harmonic = 0; harmonic < HARMONIC_COUNT; harmonic++)
     {
@@ -47,7 +47,7 @@ void Oscillator::setFrequency(float freq)
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
 
     // Calculate base delta
-    const FixedPointValue<uint32_t, 16> phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
+    const fp1616_t phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
     m_MaxDelta = static_cast<float>(m_WaveTable.size()) * (sampleRate / 2.0f) / sampleRate;
     m_TableDeltas[0] = phaseDelta;
 
@@ -56,8 +56,8 @@ void Oscillator::setFrequency(float freq)
     { m_TableDeltas[harm] = phaseDelta + m_TableDeltas[harm - 1]; }
 
     // update filtering
-    m_Integrate.setCutoff(sampleRate, abs(freq) / 2.0f);
-    m_SineFilter.setCutoff(sampleRate, abs(freq) / 2.0f);
+    m_Integrate.setCutoff(sampleRate, fabsf(freq) / 2.0f);
+    m_SineFilter.setCutoff(sampleRate, fabsf(freq) / 2.0f);
 }
 
 void Oscillator::advanceAllPartials()
@@ -65,13 +65,13 @@ void Oscillator::advanceAllPartials()
     for (int harm = 0; harm < HARMONIC_COUNT; harm++)
     {
 		const auto tableSize = m_WaveTable.size();
-        m_TablePhases[harm].rawValue += m_TableDeltas[harm].rawValue;
+        m_TablePhases[harm] += m_TableDeltas[harm];
 
 		uint32_t absPos = m_TablePhases[harm].integralPart() % tableSize;
-		if (m_TablePhases[harm].rawValue & -0) { absPos = tableSize - absPos; }
+		if (m_TablePhases[harm].raw() & -0) { absPos = tableSize - absPos; }
 
-		m_TablePhases[harm].rawValue = (absPos << m_TablePhases[harm].Radix)
-		                             | m_TablePhases[harm].fractionalPart();
+		m_TablePhases[harm] = fp1616_t::fromRaw((absPos << m_TablePhases[harm].Radix)
+		                             | m_TablePhases[harm].fractionalPart());
     }
 }
 

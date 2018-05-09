@@ -10,6 +10,7 @@
 #include <meta/dsp/OnePoleLowPassFilter.h>
 #include <meta/dsp/BandlimitedWavetable.h>
 #include <meta/util/fixed_point/Value.h>
+#include "Types.h"
 
 #define HARMONIC_COUNT 28
 namespace meta
@@ -88,10 +89,11 @@ namespace meta
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
 
-            meta::FixedPointValue<uint32_t, 16> m_TablePhases[HARMONIC_COUNT];
-            meta::FixedPointValue<uint32_t, 16> m_TableDeltas[HARMONIC_COUNT];
-            float m_Coeffs[HARMONIC_COUNT];
-			meta::FixedPointValue<uint32_t, 16> m_MaxDelta;
+            fp1616_t m_TablePhases[HARMONIC_COUNT];
+            fp1616_t m_TableDeltas[HARMONIC_COUNT];
+			fp1616_t m_MaxDelta;
+			
+			float m_Coeffs[HARMONIC_COUNT];
 
             static std::array<float, 256> m_WaveTable;
             static constexpr const bool csm_LimitFreq = true;
