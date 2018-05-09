@@ -5,6 +5,8 @@
 
 #include <cstdint>
 #include <meta/dsp/FixedPointRandom.h>
+#include "Types.h"
+
 
 namespace meta
 {
@@ -18,18 +20,13 @@ namespace meta
             void start();
 
             /// Produce the next sample of the waveform
-			inline float tick()
-			{
-				m_SAHCount++;
-				if (m_SAHCount > m_ResetValue)
-				{
-					m_SAHCount = 0;
-					m_Value = m_Random.next();
-				}
-
-				return static_cast<float>(m_Value) / static_cast<float>(UINT32_MAX);
-			}
-
+            inline fp1616_t tick()
+            {
+                return fp1616_t(((static_cast<float>(m_Value)
+                                  / static_cast<float>(UINT32_MAX))
+                                 * 2.0f)
+                                - 1.0f);
+            }
 
             void setSAHFreq(float freq);
 
@@ -37,7 +34,6 @@ namespace meta
             meta::FixedPointRandom<uint32_t> m_Random;
             uint32_t m_Value;
             int m_SAHCount;
-            int m_ResetValue;
         };
     }
 }

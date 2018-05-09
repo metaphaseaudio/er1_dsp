@@ -5,6 +5,7 @@
 #include <cmath>
 #include <meta/audio/SingletonSampleRate.h>
 #include <meta/util/fixed_point/Math.h>
+#include <meta/util/math.h>
 #include "../inc/er1_dsp/Oscillator.h"
 
 using namespace meta;
@@ -41,6 +42,8 @@ void Oscillator::sync()
 
 void Oscillator::setFrequency(float freq)
 {
+    if (csm_LimitFreq) { limit<float>(10.0f, 22000.0f, freq); }
+
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
 
     // Calculate base delta

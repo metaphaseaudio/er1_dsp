@@ -78,9 +78,9 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
 {
 	speed *= MOD_RATE_FACTOR;
     m_ModSpeed = speed;
-    m_ModEnv.setSpeed(speed);
+    m_ModEnv.setSpeed(speed / 500.0f);
     m_ModOsc.setFrequency(speed);
-	m_ModNoise.setSAHFreq(speed);
+	m_ModNoise.setSAHFreq(speed * 2);
 }
 
 void meta::ER1::Voice::setModulationDepth(float depth)

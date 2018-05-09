@@ -94,6 +94,7 @@ namespace meta
 			meta::FixedPointValue<uint32_t, 16> m_MaxDelta;
 
             static std::array<float, 256> m_WaveTable;
+            static constexpr const bool csm_LimitFreq = true;
         };
     }
 }
