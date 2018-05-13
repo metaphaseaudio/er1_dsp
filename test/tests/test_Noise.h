@@ -3,6 +3,7 @@
 //
 
 #pragma once
+
 #include <JuceHeader.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Noise.h>
@@ -36,28 +37,12 @@ TEST_F(NoiseTest, generate_white_noise)
 {
     initializeTestFile("white.wav");
     
-    juce::AudioBuffer<float> buffer(2, 4800);
+    juce::AudioBuffer<float> buffer(2, 48000);
     buffer.clear();
-    for (int i = 0; i < 4800; i++)
+    for (int i = 0; i < 48000; i++)
     {
         auto sample = noise.tick();
-        buffer.setSample(0,i, sample);
-    }
-
-    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
-}
-
-TEST_F(NoiseTest, generate_single_value)
-{
-    initializeTestFile("single_value.wav");
-
-    // print one cycle
-    juce::AudioBuffer<float> buffer(2, 4800);
-    buffer.clear();
-    for (int i = 0; i < 4800; i++)
-    {
-        auto sample = noise.tick();
-        buffer.setSample(0,i, sample);
+        buffer.setSample(0,i, static_cast<float>(sample));
     }
 
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());

@@ -8,6 +8,7 @@
 #include "TestHelpers.h"
 #include "tests/test_Oscillator.h"
 #include "tests/test_Noise.h"
+#include "tests/test_SampleAndHold.h"
 #include "tests/test_Voice.h"
 
 int main(int argc, char **argv)

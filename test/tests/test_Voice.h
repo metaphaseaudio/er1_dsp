@@ -14,27 +14,41 @@ class VoiceTest
 {
 public:
     VoiceTest()
-    {}; 
-
-    virtual void TearDown()
     {
-        m_Writer->flush();
-        m_Writer.reset(nullptr);
-        if (testFile.exists()) { testFile.deleteFile(); }
-    }
+        voice.oscillator.waveType = meta::ER1::Oscillator::WaveType::SINE;
+        voice.level = 1.0f;
+        voice.envelope.setSpeed(1.0f);
+    };
+
+    meta::ER1::Voice voice;
 };
 
 TEST_F(VoiceTest, generate_synth_bass_drum)
 {
     initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
-    meta::ER1::Voice voice;
-    voice.oscillator.waveType = meta::ER1::Oscillator::WaveType::SINE;
-    voice.level = 1.0f;
-    voice.envelope.setSpeed(1.0f);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(1.5f);
-    voice.pitch = 20;
+    voice.setPitch(20);
+    voice.reset();
+    voice.start();
+
+    // print one cycle
+    juce::AudioBuffer<float> buffer(2, 480000);
+    buffer.clear();
+
+    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 480000, 0);
+    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+}
+
+TEST_F(VoiceTest, generate_sample_and_hold_snare)
+{
+    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
+
+    voice.setModulationType(meta::ER1::Voice::SANDH);
+    voice.setModulationDepth(200.0f);
+    voice.setModulationSpeed(44100.0f);
+    voice.setPitch(250);
     voice.reset();
     voice.start();
 

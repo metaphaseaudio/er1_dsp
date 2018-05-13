@@ -15,8 +15,8 @@ std::array<float, 256> Oscillator::m_WaveTable =
         meta::BandlimitedWavetable<float, 256>::makeSquare(1, 1, 0.0f);
 
 Oscillator::Oscillator()
-    : m_TablePhases{fp1616_t(0)}
-    , m_TableDeltas{fp1616_t(0)}
+    : m_TablePhases{fixed_t(0)}
+    , m_TableDeltas{fixed_t(0)}
 {
     for (int harmonic = 0; harmonic < HARMONIC_COUNT; harmonic++)
     {
@@ -47,7 +47,7 @@ void Oscillator::setFrequency(float freq)
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
 
     // Calculate base delta
-    const fp1616_t phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
+    const fixed_t phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
     m_MaxDelta = static_cast<float>(m_WaveTable.size()) * (sampleRate / 2.0f) / sampleRate;
     m_TableDeltas[0] = phaseDelta;
 
@@ -67,11 +67,11 @@ void Oscillator::advanceAllPartials()
 		const auto tableSize = m_WaveTable.size();
         m_TablePhases[harm] += m_TableDeltas[harm];
 
-		uint32_t absPos = m_TablePhases[harm].integralPart() % tableSize;
+		uint32_t absPos = m_TablePhases[harm].integral() % tableSize;
 		if (m_TablePhases[harm].raw() & -0) { absPos = tableSize - absPos; }
 
-		m_TablePhases[harm] = fp1616_t::fromRaw((absPos << m_TablePhases[harm].Radix)
-		                             | m_TablePhases[harm].fractionalPart());
+		m_TablePhases[harm] = fixed_t::fromRaw((absPos << m_TablePhases[harm].Radix)
+		                             | m_TablePhases[harm].fractional());
     }
 }
 
@@ -81,12 +81,13 @@ float Oscillator::sumPartials(Oscillator::Partials p)
 
     // mute upper partials if above nyquist
     int maxHarm = HARMONIC_COUNT - 1;
+
     while (maxHarm >= 0 && m_TableDeltas[maxHarm] >= m_MaxDelta) { maxHarm--; }
 
     // from either the first odd or even harmonic, iterate to include all allowed harmonic
     for (int harm = (p == Partials::evens) ? 1 : 0; harm <= maxHarm; harm += 2)
     {
-		const auto i = m_TablePhases[harm].integralPart();
+		const auto i = m_TablePhases[harm].integral();
         retval += m_WaveTable[i] * m_Coeffs[harm];
     }
 

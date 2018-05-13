@@ -42,6 +42,7 @@ namespace meta
                 , DECAY
             };
 
+            void setPitch(float freq);
 
             void setModulationType(ModType type);
             void setModulationSpeed(float speed);
@@ -49,22 +50,22 @@ namespace meta
 
             float level;
             float pan;
-            float pitch;
 
             meta::ER1::Oscillator oscillator;
             meta::ER1::Envelope envelope;
 
         private:
+            float pitch;
             float m_ModSpeed;
             float m_ModDepth;
 			int m_ModCount;
 
             ModType m_ModType = ModType::DECAY;
             meta::ER1::Oscillator m_ModOsc;
-            meta::ER1::Noise m_ModNoise;
             meta::ER1::SampleAndHold m_SAH;
             meta::ER1::Envelope m_ModEnv;
 
+            static meta::ER1::Noise m_Noise;
         };
     }
 }

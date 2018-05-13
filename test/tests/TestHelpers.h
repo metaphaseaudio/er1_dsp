@@ -12,7 +12,6 @@ namespace meta
         {
         public:
             static const juce::File testFolder;
-
         };
     }
 }

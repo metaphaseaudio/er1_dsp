@@ -11,6 +11,7 @@ namespace meta
 {
     namespace ER1
     {
-        using fp1616_t = FixedPointValue<int32_t, 16>;
+        using fixedBase_t = int32_t;
+        using fixed_t = FixedPointValue<fixedBase_t, 16>;
     }
 }

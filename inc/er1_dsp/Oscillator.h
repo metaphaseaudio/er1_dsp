@@ -89,9 +89,9 @@ namespace meta
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
 
-            fp1616_t m_TablePhases[HARMONIC_COUNT];
-            fp1616_t m_TableDeltas[HARMONIC_COUNT];
-			fp1616_t m_MaxDelta;
+            fixed_t m_TablePhases[HARMONIC_COUNT];
+            fixed_t m_TableDeltas[HARMONIC_COUNT];
+			fixed_t m_MaxDelta;
 			
 			float m_Coeffs[HARMONIC_COUNT];
 
