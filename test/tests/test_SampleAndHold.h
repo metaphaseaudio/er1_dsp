@@ -37,23 +37,6 @@ TEST_F(SampleAndHoldTest, pass_noise)
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
-TEST_F(SampleAndHoldTest, narrow_band_noise)
-{
-    initializeTestFile("narrow_band_noise.wav");
-
-    juce::AudioBuffer<float> buffer(2, 48000);
-    buffer.clear();
-    sah.setResetCount(0);
-
-    for (int i = 0; i < 48000; i++)
-    {
-        auto sample = sah.tick(noise.tick());
-        buffer.setSample(0,i, static_cast<float>(sample) * 0.25f);
-    }
-
-    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
-}
-
 TEST_F(SampleAndHoldTest, single_value)
 {
     juce::AudioBuffer<float> buffer(2, 4800);

@@ -46,16 +46,16 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
     initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
 
     voice.setModulationType(meta::ER1::Voice::SANDH);
-    voice.setModulationDepth(200.0f);
+    voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(44100.0f);
-    voice.setPitch(250);
+    voice.setPitch(1000);
     voice.reset();
     voice.start();
 
     // print one cycle
-    juce::AudioBuffer<float> buffer(2, 480000);
+    juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 480000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
