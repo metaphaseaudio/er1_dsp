@@ -16,8 +16,9 @@ meta::ER1::fixed_t meta::ER1::SampleAndHold::tick(meta::ER1::fixed_t in)
     if (m_Count > m_ResetCount)
     {
         const auto max = (in.sign() > 0) ? fixed_t::maxSigned() : fixed_t::minSigned();
-        const auto diff = max - in;
-        m_Value = in + (diff);
+        const auto coeff = in / max;
+		const auto invCoeff = fixed_t(1) - coeff;
+		m_Value = (in * invCoeff) + (max * coeff);
         m_Count = 0;
     }
 

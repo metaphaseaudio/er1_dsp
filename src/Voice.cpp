@@ -3,6 +3,7 @@
 //
 
 #include <meta/audio/SingletonSampleRate.h>
+#include <meta/util/math.h>
 #include "../inc/er1_dsp/Voice.h"
 
 #define MOD_RATE_FACTOR 1
@@ -28,8 +29,13 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 			case ModType::SQUARE:
 			case ModType::TRIANGLE: oscillator.setFrequency(pitch + m_ModDepth * m_ModOsc.tick()); break;
 			case ModType::DECAY:    oscillator.setFrequency(pitch + m_ModDepth * m_ModEnv.tick()); break;
-			case ModType::SANDH:    oscillator.setFrequency(pitch + m_ModDepth * (m_SAH.tick
-                        (m_Noise.tick()) / fixed_t::maxSigned()).toFloat()); break;
+			case ModType::SANDH:    
+			{
+				const auto sah = m_SAH.tick(m_Noise.tick());
+				const auto modValue = sah / fixed_t::maxSigned();
+				oscillator.setFrequency(pitch + m_ModDepth * modValue.toFloat());
+			}
+			break;
 			case ModType::NOISE:
 			{
 				const auto mod = m_ModDepth * static_cast<float>(m_Noise.tick());
@@ -81,7 +87,7 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
     m_ModEnv.setSpeed(speed / 500.0f);
     m_ModOsc.setFrequency(speed);
 	m_SAH.setResetCount
-            (static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)));
+            (static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)) - 1);
 }
 
 void meta::ER1::Voice::setModulationDepth(float depth)
