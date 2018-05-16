@@ -4,9 +4,6 @@
 
 #pragma once
 
-//TODO: GET RID OF JUCE IN THIS FREAKIN' LIBRARY ALREADY!
-#include <JuceHeader.h>
-
 #include <meta/util/BitMask.h>
 #include <meta/util/fixed_point/Math.h>
 #include "Types.h"
