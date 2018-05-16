@@ -20,7 +20,9 @@ Oscillator::Oscillator()
 {
     for (int harmonic = 0; harmonic < HARMONIC_COUNT; harmonic++)
     {
-        m_Coeffs[harmonic] = meta::BandlimitedWavetable<float, 4800>::getPartialGain(harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
+        m_Coeffs[harmonic] =
+                meta::BandlimitedWavetable<float, 4800>::getPartialGain
+                        (harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
     }
 }
 
@@ -71,7 +73,7 @@ void Oscillator::advanceAllPartials()
 		if (m_TablePhases[harm].raw() & -0) { absPos = tableSize - absPos; }
 
 		m_TablePhases[harm] = fixed_t::fromRaw((absPos << m_TablePhases[harm].Radix)
-		                             | m_TablePhases[harm].fractional());
+		                    | m_TablePhases[harm].fractional());
     }
 }
 

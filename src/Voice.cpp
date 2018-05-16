@@ -23,6 +23,8 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 {
     for (int i = offset; i < samps + offset; i++)
     {
+		auto o = oscillator.tick();
+
 		switch (m_ModType)
 		{
 			case ModType::SAW:
@@ -38,14 +40,16 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 			break;
 			case ModType::NOISE:
 			{
-				const auto mod = m_ModDepth * static_cast<float>(m_Noise.tick());
-				const auto invMod = -mod;
-				break;
+				const auto noise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned());
+                const auto mix = (m_ModOsc.tick() + 0.5f) * (m_ModDepth / 22000.0f);
+                const auto invMix = 1.0f - mix;
+				o *= invMix;
+				o += noise * mix;
+                break;
 			}
 		}
 
-		auto o = oscillator.tick();
-        auto sample = o * level * envelope.tick();
+	    auto sample = o * level * envelope.tick();
 
         // TODO: set things up for stereo pan
         for (int c = 0; c < chans; c++) { data[c][i] += sample; }
@@ -74,6 +78,7 @@ void meta::ER1::Voice::setModulationType(meta::ER1::Voice::ModType type)
         case ModType::SAW:      m_ModOsc.waveType = Oscillator::WaveType::SAW;      break;
         case ModType::SQUARE:   m_ModOsc.waveType = Oscillator::WaveType::SQUARE;   break;
         case ModType::TRIANGLE: m_ModOsc.waveType = Oscillator::WaveType::TRIANGLE; break;
+        case ModType::NOISE:    m_ModOsc.waveType = Oscillator::WaveType::SINE;     break;
         default: break;
     }
 
