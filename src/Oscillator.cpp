@@ -28,7 +28,7 @@ Oscillator::Oscillator()
 
 void Oscillator::sync()
 {
-    const auto rootPhase = float(m_WaveTable.size()) / 2.0f;
+    const auto rootPhase = float(m_WaveTable.size()) / 4.0f;
 
     for (int harm = HARMONIC_COUNT; --harm >= 0;)
         { m_TablePhases[harm] = rootPhase; }
@@ -44,7 +44,7 @@ void Oscillator::sync()
 
 void Oscillator::setFrequency(float freq)
 {
-    if (csm_LimitFreq) { freq = limit<float>(10.0f, 22000.0f, freq); }
+    if (csm_LimitFreq) { freq = limit<float>(0.50f, 22000.0f, freq); }
 
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
 

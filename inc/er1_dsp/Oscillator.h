@@ -33,7 +33,8 @@ namespace meta
         public:
             enum WaveType
             {
-                SINE = 0
+				PURE_SINE = 0
+                , SINE
                 , TRIANGLE
                 , SQUARE
                 , SAW
@@ -47,6 +48,7 @@ namespace meta
             /// Produce the next sample of the waveform
             inline float tick()
 			{
+				const auto pureSine = m_WaveTable[m_TablePhases[0].integral()];
 				const auto square = sumPartials(odds);
 				const auto saw = (sumPartials(evens) + square) * 0.5f;
 				const auto tri = m_Integrate.processSample(square) * 1.41254f;
@@ -57,6 +59,7 @@ namespace meta
 				switch (waveType)
 				{
 				default:
+				case WaveType::PURE_SINE: return pureSine;
 				case WaveType::SINE:     return sine;
 				case WaveType::TRIANGLE: return tri;
 				case WaveType::SQUARE:   return square;

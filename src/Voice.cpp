@@ -40,8 +40,8 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 			break;
 			case ModType::NOISE:
 			{
-				const auto noise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned());
-                const auto mix = (m_ModOsc.tick() + 0.5f) * (m_ModDepth / 22000.0f);
+				const auto noise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned()) * 0.15f;
+				const auto mix = ((m_ModOsc.tick() + 1.0f) * 0.5f) * (m_ModDepth / 11000.0f);
                 const auto invMix = 1.0f - mix;
 				o *= invMix;
 				o += noise * mix;
@@ -75,10 +75,10 @@ void meta::ER1::Voice::setModulationType(meta::ER1::Voice::ModType type)
 {
     switch (type)
     {
-        case ModType::SAW:      m_ModOsc.waveType = Oscillator::WaveType::SAW;      break;
-        case ModType::SQUARE:   m_ModOsc.waveType = Oscillator::WaveType::SQUARE;   break;
-        case ModType::TRIANGLE: m_ModOsc.waveType = Oscillator::WaveType::TRIANGLE; break;
-        case ModType::NOISE:    m_ModOsc.waveType = Oscillator::WaveType::SINE;     break;
+        case ModType::SAW:      m_ModOsc.waveType = Oscillator::WaveType::SAW;       break;
+        case ModType::SQUARE:   m_ModOsc.waveType = Oscillator::WaveType::SQUARE;    break;
+        case ModType::TRIANGLE: m_ModOsc.waveType = Oscillator::WaveType::TRIANGLE;  break;
+        case ModType::NOISE:    m_ModOsc.waveType = Oscillator::WaveType::PURE_SINE; break;
         default: break;
     }
 
