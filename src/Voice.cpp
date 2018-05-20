@@ -29,13 +29,13 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 		{
 			case ModType::SAW:
 			case ModType::SQUARE:
-			case ModType::TRIANGLE: oscillator.setFrequency(pitch + m_ModDepth * m_ModOsc.tick()); break;
-			case ModType::DECAY:    oscillator.setFrequency(pitch + m_ModDepth * m_ModEnv.tick()); break;
+			case ModType::TRIANGLE: setOscFreq(pitch + m_ModDepth * m_ModOsc.tick()); break;
+			case ModType::DECAY:    setOscFreq(pitch + m_ModDepth * m_ModEnv.tick()); break;
 			case ModType::SANDH:    
 			{
 				const auto sah = m_SAH.tick(m_Noise.tick());
 				const auto modValue = sah / fixed_t::maxSigned();
-				oscillator.setFrequency(pitch + m_ModDepth * modValue.toFloat());
+				setOscFreq(pitch + m_ModDepth * modValue.toFloat());
 			}
 			break;
 			case ModType::NOISE:
@@ -103,4 +103,10 @@ void meta::ER1::Voice::setModulationDepth(float depth)
 void meta::ER1::Voice::setPitch(float freq)
 {
     pitch = freq;
+}
+
+void meta::ER1::Voice::setOscFreq(float freq)
+{
+    const auto nyquist = meta::SingletonSampleRate<float>::getValue() / 2.0f;
+    oscillator.setFrequency(meta::limit(20.0f, nyquist, freq));
 }

@@ -55,6 +55,9 @@ namespace meta
             meta::ER1::Envelope envelope;
 
         private:
+
+            void setOscFreq(float freq);
+
             float pitch;
             float m_ModSpeed;
             float m_ModDepth;

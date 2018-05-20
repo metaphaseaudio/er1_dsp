@@ -44,7 +44,7 @@ void Oscillator::sync()
 
 void Oscillator::setFrequency(float freq)
 {
-    if (csm_LimitFreq) { freq = limit<float>(0.50f, 22000.0f, freq); }
+    if (csm_LimitFreq) { freq = limit<float>(0.1f, 22000.0f, freq); }
 
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
 
