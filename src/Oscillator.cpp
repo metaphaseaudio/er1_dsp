@@ -20,18 +20,19 @@ Oscillator::Oscillator()
 {
     for (int harmonic = 0; harmonic < HARMONIC_COUNT; harmonic++)
     {
-        m_Coeffs[harmonic] =
-                meta::BandlimitedWavetable<float, 4800>::getPartialGain
-                        (harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
+        m_CoeffsLin[harmonic] = meta::getLinearPartialGain<float>(harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
     }
 }
 
 void Oscillator::sync()
 {
-    const auto rootPhase = float(m_WaveTable.size()) / 4.0f;
+    const auto targetPhase = float(m_WaveTable.size()) / 2.0f;
+	const auto advDist = targetPhase / m_TableDeltas[0];
 
-    for (int harm = HARMONIC_COUNT; --harm >= 0;)
-        { m_TablePhases[harm] = rootPhase; }
+	for (int harm = HARMONIC_COUNT; --harm >= 0;)
+	{
+		m_TablePhases[harm] = m_TableDeltas[harm] * advDist;
+	}
 
     advanceAllPartials();
 
@@ -90,7 +91,7 @@ float Oscillator::sumPartials(Oscillator::Partials p)
     for (int harm = (p == Partials::evens) ? 1 : 0; harm <= maxHarm; harm += 2)
     {
 		const auto i = m_TablePhases[harm].integral();
-        retval += m_WaveTable[i] * m_Coeffs[harm];
+        retval += m_WaveTable[i] * m_CoeffsLin[harm];
     }
 
 	return retval;

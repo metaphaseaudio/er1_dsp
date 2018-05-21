@@ -34,10 +34,10 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     voice.start();
 
     // print one cycle
-    juce::AudioBuffer<float> buffer(2, 480000);
+    juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 480000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 

@@ -11,14 +11,24 @@ class OscillatorTest
     : public meta::TestBase
 {
 public:
-    OscillatorTest()
-    {
-        osc.setFrequency(100);
-    };
+    OscillatorTest() { osc.setFrequency(100); };
 
     void initializeTestFile(const juce::String& f)
     {
         meta::TestBase::initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile(f));
+    }
+
+    void runOscillator()
+    {
+        juce::AudioBuffer<float> buffer(2, 4800);
+        buffer.clear();
+        for (int i = 0; i < 4800; i++)
+        {
+            auto sample = osc.tick();
+            buffer.setSample(0,i, sample);
+        }
+
+        m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
     }
 
     meta::ER1::Oscillator osc;
@@ -26,71 +36,61 @@ public:
 
 TEST_F(OscillatorTest, generate_square)
 {
-    initializeTestFile("Square.wav");
+    initializeTestFile("square.wav");
     osc.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
-    
-    // print one cycle
-    juce::AudioBuffer<float> buffer(2, 4800);
-    buffer.clear();
-    for (int i = 0; i < 4800; i++)
-    {
-        auto sample = osc.tick();
-        buffer.setSample(0,i, sample);
-    }
+    runOscillator();
+}
 
-    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+TEST_F(OscillatorTest, generate_square_sync)
+{
+    initializeTestFile("square_sync.wav");
+    osc.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
+    osc.sync();
+    runOscillator();
 }
 
 
 TEST_F(OscillatorTest, generate_triangle)
 {
-    initializeTestFile("Triangle.wav");
+    initializeTestFile("triangle.wav");
     osc.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
-
-    // print one cycle
-    juce::AudioBuffer<float> buffer(2, 4800);
-    buffer.clear();
-    for (int i = 0; i < 4800; i++)
-    {
-        auto sample = osc.tick();
-        buffer.setSample(0,i, sample);
-    }
-
-    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+    runOscillator();
 }
 
+TEST_F(OscillatorTest, generate_triangle_sync)
+{
+    initializeTestFile("triangle_sync.wav");
+    osc.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
+    osc.sync();
+    runOscillator();
+}
 
 TEST_F(OscillatorTest, generate_sine)
 {
-    initializeTestFile("Sine.wav");
+    initializeTestFile("sine.wav");
     osc.waveType = meta::ER1::Oscillator::WaveType::SINE;
-    
-    // print one cycle
-    juce::AudioBuffer<float> buffer(2, 4800);
-    buffer.clear();
-    for (int i = 0; i < 4800; i++)
-    {
-        auto sample = osc.tick();
-        buffer.setSample(0,i, sample);
-    }
-
-    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+    runOscillator();
 }
 
+TEST_F(OscillatorTest, generate_sine_sync)
+{
+    initializeTestFile("sine_sync.wav");
+    osc.waveType = meta::ER1::Oscillator::WaveType::SINE;
+    osc.sync();
+    runOscillator();
+}
 
 TEST_F(OscillatorTest, generate_saw)
 {
-    initializeTestFile("Saw.wav");
+    initializeTestFile("saw.wav");
     osc.waveType = meta::ER1::Oscillator::WaveType::SAW;
+    runOscillator();
+}
 
-    // print one cycle
-    juce::AudioBuffer<float> buffer(2, 4800);
-    buffer.clear();
-    for (int i = 0; i < 4800; i++)
-    {
-        auto sample = osc.tick();
-        buffer.setSample(0,i, sample);
-    }
-
-    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+TEST_F(OscillatorTest, generate_saw_sync)
+{
+    initializeTestFile("saw_sync.wav");
+    osc.waveType = meta::ER1::Oscillator::WaveType::SAW;
+    osc.sync();
+    runOscillator();
 }

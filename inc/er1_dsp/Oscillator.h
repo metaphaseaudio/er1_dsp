@@ -12,7 +12,6 @@
 #include <meta/util/fixed_point/Value.h>
 #include "Types.h"
 
-#define HARMONIC_COUNT 28
 namespace meta
 {
     namespace ER1
@@ -30,6 +29,9 @@ namespace meta
          */
         class Oscillator
         {
+            // Compile-time constants
+            static constexpr int HARMONIC_COUNT { 50 };
+            static constexpr const bool csm_LimitFreq = true;
         public:
             enum WaveType
             {
@@ -79,13 +81,9 @@ namespace meta
             void setFrequency(float freq);
 
         private:
-            void advanceAllPartials();
+            enum Partials { odds, evens };
 
-            enum Partials
-            {
-                odds
-                , evens
-            };
+            void advanceAllPartials();
 
             float sumPartials(Partials p);
 
@@ -96,10 +94,10 @@ namespace meta
             fixed_t m_TableDeltas[HARMONIC_COUNT];
 			fixed_t m_MaxDelta;
 			
-			float m_Coeffs[HARMONIC_COUNT];
+			float m_CoeffsLin[HARMONIC_COUNT];
+            float m_CoeffsTri[HARMONIC_COUNT];
 
             static std::array<float, 256> m_WaveTable;
-            static constexpr const bool csm_LimitFreq = true;
         };
     }
 }
