@@ -72,6 +72,13 @@ TEST_F(OscillatorTest, generate_sine)
     runOscillator();
 }
 
+TEST_F(OscillatorTest, generate_pure_sine)
+{
+	initializeTestFile("pure_sine.wav");
+	osc.waveType = meta::ER1::Oscillator::WaveType::PURE_SINE;
+	runOscillator();
+}
+
 TEST_F(OscillatorTest, generate_sine_sync)
 {
     initializeTestFile("sine_sync.wav");
