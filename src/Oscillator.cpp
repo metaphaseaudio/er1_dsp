@@ -11,8 +11,8 @@
 using namespace meta;
 using namespace meta::ER1;
 
-std::array<float, 256> Oscillator::m_WaveTable =
-        meta::BandlimitedWavetable<float, 256>::makeSquare(1, 1, 0.0f);
+std::array<float, Oscillator::TABLE_SIZE> Oscillator::m_WaveTable =
+        meta::BandlimitedWavetable<float, Oscillator::TABLE_SIZE>::makeSquare(1, 1, 0.0f);
 
 Oscillator::Oscillator()
     : m_TablePhases{fixed_t(0)}
@@ -21,6 +21,7 @@ Oscillator::Oscillator()
     for (int harmonic = 0; harmonic < HARMONIC_COUNT; harmonic++)
     {
         m_CoeffsLin[harmonic] = meta::getLinearPartialGain<float>(harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
+        m_CoeffsTri[harmonic] = meta::getTrianglePartialGain<float>(harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
     }
 }
 
@@ -30,9 +31,7 @@ void Oscillator::sync()
 	const auto advDist = targetPhase / m_TableDeltas[0];
 
 	for (int harm = HARMONIC_COUNT; --harm >= 0;)
-	{
-		m_TablePhases[harm] = m_TableDeltas[harm] * advDist;
-	}
+	    { m_TablePhases[harm] = m_TableDeltas[harm] * advDist; }
 
     advanceAllPartials();
 
@@ -78,7 +77,7 @@ void Oscillator::advanceAllPartials()
     }
 }
 
-float Oscillator::sumPartials(Oscillator::Partials p)
+float Oscillator::sumPartials(Oscillator::Partials p, const float* gainCoeffs)
 {
 	float retval = 0.0;
 
@@ -91,7 +90,12 @@ float Oscillator::sumPartials(Oscillator::Partials p)
     for (int harm = (p == Partials::evens) ? 1 : 0; harm <= maxHarm; harm += 2)
     {
 		const auto i = m_TablePhases[harm].integral();
-        retval += m_WaveTable[i] * m_CoeffsLin[harm];
+        const auto j = (i + 1) % TABLE_SIZE;
+        const auto frac = m_TablePhases[harm] - i;
+        const auto a = m_WaveTable[i] * (fixed_t(1) - frac);
+        const auto b = m_WaveTable[j] * frac;
+
+		retval += (a + b).toFloat() * gainCoeffs[harm];
     }
 
 	return retval;

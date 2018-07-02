@@ -31,6 +31,7 @@ namespace meta
         {
             // Compile-time constants
             static constexpr int HARMONIC_COUNT { 50 };
+            static constexpr int TABLE_SIZE { 256 };
             static constexpr const bool csm_LimitFreq = true;
         public:
             enum WaveType
@@ -51,21 +52,18 @@ namespace meta
             inline float tick()
 			{
 				const auto pureSine = m_WaveTable[m_TablePhases[0].integral()];
-				const auto square = sumPartials(odds);
-				const auto saw = (sumPartials(evens) + square) * 0.5f;
-				const auto tri = m_Integrate.processSample(square) * 1.41254f;
-				const auto sine = m_SineFilter.processSample(tri);
 
+				
 				advanceAllPartials();
 
 				switch (waveType)
 				{
 				default:
-				case WaveType::PURE_SINE: return pureSine;
-				case WaveType::SINE:     return sine;
-				case WaveType::TRIANGLE: return tri;
-				case WaveType::SQUARE:   return square;
-				case WaveType::SAW:      return float(saw);
+				case WaveType::PURE_SINE: return m_WaveTable[m_TablePhases[0].integral()];
+				case WaveType::SINE:      return m_SineFilter.processSample(sumPartials(odds, m_CoeffsTri));
+				case WaveType::TRIANGLE:  return sumPartials(odds, m_CoeffsTri);					
+				case WaveType::SQUARE:    return sumPartials(odds, m_CoeffsLin);
+				case WaveType::SAW:       return (sumPartials(evens, m_CoeffsLin) + sumPartials(odds, m_CoeffsLin)) * 0.5f;
 				}
 			}
 
@@ -85,7 +83,7 @@ namespace meta
 
             void advanceAllPartials();
 
-            float sumPartials(Partials p);
+            float sumPartials(Partials p, const float* gainCoeffs);
 
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
@@ -97,7 +95,7 @@ namespace meta
 			float m_CoeffsLin[HARMONIC_COUNT];
             float m_CoeffsTri[HARMONIC_COUNT];
 
-            static std::array<float, 256> m_WaveTable;
+            static std::array<float, TABLE_SIZE> m_WaveTable;
         };
     }
 }
