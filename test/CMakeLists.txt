@@ -10,7 +10,6 @@ target_include_directories(run_er1dsp_tests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/t
 
 target_link_libraries(run_er1dsp_tests
         er1dsp ${GTEST_LIBRARIES} ${JUCE_LIBS} ${META_SHARED_LIBS}
-        juce
         metaphase_core)
 
 add_test(NAME er1dsp_tests COMMAND run_er1dsp_tests)

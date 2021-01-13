@@ -46,14 +46,11 @@ namespace meta
             WaveType waveType = WaveType::SINE;
 
             /// Makes an ER-1 Oscillator
-            Oscillator();
+            Oscillator(float init_freq=250.0f);
 
             /// Produce the next sample of the waveform
             inline float tick()
 			{
-				const auto pureSine = m_WaveTable[m_TablePhases[0].integral()];
-
-				
 				advanceAllPartials();
 
 				switch (waveType)

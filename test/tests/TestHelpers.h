@@ -1,7 +1,7 @@
 //
 // Created by mzapp on 4/18/18.
 //
-#include <JuceHeader.h>
+#include <juce_core/juce_core.h>
 #include <meta/util/file/AudioFileHelpers.h>
 
 namespace meta

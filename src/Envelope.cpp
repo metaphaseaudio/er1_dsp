@@ -24,3 +24,8 @@ void meta::ER1::Envelope::setSpeed(float speed)
     m_Speed = speed;
     m_Ramp.setTime(1 / speed, sampleRate);
 }
+
+bool meta::ER1::Envelope::hasEnded() const
+{
+    return m_Ramp.getState() == 0;
+}

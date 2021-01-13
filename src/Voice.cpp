@@ -92,8 +92,7 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
     m_ModSpeed = speed;
     m_ModEnv.setSpeed(speed / 500.0f);
     m_ModOsc.setFrequency(speed);
-	m_SAH.setResetCount
-            (static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)) - 1);
+	m_SAH.setResetCount(static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)) - 1);
 }
 
 void meta::ER1::Voice::setModulationDepth(float depth)

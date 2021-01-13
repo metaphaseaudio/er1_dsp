@@ -14,7 +14,7 @@ using namespace meta::ER1;
 std::array<float, Oscillator::TABLE_SIZE> Oscillator::m_WaveTable =
         meta::BandlimitedWavetable<float, Oscillator::TABLE_SIZE>::makeSquare(1, 1, 0.0f);
 
-Oscillator::Oscillator()
+Oscillator::Oscillator(float init_freq)
     : m_TablePhases{fixed_t(0)}
     , m_TableDeltas{fixed_t(0)}
 {
@@ -23,6 +23,8 @@ Oscillator::Oscillator()
         m_CoeffsLin[harmonic] = meta::getLinearPartialGain<float>(harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
         m_CoeffsTri[harmonic] = meta::getTrianglePartialGain<float>(harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
     }
+
+    setFrequency(init_freq);
 }
 
 void Oscillator::sync()

@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include <JuceHeader.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Oscillator.h>
 #include <er1_dsp/Voice.h>
@@ -33,11 +32,11 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     voice.reset();
     voice.start();
 
-    // print one cycle
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 48000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 48000, 48000);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
@@ -52,7 +51,6 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
     voice.reset();
     voice.start();
 
-    // print one cycle
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 

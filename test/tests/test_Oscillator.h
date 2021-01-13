@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include <JuceHeader.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Oscillator.h>
 

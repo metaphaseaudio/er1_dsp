@@ -23,6 +23,8 @@ namespace meta
 
             inline float tick() { return m_Ramp.tick(); }
 
+            bool hasEnded() const;
+
         private:
             float m_Speed;
             meta::Asymp m_Ramp;
