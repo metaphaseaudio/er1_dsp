@@ -24,7 +24,7 @@ namespace meta
             Voice();
 
             /// fill an array of floats with data from the voice
-            void processBlock(float** data, int chans, int samps, int offset);
+            void processBlock(float** data, int samps, int offset);
 
             /// silence the voice
             void reset();
@@ -43,7 +43,6 @@ namespace meta
             };
 
             void setPitch(float freq);
-
             void setModulationType(ModType type);
             void setModulationSpeed(float speed);
             void setModulationDepth(float depth);

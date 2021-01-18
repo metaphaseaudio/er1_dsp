@@ -46,13 +46,16 @@ void Oscillator::sync()
 
 void Oscillator::setFrequency(float freq)
 {
-    if (csm_LimitFreq) { freq = limit<float>(0.1f, 22000.0f, freq); }
-
+    // Sanitize input
     auto sampleRate = meta::SingletonSampleRate<float>::getValue();
+    auto nyquist = sampleRate / 2;
+    freq = limit<float>(0.1f, nyquist, freq);
+    if (m_Frequency == freq) { return; }
+    m_Frequency = freq;
 
     // Calculate base delta
     const fixed_t phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
-    m_MaxDelta = static_cast<float>(m_WaveTable.size()) * (sampleRate / 2.0f) / sampleRate;
+    m_MaxDelta = static_cast<float>(m_WaveTable.size()) * nyquist / sampleRate;
     m_TableDeltas[0] = phaseDelta;
 
     // update all partials

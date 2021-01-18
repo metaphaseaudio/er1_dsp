@@ -19,7 +19,7 @@ meta::ER1::Voice::Voice()
     , m_ModSpeed(0.01f)
 {}
 
-void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offset)
+void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 {
     for (int i = offset; i < samps + offset; i++)
     {
@@ -36,8 +36,8 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 				const auto sah = m_SAH.tick(m_Noise.tick());
 				const auto modValue = sah / fixed_t::maxSigned();
 				setOscFreq(pitch + m_ModDepth * modValue.toFloat());
+                break;
 			}
-			break;
 			case ModType::NOISE:
 			{
 				const auto noise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned()) * 0.15f;
@@ -51,8 +51,8 @@ void meta::ER1::Voice::processBlock(float **data, int chans, int samps, int offs
 
 	    auto sample = o * level * envelope.tick();
 
-        // TODO: set things up for stereo pan
-        for (int c = 0; c < chans; c++) { data[c][i] += sample; }
+        data[1][i] += sample * pan;
+        data[0][i] += sample * (1.0f - pan);
     }
 }
 
@@ -90,6 +90,7 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
 {
 	speed *= MOD_RATE_FACTOR;
     m_ModSpeed = speed;
+    // TODO: this probably isn't just linear...
     m_ModEnv.setSpeed(speed / 500.0f);
     m_ModOsc.setFrequency(speed);
 	m_SAH.setResetCount(static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)) - 1);
@@ -100,9 +101,9 @@ void meta::ER1::Voice::setModulationDepth(float depth)
     m_ModDepth = depth;
 }
 
-void meta::ER1::Voice::setPitch(float freq)
+void meta::ER1::Voice::setPitch(float hz)
 {
-    pitch = freq;
+    pitch = hz;
 }
 
 void meta::ER1::Voice::setOscFreq(float freq)

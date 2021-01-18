@@ -76,6 +76,7 @@ namespace meta
             void setFrequency(float freq);
 
         private:
+            float m_Frequency;
             enum Partials { odds, evens };
 
             void advanceAllPartials();

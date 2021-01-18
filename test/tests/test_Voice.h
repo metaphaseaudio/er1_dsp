@@ -35,8 +35,8 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 48000, 0);
-    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 48000, 48000);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 48000);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
@@ -54,6 +54,25 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 2, 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
+    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+}
+
+
+TEST_F(VoiceTest, generate_lazer_sound)
+{
+    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
+
+    voice.setModulationType(meta::ER1::Voice::SAW);
+    voice.setModulationDepth(2000.0f);
+    voice.setModulationSpeed(15.0f);
+    voice.setPitch(1000);
+    voice.reset();
+    voice.start();
+
+    juce::AudioBuffer<float> buffer(2, 96000);
+    buffer.clear();
+
+    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
