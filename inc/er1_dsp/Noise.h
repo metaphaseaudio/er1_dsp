@@ -21,7 +21,6 @@ namespace meta
 
         private:
             meta::FixedPointRandom<uint32_t> m_Random;
-            int m_SAHCount;
         };
     }
 }
