@@ -15,8 +15,8 @@ std::array<float, Oscillator::TABLE_SIZE> Oscillator::m_WaveTable =
         meta::BandlimitedWavetable<float, Oscillator::TABLE_SIZE>::makeSquare(1, 1, 0.0f);
 
 Oscillator::Oscillator(float init_freq)
-    : m_TablePhases{fixed_t(0)}
-    , m_TableDeltas{fixed_t(0)}
+    : m_TablePhases{0}
+    , m_TableDeltas{0}
 {
     for (int harmonic = 0; harmonic < HARMONIC_COUNT; harmonic++)
     {
@@ -54,7 +54,7 @@ void Oscillator::setFrequency(float freq)
     m_Frequency = freq;
 
     // Calculate base delta
-    const fixed_t phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
+    const float phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
     m_MaxDelta = static_cast<float>(m_WaveTable.size()) * nyquist / sampleRate;
     m_TableDeltas[0] = phaseDelta;
 
@@ -72,13 +72,8 @@ void Oscillator::advanceAllPartials()
     for (int harm = 0; harm < HARMONIC_COUNT; harm++)
     {
 		const auto tableSize = m_WaveTable.size();
-        m_TablePhases[harm] += m_TableDeltas[harm];
-
-		uint32_t absPos = m_TablePhases[harm].integral() % tableSize;
-		if (m_TablePhases[harm].raw() & -0) { absPos = tableSize - absPos; }
-
-		m_TablePhases[harm] = fixed_t::fromRaw((absPos << m_TablePhases[harm].Radix)
-		                    | m_TablePhases[harm].fractional());
+        const auto new_value = fmod(m_TablePhases[harm] + m_TableDeltas[harm], tableSize);
+        m_TablePhases[harm] = new_value < 1 ? tableSize - std::abs(new_value) : new_value;
     }
 }
 
@@ -94,13 +89,13 @@ float Oscillator::sumPartials(Oscillator::Partials p, const float* gainCoeffs)
     // from either the first odd or even harmonic, iterate to include all allowed harmonic
     for (int harm = (p == Partials::evens) ? 1 : 0; harm <= maxHarm; harm += 2)
     {
-		const auto i = m_TablePhases[harm].integral();
+		const auto i = static_cast<int>(m_TablePhases[harm]);
         const auto j = (i + 1) % TABLE_SIZE;
         const auto frac = m_TablePhases[harm] - i;
-        const auto a = m_WaveTable[i] * (fixed_t(1) - frac);
-        const auto b = m_WaveTable[j] * frac;
+        const auto a = m_WaveTable.at(i) * (1.0f - frac);
+        const auto b = m_WaveTable.at(j) * frac;
 
-		retval += (a + b).toFloat() * gainCoeffs[harm];
+		retval += (a + b) * gainCoeffs[harm];
     }
 
 	return retval;

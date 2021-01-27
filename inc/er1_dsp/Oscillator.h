@@ -56,9 +56,9 @@ namespace meta
 				switch (waveType)
 				{
 				default:
-				case WaveType::PURE_SINE: return m_WaveTable[m_TablePhases[0].integral()];
+				case WaveType::PURE_SINE: return m_WaveTable[static_cast<int>(m_TablePhases[0])];
 				case WaveType::SINE:      return m_SineFilter.processSample(sumPartials(odds, m_CoeffsTri));
-				case WaveType::TRIANGLE:  return sumPartials(odds, m_CoeffsTri);					
+				case WaveType::TRIANGLE:  return sumPartials(odds, m_CoeffsTri);
 				case WaveType::SQUARE:    return sumPartials(odds, m_CoeffsLin);
 				case WaveType::SAW:       return (sumPartials(evens, m_CoeffsLin) + sumPartials(odds, m_CoeffsLin)) * 0.5f;
 				}
@@ -86,10 +86,10 @@ namespace meta
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
 
-            fixed_t m_TablePhases[HARMONIC_COUNT];
-            fixed_t m_TableDeltas[HARMONIC_COUNT];
-			fixed_t m_MaxDelta;
-			
+            float m_TablePhases[HARMONIC_COUNT];
+            float m_TableDeltas[HARMONIC_COUNT];
+			float m_MaxDelta;
+
 			float m_CoeffsLin[HARMONIC_COUNT];
             float m_CoeffsTri[HARMONIC_COUNT];
 
