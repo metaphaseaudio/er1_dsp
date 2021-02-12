@@ -56,7 +56,7 @@ namespace meta
 				switch (waveType)
 				{
 				default:
-				case WaveType::PURE_SINE: return m_WaveTable[static_cast<int>(m_TablePhases[0])];
+				case WaveType::PURE_SINE: return m_WaveTable[static_cast<int>(m_Harmonics[0].phase)];
 				case WaveType::SINE:      return m_SineFilter.processSample(sumPartials(odds, m_CoeffsTri));
 				case WaveType::TRIANGLE:  return sumPartials(odds, m_CoeffsTri);
 				case WaveType::SQUARE:    return sumPartials(odds, m_CoeffsLin);
@@ -76,23 +76,31 @@ namespace meta
             void setFrequency(float freq);
 
         private:
-            float m_Frequency;
+            struct HarmonicState
+            {
+                float phase;
+                float delta;
+            };
+
             enum Partials { odds, evens };
 
             void advanceAllPartials();
 
             float sumPartials(Partials p, const float* gainCoeffs);
 
+            float m_Frequency;
+
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;
 
             float m_TablePhases[HARMONIC_COUNT];
             float m_TableDeltas[HARMONIC_COUNT];
-			float m_MaxDelta;
+            float m_MaxDelta;
 
 			float m_CoeffsLin[HARMONIC_COUNT];
             float m_CoeffsTri[HARMONIC_COUNT];
 
+            std::array<HarmonicState, TABLE_SIZE> m_Harmonics;
             static std::array<float, TABLE_SIZE> m_WaveTable;
         };
     }

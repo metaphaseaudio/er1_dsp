@@ -15,8 +15,7 @@ std::array<float, Oscillator::TABLE_SIZE> Oscillator::m_WaveTable =
         meta::BandlimitedWavetable<float, Oscillator::TABLE_SIZE>::makeSquare(1, 1, 0.0f);
 
 Oscillator::Oscillator(float init_freq)
-    : m_TablePhases{0}
-    , m_TableDeltas{0}
+    : m_Harmonics{{0,0}}
 {
     for (int harmonic = 0; harmonic < HARMONIC_COUNT; harmonic++)
     {
@@ -30,10 +29,10 @@ Oscillator::Oscillator(float init_freq)
 void Oscillator::sync()
 {
     const auto targetPhase = float(m_WaveTable.size()) / 2.0f;
-	const auto advDist = targetPhase / m_TableDeltas[0];
+	const auto advDist = targetPhase / m_Harmonics[0].delta;
 
 	for (int harm = HARMONIC_COUNT; --harm >= 0;)
-	    { m_TablePhases[harm] = m_TableDeltas[harm] * advDist; }
+	    { m_Harmonics[harm].phase = m_Harmonics[harm].delta * advDist; }
 
     advanceAllPartials();
 
@@ -56,11 +55,11 @@ void Oscillator::setFrequency(float freq)
     // Calculate base delta
     const float phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
     m_MaxDelta = static_cast<float>(m_WaveTable.size()) * nyquist / sampleRate;
-    m_TableDeltas[0] = phaseDelta;
+    m_Harmonics[0].delta = phaseDelta;
 
     // update all partials
     for (int harm = 1; harm < HARMONIC_COUNT; harm++)
-    { m_TableDeltas[harm] = phaseDelta + m_TableDeltas[harm - 1]; }
+        { m_Harmonics[harm].delta = phaseDelta + m_Harmonics[harm - 1].delta; }
 
     // update filtering
     m_Integrate.setCutoff(sampleRate, fabsf(freq) / 2.0f);
@@ -72,8 +71,8 @@ void Oscillator::advanceAllPartials()
     for (int harm = 0; harm < HARMONIC_COUNT; harm++)
     {
 		const auto tableSize = m_WaveTable.size();
-        const auto new_value = fmod(m_TablePhases[harm] + m_TableDeltas[harm], tableSize);
-        m_TablePhases[harm] = new_value < 1 ? tableSize - std::abs(new_value) : new_value;
+        const auto new_value = fmod(m_Harmonics[harm].phase + m_Harmonics[harm].delta, tableSize);
+        m_Harmonics[harm].phase = new_value < 0 ? tableSize - std::abs(new_value) : new_value;
     }
 }
 
@@ -84,14 +83,14 @@ float Oscillator::sumPartials(Oscillator::Partials p, const float* gainCoeffs)
     // mute upper partials if above nyquist
     int maxHarm = HARMONIC_COUNT - 1;
 
-    while (maxHarm >= 0 && m_TableDeltas[maxHarm] >= m_MaxDelta) { maxHarm--; }
+    while (maxHarm >= 0 && m_Harmonics[maxHarm].delta >= m_MaxDelta) { maxHarm--; }
 
     // from either the first odd or even harmonic, iterate to include all allowed harmonic
     for (int harm = (p == Partials::evens) ? 1 : 0; harm <= maxHarm; harm += 2)
     {
-		const auto i = static_cast<int>(m_TablePhases[harm]);
+		const auto i = static_cast<int>(m_Harmonics[harm].phase);
         const auto j = (i + 1) % TABLE_SIZE;
-        const auto frac = m_TablePhases[harm] - i;
+        const auto frac = m_Harmonics[harm].phase - i;
         const auto a = m_WaveTable.at(i) * (1.0f - frac);
         const auto b = m_WaveTable.at(j) * frac;
 

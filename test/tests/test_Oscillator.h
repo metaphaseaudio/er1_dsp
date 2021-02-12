@@ -59,7 +59,7 @@ TEST_F(OscillatorTest, generate_triangle)
 {
     initializeTestFile("triangle.wav");
     osc.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
-    runOscillator(10000);
+    runOscillator(100000);
 }
 
 TEST_F(OscillatorTest, generate_triangle_sync)
