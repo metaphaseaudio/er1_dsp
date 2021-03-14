@@ -11,30 +11,23 @@
 using namespace meta;
 using namespace meta::ER1;
 
+
 std::array<float, Oscillator::TABLE_SIZE> Oscillator::m_WaveTable =
-        meta::BandlimitedWavetable<float, Oscillator::TABLE_SIZE>::makeSquare(1, 1, 0.0f);
+        meta::BandlimitedWavetable<float, Oscillator::TABLE_SIZE>::makeSin();
 
-Oscillator::Oscillator(float init_freq)
-    : m_Harmonics{{0,0}}
-{
-    for (int harmonic = 0; harmonic < HARMONIC_COUNT; harmonic++)
-    {
-        m_CoeffsLin[harmonic] = meta::getLinearPartialGain<float>(harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
-        m_CoeffsTri[harmonic] = meta::getTrianglePartialGain<float>(harmonic + 1, HARMONIC_COUNT, 0.2f) * 0.5f;
-    }
 
-    setFrequency(init_freq);
-}
+Oscillator::Oscillator(float sample_rate, float init_freq, WaveType wt)
+    : m_Harmonics{}
+{ setFrequency(sample_rate, init_freq); }
+
 
 void Oscillator::sync()
 {
     const auto targetPhase = float(m_WaveTable.size()) / 2.0f;
-	const auto advDist = targetPhase / m_Harmonics[0].delta;
+	const auto advDist = targetPhase / m_Harmonics[0].state.delta;
 
 	for (int harm = HARMONIC_COUNT; --harm >= 0;)
-	    { m_Harmonics[harm].phase = m_Harmonics[harm].delta * advDist; }
-
-    advanceAllPartials();
+	    { m_Harmonics[harm].state.phase = m_Harmonics[harm].state.delta * advDist; }
 
     m_Integrate.reset();
     m_Integrate.setLastSample(0.5f);
@@ -43,59 +36,53 @@ void Oscillator::sync()
     m_SineFilter.setLastSample(0.5f);
 }
 
-void Oscillator::setFrequency(float freq)
+
+void Oscillator::setFrequency(float sampleRate, float freq)
 {
     // Sanitize input
-    auto sampleRate = meta::SingletonSampleRate<float>::getValue();
     auto nyquist = sampleRate / 2;
     freq = limit<float>(0.1f, nyquist, freq);
     if (m_Frequency == freq) { return; }
     m_Frequency = freq;
 
     // Calculate base delta
-    const float phaseDelta(float(m_WaveTable.size()) * freq / sampleRate);
+    const float phaseDelta = meta::WavetableHelpers<float>::calculate_delta(float(m_WaveTable.size()), sampleRate, freq);
     m_MaxDelta = static_cast<float>(m_WaveTable.size()) * nyquist / sampleRate;
-    m_Harmonics[0].delta = phaseDelta;
+    m_Harmonics.at(0).state.delta = phaseDelta;
 
     // update all partials
-    for (int harm = 1; harm < HARMONIC_COUNT; harm++)
-        { m_Harmonics[harm].delta = phaseDelta + m_Harmonics[harm - 1].delta; }
+    for (int harm = 0; harm < HARMONIC_COUNT; harm++)
+    {
+    }
 
     // update filtering
     m_Integrate.setCutoff(sampleRate, fabsf(freq) / 2.0f);
     m_SineFilter.setCutoff(sampleRate, fabsf(freq) / 2.0f);
+    sync();
 }
 
-void Oscillator::advanceAllPartials()
+
+void Oscillator::setWaveType(Oscillator::WaveType t)
 {
-    for (int harm = 0; harm < HARMONIC_COUNT; harm++)
+    m_WaveType = t;
+    setFrequency(m_Frequency);
+    for (int i = HARMONIC_COUNT; --i >= 0;)
     {
-		const auto tableSize = m_WaveTable.size();
-        const auto new_value = fmod(m_Harmonics[harm].phase + m_Harmonics[harm].delta, tableSize);
-        m_Harmonics[harm].phase = new_value < 0 ? tableSize - std::abs(new_value) : new_value;
+        switch (t)
+        {
+            case WaveType::SQUARE:
+                m_Harmonics.at(i).gain = meta::getSquarePartialGain<float>((i * 2) + 1);
+                break;
+            case WaveType::TRIANGLE:
+                m_Harmonics.at(i).gain = meta::getTrianglePartialGain<float>((i * 2) + 1);
+                break;
+            case WaveType::SAW:
+                m_Harmonics.at(i).gain = meta::getSawPartialGain<float>(i);
+                break;
+            case WaveType::SINE:
+            default:
+                m_Harmonics.at(i).gain = (i == 0) ? 1.0f : 0.0f;
+                break;
+        }
     }
-}
-
-float Oscillator::sumPartials(Oscillator::Partials p, const float* gainCoeffs)
-{
-	float retval = 0.0;
-
-    // mute upper partials if above nyquist
-    int maxHarm = HARMONIC_COUNT - 1;
-
-    while (maxHarm >= 0 && m_Harmonics[maxHarm].delta >= m_MaxDelta) { maxHarm--; }
-
-    // from either the first odd or even harmonic, iterate to include all allowed harmonic
-    for (int harm = (p == Partials::evens) ? 1 : 0; harm <= maxHarm; harm += 2)
-    {
-		const auto i = static_cast<int>(m_Harmonics[harm].phase);
-        const auto j = (i + 1) % TABLE_SIZE;
-        const auto frac = m_Harmonics[harm].phase - i;
-        const auto a = m_WaveTable.at(i) * (1.0f - frac);
-        const auto b = m_WaveTable.at(j) * frac;
-
-		retval += (a + b) * gainCoeffs[harm];
-    }
-
-	return retval;
 }
