@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <meta/util/testing/TestHelpers.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Oscillator.h>
 
@@ -14,7 +15,7 @@ public:
 
     void initializeTestFile(const juce::String& f)
     {
-        meta::TestBase::initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile(f));
+        meta::TestBase::initializeTestFile(meta::TestHelpers::testFolder.getChildFile(f));
     }
 
     void runOscillator(int samples)

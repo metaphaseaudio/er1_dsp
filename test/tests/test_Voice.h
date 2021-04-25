@@ -7,6 +7,7 @@
 #include <er1_dsp/Oscillator.h>
 #include <er1_dsp/Voice.h>
 #include <meta/util/testing/TestBase.h>
+#include <meta/util/testing/TestHelpers.h>
 
 class VoiceTest
     : public meta::TestBase
@@ -24,7 +25,7 @@ public:
 
 TEST_F(VoiceTest, generate_synth_bass_drum)
 {
-    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
+    initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(1.5f);
@@ -42,7 +43,7 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
 
 TEST_F(VoiceTest, generate_sample_and_hold_snare)
 {
-    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
+    initializeTestFile(meta::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
 
     voice.setModulationType(meta::ER1::Voice::SANDH);
     voice.setModulationDepth(2000.0f);
@@ -61,7 +62,7 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
 
 TEST_F(VoiceTest, generate_lazer_sound)
 {
-    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
+    initializeTestFile(meta::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
 
     voice.setModulationType(meta::ER1::Voice::SAW);
     voice.setModulationDepth(2000.0f);
