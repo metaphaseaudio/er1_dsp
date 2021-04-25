@@ -81,6 +81,7 @@ namespace meta
             };
 
             float m_Frequency;
+            float m_SampleRate;
             WaveType m_WaveType;
             meta::OnePoleLowPassFilter m_Integrate;
             meta::OnePoleLowPassFilter m_SineFilter;

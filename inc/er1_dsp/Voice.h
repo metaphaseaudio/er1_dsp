@@ -21,7 +21,7 @@ namespace meta
         {
         public:
 
-            Voice();
+            Voice(float sampleRate);
 
             /// fill an array of floats with data from the voice
             void processBlock(float** data, int samps, int offset);
@@ -42,25 +42,32 @@ namespace meta
                 , DECAY
             };
 
+            void setSampleRate(float sampleRate);
+            void setWaveType(ER1::Oscillator::WaveType waveType);
             void setPitch(float freq);
             void setModulationType(ModType type);
             void setModulationSpeed(float speed);
             void setModulationDepth(float depth);
+            void setDecay(float time);
+            bool hasEnded() noexcept { return m_Env.hasEnded(); }
 
             float level;
             float pan;
 
-            meta::ER1::Oscillator oscillator;
-            meta::ER1::Envelope envelope;
 
         private:
 
             void setOscFreq(float freq);
 
+            meta::ER1::Oscillator m_Osc;
+            meta::ER1::Envelope m_Env;
+
+            float sampleRate;
             float pitch;
             float m_ModSpeed;
             float m_ModDepth;
 			int m_ModCount;
+
 
             ModType m_ModType = ModType::DECAY;
             meta::ER1::Oscillator m_ModOsc;

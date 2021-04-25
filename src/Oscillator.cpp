@@ -43,6 +43,7 @@ void Oscillator::setFrequency(float sampleRate, float freq)
     auto nyquist = sampleRate / 2;
     freq = limit<float>(0.1f, nyquist, freq);
     if (m_Frequency == freq) { return; }
+    m_SampleRate = sampleRate;
     m_Frequency = freq;
 
     // Calculate base delta
@@ -65,7 +66,7 @@ void Oscillator::setFrequency(float sampleRate, float freq)
 void Oscillator::setWaveType(Oscillator::WaveType t)
 {
     m_WaveType = t;
-    setFrequency(m_Frequency);
+    setFrequency(m_SampleRate, m_Frequency);
     for (int i = HARMONIC_COUNT; --i >= 0;)
     {
         switch (t)

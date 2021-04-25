@@ -10,20 +10,23 @@
 
 meta::ER1::Noise meta::ER1::Voice::m_Noise = meta::ER1::Noise();
 
-meta::ER1::Voice::Voice()
-    : pitch(250)
+meta::ER1::Voice::Voice(float sampleRate)
+    : sampleRate(sampleRate)
+    , pitch(250)
     , pan(0.5f)
     , level(1.0f)
 	, m_ModCount(MOD_RATE_FACTOR)
     , m_ModDepth(0.0f)
     , m_ModSpeed(0.01f)
+    , m_Osc(sampleRate, pitch)
+    , m_ModOsc(sampleRate)
 {}
 
 void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 {
     for (int i = offset; i < samps + offset; i++)
     {
-		auto o = oscillator.tick();
+		auto o = m_Osc.tick();
 
 		switch (m_ModType)
 		{
@@ -49,7 +52,7 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 			}
 		}
 
-	    auto sample = o * level * envelope.tick();
+	    auto sample = o * level * m_Env.tick();
 
         data[1][i] += sample * pan;
         data[0][i] += sample * (1.0f - pan);
@@ -59,15 +62,15 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 void meta::ER1::Voice::reset()
 {
 	setOscFreq(pitch);
-    oscillator.sync();
+    m_Osc.sync();
     m_ModOsc.sync();
-    envelope.reset();
+    m_Env.reset();
     m_ModEnv.reset();
 }
 
 void meta::ER1::Voice::start()
 {
-    envelope.start();
+    m_Env.start();
     m_SAH.start(m_Noise.tick());
     m_ModEnv.start();
 }
@@ -76,10 +79,9 @@ void meta::ER1::Voice::setModulationType(meta::ER1::Voice::ModType type)
 {
     switch (type)
     {
-        case ModType::SAW:      m_ModOsc.waveType = Oscillator::WaveType::SAW;       break;
-        case ModType::SQUARE:   m_ModOsc.waveType = Oscillator::WaveType::SQUARE;    break;
-        case ModType::TRIANGLE: m_ModOsc.waveType = Oscillator::WaveType::TRIANGLE;  break;
-        case ModType::NOISE:    m_ModOsc.waveType = Oscillator::WaveType::PURE_SINE; break;
+        case ModType::SAW:      m_ModOsc.setWaveType(Oscillator::WaveType::SAW);       break;
+        case ModType::SQUARE:   m_ModOsc.setWaveType(Oscillator::WaveType::SQUARE);    break;
+        case ModType::TRIANGLE: m_ModOsc.setWaveType(Oscillator::WaveType::TRIANGLE);  break;
         default: break;
     }
 
@@ -92,22 +94,28 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
     m_ModSpeed = speed;
     // TODO: this probably isn't just linear...
     m_ModEnv.setSpeed(speed / 500.0f);
-    m_ModOsc.setFrequency(speed);
+    m_ModOsc.setFrequency(sampleRate, speed);
 	m_SAH.setResetCount(static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)) - 1);
 }
 
-void meta::ER1::Voice::setModulationDepth(float depth)
-{
-    m_ModDepth = depth;
-}
-
-void meta::ER1::Voice::setPitch(float hz)
-{
-    pitch = hz;
-}
+void meta::ER1::Voice::setPitch(float hz) { pitch = hz; }
+void meta::ER1::Voice::setSampleRate(float newRate) { sampleRate = newRate; }
+void meta::ER1::Voice::setModulationDepth(float depth) { m_ModDepth = depth; }
 
 void meta::ER1::Voice::setOscFreq(float freq)
 {
-    const auto nyquist = meta::SingletonSampleRate<float>::getValue() / 2.0f;
-    oscillator.setFrequency(meta::limit(20.0f, nyquist, freq));
+    const auto nyquist = sampleRate / 2.0f;
+    m_Osc.setFrequency(sampleRate, meta::limit(20.0f, nyquist, freq));
 }
+
+void meta::ER1::Voice::setWaveType(meta::ER1::Oscillator::WaveType waveType)
+{
+    m_Osc.setWaveType(waveType);
+
+}
+
+void meta::ER1::Voice::setDecay(float time)
+{
+    m_Env.setSpeed(time);
+}
+
