@@ -6,12 +6,16 @@
 #include <meta/util/testing/TestHelpers.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Oscillator.h>
+#include "common_constants.h"
+
 
 class OscillatorTest
     : public meta::TestBase
 {
 public:
-    OscillatorTest() { osc.setFrequency(100); };
+    OscillatorTest()
+        : osc(SAMP_RATE, 200)
+    {};
 
     void initializeTestFile(const juce::String& f)
     {
@@ -43,14 +47,14 @@ public:
 TEST_F(OscillatorTest, generate_square)
 {
     initializeTestFile("square.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
+    osc.setWaveType(meta::ER1::Oscillator::WaveType::SQUARE);
     runOscillator(100000);
 }
 
 TEST_F(OscillatorTest, generate_square_sync)
 {
     initializeTestFile("square_sync.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
+    osc.setWaveType(meta::ER1::Oscillator::WaveType::SQUARE);
     osc.sync();
     runOscillator(10000);
 }
@@ -59,14 +63,14 @@ TEST_F(OscillatorTest, generate_square_sync)
 TEST_F(OscillatorTest, generate_triangle)
 {
     initializeTestFile("triangle.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
+    osc.setWaveType(meta::ER1::Oscillator::WaveType::TRIANGLE);
     runOscillator(100000);
 }
 
 TEST_F(OscillatorTest, generate_triangle_sync)
 {
     initializeTestFile("triangle_sync.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
+    osc.setWaveType(meta::ER1::Oscillator::WaveType::TRIANGLE);
     osc.sync();
     runOscillator(10000);
 }
@@ -74,21 +78,15 @@ TEST_F(OscillatorTest, generate_triangle_sync)
 TEST_F(OscillatorTest, generate_sine)
 {
     initializeTestFile("sine.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SINE;
+    osc.setWaveType(meta::ER1::Oscillator::WaveType::SINE);
     runOscillator(10000);
 }
 
-TEST_F(OscillatorTest, generate_pure_sine)
-{
-	initializeTestFile("pure_sine.wav");
-	osc.waveType = meta::ER1::Oscillator::WaveType::PURE_SINE;
-	runOscillator(10000);
-}
 
 TEST_F(OscillatorTest, generate_sine_sync)
 {
     initializeTestFile("sine_sync.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SINE;
+    osc.setWaveType(meta::ER1::Oscillator::WaveType::SINE);
     osc.sync();
     runOscillator(10000);
 }
@@ -96,14 +94,14 @@ TEST_F(OscillatorTest, generate_sine_sync)
 TEST_F(OscillatorTest, generate_saw)
 {
     initializeTestFile("saw.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SAW;
+    osc.setWaveType(meta::ER1::Oscillator::WaveType::SAW);
     runOscillator(10000);
 }
 
 TEST_F(OscillatorTest, generate_saw_sync)
 {
     initializeTestFile("saw_sync.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SAW;
+    osc.setWaveType(meta::ER1::Oscillator::WaveType::SAW);
     osc.sync();
     runOscillator(10000);
 }

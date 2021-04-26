@@ -71,7 +71,8 @@ namespace meta
             struct Harmonic
             {
                 Harmonic()
-                    : reader(Oscillator::m_WaveTable, state)
+                    : state{0, 0}
+                    , reader(Oscillator::m_WaveTable, state)
                     , gain(0)
                 {}
 

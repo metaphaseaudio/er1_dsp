@@ -8,16 +8,19 @@
 #include <er1_dsp/Voice.h>
 #include <meta/util/testing/TestBase.h>
 #include <meta/util/testing/TestHelpers.h>
+#include "common_constants.h"
+
 
 class VoiceTest
     : public meta::TestBase
 {
 public:
     VoiceTest()
+        : voice(SAMP_RATE)
     {
-        voice.oscillator.waveType = meta::ER1::Oscillator::WaveType::SINE;
+        voice.setWaveType(meta::ER1::Oscillator::WaveType::SINE);
         voice.level = 1.0f;
-        voice.envelope.setSpeed(1.0f);
+        voice.setDecay(0.50f);
     };
 
     meta::ER1::Voice voice;
@@ -28,8 +31,8 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
     voice.setModulationDepth(200.0f);
-    voice.setModulationSpeed(1.5f);
-    voice.setPitch(20);
+    voice.setModulationSpeed(5.0f);
+    voice.setPitch(40);
     voice.reset();
     voice.start();
 

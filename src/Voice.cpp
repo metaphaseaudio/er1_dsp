@@ -18,7 +18,7 @@ meta::ER1::Voice::Voice(float sampleRate)
 	, m_ModCount(MOD_RATE_FACTOR)
     , m_ModDepth(0.0f)
     , m_ModSpeed(0.01f)
-    , m_Osc(sampleRate, pitch)
+    , m_Osc(sampleRate, 250)
     , m_ModOsc(sampleRate)
 {}
 
@@ -34,7 +34,7 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 			case ModType::SQUARE:
 			case ModType::TRIANGLE: setOscFreq(pitch + m_ModDepth * m_ModOsc.tick()); break;
 			case ModType::DECAY:    setOscFreq(pitch + m_ModDepth * m_ModEnv.tick()); break;
-			case ModType::SANDH:    
+			case ModType::SANDH:
 			{
 				const auto sah = m_SAH.tick(m_Noise.tick());
 				const auto modValue = sah / fixed_t::maxSigned();
@@ -64,8 +64,8 @@ void meta::ER1::Voice::reset()
 	setOscFreq(pitch);
     m_Osc.sync();
     m_ModOsc.sync();
-    m_Env.reset();
-    m_ModEnv.reset();
+    m_Env.reset(sampleRate);
+    m_ModEnv.reset(sampleRate);
 }
 
 void meta::ER1::Voice::start()
@@ -93,7 +93,7 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
 	speed *= MOD_RATE_FACTOR;
     m_ModSpeed = speed;
     // TODO: this probably isn't just linear...
-    m_ModEnv.setSpeed(speed / 500.0f);
+    m_ModEnv.setSpeed(sampleRate, speed);
     m_ModOsc.setFrequency(sampleRate, speed);
 	m_SAH.setResetCount(static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)) - 1);
 }
@@ -116,6 +116,6 @@ void meta::ER1::Voice::setWaveType(meta::ER1::Oscillator::WaveType waveType)
 
 void meta::ER1::Voice::setDecay(float time)
 {
-    m_Env.setSpeed(time);
+    m_Env.setSpeed(sampleRate, time);
 }
 

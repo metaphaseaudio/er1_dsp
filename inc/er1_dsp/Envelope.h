@@ -17,9 +17,9 @@ namespace meta
 
 			void start();
 
-            void reset();
+            void reset(float sampleRate);
 
-            void setSpeed(float speed);
+            void setSpeed(float sampleRate, float speed);
 
             inline float tick() { return m_Ramp.tick(); }
 

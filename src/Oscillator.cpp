@@ -53,13 +53,11 @@ void Oscillator::setFrequency(float sampleRate, float freq)
 
     // update all partials
     for (int harm = 0; harm < HARMONIC_COUNT; harm++)
-    {
-    }
+        { m_Harmonics.at(harm).state.delta = phaseDelta * float(harm + 1); }
 
     // update filtering
     m_Integrate.setCutoff(sampleRate, fabsf(freq) / 2.0f);
     m_SineFilter.setCutoff(sampleRate, fabsf(freq) / 2.0f);
-    sync();
 }
 
 
@@ -69,21 +67,25 @@ void Oscillator::setWaveType(Oscillator::WaveType t)
     setFrequency(m_SampleRate, m_Frequency);
     for (int i = HARMONIC_COUNT; --i >= 0;)
     {
+        float gain;
+
         switch (t)
         {
             case WaveType::SQUARE:
-                m_Harmonics.at(i).gain = meta::getSquarePartialGain<float>((i * 2) + 1);
+                gain = i % 2 ? 0 : meta::getSquarePartialGain<float>(i  + 1);
                 break;
             case WaveType::TRIANGLE:
-                m_Harmonics.at(i).gain = meta::getTrianglePartialGain<float>((i * 2) + 1);
+                gain = i % 2 ? 0 : meta::getTrianglePartialGain<float>(i + 1);
                 break;
             case WaveType::SAW:
-                m_Harmonics.at(i).gain = meta::getSawPartialGain<float>(i);
+                gain = meta::getSawPartialGain<float>(i + 1);
                 break;
             case WaveType::SINE:
             default:
-                m_Harmonics.at(i).gain = (i == 0) ? 1.0f : 0.0f;
+                gain = (i == 0) ? 1.0f : 0.0f;
                 break;
         }
+
+        m_Harmonics.at(i).gain = m_Harmonics.at(i).state.delta <= m_MaxDelta ? gain : 0;
     }
 }

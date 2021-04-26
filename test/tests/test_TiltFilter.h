@@ -16,7 +16,7 @@ public:
 
     void initializeTestFile(const juce::String& filename)
     {
-        auto f = meta::ER1::TestHelpers::testFolder.getChildFile(filename);
+        auto f = meta::TestHelpers::testFolder.getChildFile(filename);
         TestBase::initializeTestFile(f);
     }
 
