@@ -8,6 +8,8 @@
 
 meta::ER1::SampleAndHold::SampleAndHold()
     : m_Value(0)
+    , m_ResetCount(0)
+    , m_Count(0)
 {}
 
 meta::ER1::fixed_t meta::ER1::SampleAndHold::tick(meta::ER1::fixed_t in)

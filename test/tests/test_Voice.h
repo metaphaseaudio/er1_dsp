@@ -6,17 +6,21 @@
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Oscillator.h>
 #include <er1_dsp/Voice.h>
-#include <meta/util/testing/TestBase.h>
+#include <meta/testing/TestBase.h>
+#include <meta/testing/TestHelpers.h>
+#include "common_constants.h"
+
 
 class VoiceTest
     : public meta::TestBase
 {
 public:
     VoiceTest()
+        : voice(SAMP_RATE)
     {
-        voice.oscillator.waveType = meta::ER1::Oscillator::WaveType::SINE;
+        voice.setWaveType(meta::ER1::WaveShape::SINE);
         voice.level = 1.0f;
-        voice.envelope.setSpeed(1.0f);
+        voice.setDecay(0.50f);
     };
 
     meta::ER1::Voice voice;
@@ -24,11 +28,13 @@ public:
 
 TEST_F(VoiceTest, generate_synth_bass_drum)
 {
-    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
+    initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
+    voice.setModulationType(meta::ER1::Voice::TRIANGLE);
+    voice.setWaveType(meta::ER1::WaveShape::SINE);
     voice.setModulationDepth(200.0f);
-    voice.setModulationSpeed(1.5f);
-    voice.setPitch(20);
+    voice.setModulationSpeed(5.0f);
+    voice.setPitch(40);
     voice.reset();
     voice.start();
 
@@ -42,7 +48,7 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
 
 TEST_F(VoiceTest, generate_sample_and_hold_snare)
 {
-    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
+    initializeTestFile(meta::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
 
     voice.setModulationType(meta::ER1::Voice::SANDH);
     voice.setModulationDepth(2000.0f);
@@ -54,15 +60,17 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 48000);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
 
 TEST_F(VoiceTest, generate_lazer_sound)
 {
-    initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
+    initializeTestFile(meta::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
 
+    voice.setWaveType(meta::ER1::WaveShape::TRIANGLE);
     voice.setModulationType(meta::ER1::Voice::SAW);
     voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(15.0f);
@@ -73,6 +81,7 @@ TEST_F(VoiceTest, generate_lazer_sound)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 48000);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }

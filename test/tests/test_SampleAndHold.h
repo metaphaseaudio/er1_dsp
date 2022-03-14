@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <meta/testing/TestHelpers.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <meta/util/fixed_point/Math.h>
 #include <er1_dsp/SampleAndHold.h>
@@ -14,7 +15,7 @@ class SampleAndHoldTest
 {
 public:
     void initializeTestFile(const juce::String& f)
-        { meta::TestBase::initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile(f)); }
+        { meta::TestBase::initializeTestFile(meta::TestHelpers::testFolder.getChildFile(f)); }
 
     meta::ER1::Noise noise;
     meta::ER1::SampleAndHold sah;

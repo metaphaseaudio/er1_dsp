@@ -5,10 +5,10 @@
 #include <meta/audio/SingletonSampleRate.h>
 #include "er1_dsp/Envelope.h"
 
-void meta::ER1::Envelope::reset()
+void meta::ER1::Envelope::reset(float sampleRate)
 {
-    auto sampleRate = meta::SingletonSampleRate<float>::getValue();
     m_Ramp.init(sampleRate);
+    setSpeed(sampleRate, m_Speed);
 }
 
 void meta::ER1::Envelope::start()
@@ -17,10 +17,8 @@ void meta::ER1::Envelope::start()
 	m_Ramp.setTarget(0.0f);
 }
 
-void meta::ER1::Envelope::setSpeed(float speed)
+void meta::ER1::Envelope::setSpeed(float sampleRate, float speed)
 {
-    auto sampleRate = meta::SingletonSampleRate<float>::getValue();
-
     m_Speed = speed;
     m_Ramp.setTime(1 / speed, sampleRate);
 }

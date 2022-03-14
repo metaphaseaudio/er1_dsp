@@ -3,31 +3,40 @@
 //
 
 #pragma once
+#include <meta/testing/TestHelpers.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Oscillator.h>
+#include "common_constants.h"
+
 
 class OscillatorTest
     : public meta::TestBase
 {
 public:
-    OscillatorTest() { osc.setFrequency(100); };
+    OscillatorTest()
+        : osc(SAMP_RATE)
+    {
+        osc.set_freq(8);
+    };
 
     void initializeTestFile(const juce::String& f)
     {
-        meta::TestBase::initializeTestFile(meta::ER1::TestHelpers::testFolder.getChildFile(f));
+        meta::TestBase::initializeTestFile(meta::TestHelpers::testFolder.getChildFile(f));
     }
 
-    void runOscillator()
+    void runOscillator(int samples)
     {
-        juce::AudioBuffer<float> buffer(2, 4800);
-        buffer.clear();
-        for (int i = 0; i < 4800; i++)
+        constexpr int chunk_size = 10000;
+        for (int mod = samples / chunk_size; --mod >= 0;)
         {
-            auto sample = osc.tick();
-            buffer.setSample(0,i, sample);
+            const auto n_samps = std::min<int>(chunk_size, samples);
+            juce::AudioBuffer<float> buffer(1, n_samps);
+            buffer.clear();
+            osc.processBlock(buffer.getWritePointer(0), buffer.getNumSamples());
+            samples -= chunk_size;
+            m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
         }
 
-        m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
     }
 
     meta::ER1::Oscillator osc;
@@ -36,67 +45,61 @@ public:
 TEST_F(OscillatorTest, generate_square)
 {
     initializeTestFile("square.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
-    runOscillator();
+    osc.shape = meta::ER1::WaveShape::SQUARE;
+    runOscillator(10000);
 }
 
 TEST_F(OscillatorTest, generate_square_sync)
 {
     initializeTestFile("square_sync.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SQUARE;
-    osc.sync();
-    runOscillator();
+    osc.shape = meta::ER1::WaveShape::SQUARE;
+    osc.sync(1.0f);
+    runOscillator(10000);
 }
 
 
 TEST_F(OscillatorTest, generate_triangle)
 {
     initializeTestFile("triangle.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
-    runOscillator();
+    osc.shape = meta::ER1::WaveShape::TRIANGLE;
+    runOscillator(10000);
 }
 
 TEST_F(OscillatorTest, generate_triangle_sync)
 {
     initializeTestFile("triangle_sync.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::TRIANGLE;
-    osc.sync();
-    runOscillator();
+    osc.shape = meta::ER1::WaveShape::TRIANGLE;
+    osc.sync(1.0f);
+    runOscillator(10000);
 }
 
 TEST_F(OscillatorTest, generate_sine)
 {
     initializeTestFile("sine.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SINE;
-    runOscillator();
+    osc.shape = meta::ER1::WaveShape::SINE;
+    runOscillator(10000);
 }
 
-TEST_F(OscillatorTest, generate_pure_sine)
-{
-	initializeTestFile("pure_sine.wav");
-	osc.waveType = meta::ER1::Oscillator::WaveType::PURE_SINE;
-	runOscillator();
-}
 
 TEST_F(OscillatorTest, generate_sine_sync)
 {
     initializeTestFile("sine_sync.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SINE;
-    osc.sync();
-    runOscillator();
+    osc.shape = meta::ER1::WaveShape::SINE;
+    osc.sync(1.0f);
+    runOscillator(10000);
 }
 
 TEST_F(OscillatorTest, generate_saw)
 {
     initializeTestFile("saw.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SAW;
-    runOscillator();
+    osc.shape = meta::ER1::WaveShape::SAW;
+    runOscillator(10000);
 }
 
 TEST_F(OscillatorTest, generate_saw_sync)
 {
     initializeTestFile("saw_sync.wav");
-    osc.waveType = meta::ER1::Oscillator::WaveType::SAW;
-    osc.sync();
-    runOscillator();
+    osc.shape = meta::ER1::WaveShape::SAW;
+    osc.sync(1.0f);
+    runOscillator(10000);
 }

@@ -16,7 +16,7 @@ public:
 
     void initializeTestFile(const juce::String& filename)
     {
-        testFile = meta::ER1::TestHelpers::testFolder.getChildFile(filename);
+        testFile = meta::TestHelpers::testFolder.getChildFile(filename);
         if (testFile.exists()) { testFile.deleteFile(); }
         testFile.create();
         m_Writer.reset(meta::AudioFileHelpers::createWriter(testFile, 48000, 2));

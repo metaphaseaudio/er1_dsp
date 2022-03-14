@@ -3,25 +3,26 @@
  *      Author: Matt Zapp
  */
 #include <gtest/gtest.h>
-#include <meta/util/testing/TestBase.h>
+#include <meta/testing/TestBase.h>
+#include <meta/testing/TestHelpers.h>
 
-#include "TestHelpers.h"
 #include "tests/test_Oscillator.h"
 #include "tests/test_Noise.h"
 #include "tests/test_SampleAndHold.h"
 #include "tests/test_TiltFilter.h"
+#include "tests/test_Envelope.h"
 #include "tests/test_Voice.h"
 
 int main(int argc, char **argv)
 {
-    if (meta::ER1::TestHelpers::testFolder.exists())
-        { meta::ER1::TestHelpers::testFolder.deleteRecursively(); }
+    if (meta::TestHelpers::testFolder.exists())
+        { meta::TestHelpers::testFolder.deleteRecursively(); }
 
-    meta::ER1::TestHelpers::testFolder.createDirectory();
+    meta::TestHelpers::testFolder.createDirectory();
 
     testing::InitGoogleTest(&argc, argv);
     auto retval = RUN_ALL_TESTS();
 
-    meta::ER1::TestHelpers::testFolder.deleteRecursively();
+    meta::TestHelpers::testFolder.deleteRecursively();
     return retval;
 }
