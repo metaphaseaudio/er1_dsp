@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <meta/util/testing/TestHelpers.h>
+#include <meta/testing/TestHelpers.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <meta/util/fixed_point/Math.h>
 #include <er1_dsp/SampleAndHold.h>

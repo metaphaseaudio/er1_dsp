@@ -3,8 +3,8 @@
  *      Author: Matt Zapp
  */
 #include <gtest/gtest.h>
-#include <meta/util/testing/TestBase.h>
-#include <meta/util/testing/TestHelpers.h>
+#include <meta/testing/TestBase.h>
+#include <meta/testing/TestHelpers.h>
 
 #include "tests/test_Oscillator.h"
 #include "tests/test_Noise.h"

@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include <meta/util/testing/TestHelpers.h>
+#include <meta/testing/TestHelpers.h>
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Envelope.h>
 #include "common_constants.h"
