@@ -17,9 +17,7 @@ meta::ER1::Voice::Voice(float sampleRate)
     , pitch(250)
     , pan(0.5f)
     , level(1.0f)
-	, m_ModCount(MOD_RATE_FACTOR)
     , m_ModDepth(0.0f)
-    , m_ModSpeed(0.01f)
     , m_ModOsc(sampleRate)
 {
     set_freq(250);
@@ -97,9 +95,9 @@ void meta::ER1::Voice::setModulationType(meta::ER1::Voice::ModType type)
 {
     switch (type)
     {
-//        case ModType::SAW:      m_ModOsc.setWaveType(Oscillator::WaveType::SAW);       break;
-//        case ModType::SQUARE:   m_ModOsc.setWaveType(Oscillator::WaveType::SQUARE);    break;
-//        case ModType::TRIANGLE: m_ModOsc.setWaveType(Oscillator::WaveType::TRIANGLE);  break;
+        case ModType::SAW:      m_ModOsc.shape = ER1::WaveShape::SAW;       break;
+        case ModType::SQUARE:   m_ModOsc.shape = ER1::WaveShape::SQUARE;    break;
+        case ModType::TRIANGLE: m_ModOsc.shape = ER1::WaveShape::TRIANGLE;  break;
         default: break;
     }
 
@@ -109,11 +107,10 @@ void meta::ER1::Voice::setModulationType(meta::ER1::Voice::ModType type)
 void meta::ER1::Voice::setModulationSpeed(float speed)
 {
 	speed *= MOD_RATE_FACTOR;
-    m_ModSpeed = speed;
     // TODO: this probably isn't just linear...
     m_ModEnv.setSpeed(sampleRate, speed);
     m_ModOsc.set_freq(speed);
-	m_SAH.setResetCount(static_cast<uint32_t>(meta::SingletonSampleRate<float>::getValue() / (speed * 2.0f)) - 1);
+	m_SAH.setResetCount(static_cast<uint32_t>(sampleRate / (speed * 2.0f)));
 }
 
 void meta::ER1::Voice::setPitch(float hz) { pitch = hz; }

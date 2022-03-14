@@ -77,12 +77,10 @@ namespace meta
 
             float sampleRate;
             float pitch;
-            float m_ModSpeed;
             float m_ModDepth;
-			int m_ModCount;
 
             ModType m_ModType = ModType::DECAY;
-            meta::BandLimitedOsc<16, 128, 12> m_ModOsc;
+            ER1::Oscillator m_ModOsc;
             meta::ER1::SampleAndHold m_SAH;
             meta::ER1::Envelope m_ModEnv;
 

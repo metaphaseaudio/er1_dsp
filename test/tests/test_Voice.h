@@ -30,7 +30,7 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
-    voice.setModulationType(meta::ER1::Voice::DECAY);
+    voice.setModulationType(meta::ER1::Voice::TRIANGLE);
     voice.setWaveType(meta::ER1::WaveShape::SINE);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(5.0f);
@@ -60,7 +60,8 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 48000);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
@@ -69,6 +70,7 @@ TEST_F(VoiceTest, generate_lazer_sound)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
 
+    voice.setWaveType(meta::ER1::WaveShape::TRIANGLE);
     voice.setModulationType(meta::ER1::Voice::SAW);
     voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(15.0f);
@@ -79,6 +81,7 @@ TEST_F(VoiceTest, generate_lazer_sound)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 48000);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
