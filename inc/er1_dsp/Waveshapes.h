@@ -25,10 +25,14 @@ namespace meta
         {
             static constexpr auto sin_table = BandlimitedWavetable<NumType, table_size>::makeSin();
 
-            static constexpr NumType saw(NumType x) { return x; };
-            static constexpr NumType inv_saw(NumType x) { return -x; };
-            static constexpr NumType square(NumType x) { return x > 0 ? 1 : -1; };
-            static constexpr NumType tri(NumType x) { return (std::abs(x) * 2.0f) - 1.0f; };
+            static constexpr NumType saw(NumType x)
+                { return x; };
+            static constexpr NumType inv_saw(NumType x)
+                { return -x; };
+            static constexpr NumType square(NumType x)
+                { return x > 0 ? 1 : -1; };
+            static constexpr NumType tri(NumType x)
+                { return (std::abs(x) * 2.0f) - 1.0f; };
 
             static constexpr NumType sin(NumType x)
             {

@@ -37,9 +37,17 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
     // The modulator isn't going to be changed during this block, we can just render it.
     m_ModOsc.processBlock(modData.data(), samps);
 
-    // The oscillator needs to be modified by the modulator (in most cases) as it ticks
+    // The oscillator needs to be modified by the modulator (in most cases) as it ticks.
+    // it also needs to keep track of how much room it has in the buffer
+    size_t tmp_offset = 0;
     for (int i = 0; i < samps; i++)
     {
+        if (m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail() == 0)
+        {
+            relocate_samples(oscData.data() + tmp_offset, m_BlipBuff.samples_avail());
+            tmp_offset = m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail();
+        }
+
         const auto modSample = modData[i];
         envData[i] = m_Env.tick();
         this->tick();
@@ -65,7 +73,7 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
     }
 
     // we can use this as temporary storage while we do the final mix
-    this->relocate_samples(oscData.data(), samps);
+    this->relocate_samples(oscData.data() + tmp_offset, m_BlipBuff.samples_avail());
 
     for (int i = 0; i < samps; i++)
     {

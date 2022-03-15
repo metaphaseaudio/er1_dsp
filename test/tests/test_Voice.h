@@ -41,8 +41,7 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 0);
-    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 48000);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
@@ -60,8 +59,7 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 0);
-    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 48000);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
@@ -81,7 +79,6 @@ TEST_F(VoiceTest, generate_lazer_sound)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 0);
-    voice.processBlock(buffer.getArrayOfWritePointers(), 48000, 48000);
+    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
