@@ -35,7 +35,22 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
     std::fill(oscData.begin(), oscData.end(), 0);
 
     // The modulator isn't going to be changed during this block, we can just render it.
-    m_ModOsc.processBlock(modData.data(), samps);
+    switch (m_ModType)
+    {
+
+        case SAW:
+        case SQUARE:
+        case TRIANGLE:
+            m_ModOsc.processBlock(modData.data(), samps);
+            break;
+        case SANDH:
+        case NOISE:
+            // These are handled in course of rendering the oscilator
+            break;
+        case DECAY:
+            m_ModEnv.processBlock(modData.data(), samps);
+            break;
+    }
 
     // The oscillator needs to be modified by the modulator (in most cases) as it ticks.
     // it also needs to keep track of how much room it has in the buffer

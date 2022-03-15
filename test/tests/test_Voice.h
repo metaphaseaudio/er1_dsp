@@ -30,7 +30,7 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
-    voice.setModulationType(meta::ER1::Voice::TRIANGLE);
+    voice.setModulationType(meta::ER1::Voice::DECAY);
     voice.setWaveType(meta::ER1::WaveShape::SINE);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(5.0f);

@@ -21,6 +21,7 @@ namespace meta
 
             void setSpeed(float sampleRate, float speed);
 
+            void processBlock(float* data, int n_samps);
             inline float tick() { return m_Ramp.tick(); }
 
             bool hasEnded() const;

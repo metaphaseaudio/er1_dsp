@@ -27,3 +27,9 @@ bool meta::ER1::Envelope::hasEnded() const
 {
     return m_Ramp.getState() == 0;
 }
+
+void meta::ER1::Envelope::processBlock(float* data, int n_samps)
+{
+    for (int i = 0; i < n_samps; i++)
+        { data[i] += tick(); }
+}
