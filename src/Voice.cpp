@@ -93,8 +93,8 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
     for (int i = 0; i < samps; i++)
     {
         const auto sample = oscData[i] * envData[i] + noiseData[i];
-        data[0][i + offset] += sample * pan;
-        data[1][i + offset] += sample * (1.0f - pan);
+        data[0][i + offset] += sample * level * pan;
+        data[1][i + offset] += sample * level * (1.0f - pan);
     }
 }
 
