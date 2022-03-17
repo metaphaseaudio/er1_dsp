@@ -69,7 +69,6 @@ namespace meta
             float level;
             float pan;
 
-
         private:
             void setOscFreq(float freq);
 
