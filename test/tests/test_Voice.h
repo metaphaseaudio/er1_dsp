@@ -18,7 +18,7 @@ public:
     VoiceTest()
         : voice(SAMP_RATE)
     {
-        voice.setWaveType(meta::ER1::WaveShape::SINE);
+        voice.setWaveShape(meta::ER1::WaveShape::SINE);
         voice.level = 1.0f;
         voice.setDecay(0.50f);
     };
@@ -30,8 +30,8 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
-    voice.setModulationType(meta::ER1::Voice::DECAY);
-    voice.setWaveType(meta::ER1::WaveShape::SINE);
+    voice.setModulationShape(meta::ER1::Voice::DECAY);
+    voice.setWaveShape(meta::ER1::WaveShape::SINE);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(5.0f);
     voice.setPitch(40);
@@ -49,7 +49,7 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
 
-    voice.setModulationType(meta::ER1::Voice::SANDH);
+    voice.setModulationShape(meta::ER1::Voice::SANDH);
     voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(44100.0f);
     voice.setPitch(1000);
@@ -68,8 +68,8 @@ TEST_F(VoiceTest, generate_lazer_sound)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
 
-    voice.setWaveType(meta::ER1::WaveShape::TRIANGLE);
-    voice.setModulationType(meta::ER1::Voice::SAW);
+    voice.setWaveShape(meta::ER1::WaveShape::TRIANGLE);
+    voice.setModulationShape(meta::ER1::Voice::SAW);
     voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(15.0f);
     voice.setPitch(1000);

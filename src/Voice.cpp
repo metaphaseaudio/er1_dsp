@@ -12,7 +12,7 @@
 meta::ER1::Noise meta::ER1::Voice::m_Noise = meta::ER1::Noise();
 
 meta::ER1::Voice::Voice(float sampleRate)
-    : ER1::Oscillator(long(sampleRate))
+    : ER1::MainOscillator(long(sampleRate))
     , sampleRate(sampleRate)
     , pitch(250)
     , pan(0.5f)
@@ -114,13 +114,13 @@ void meta::ER1::Voice::start()
     m_ModEnv.start();
 }
 
-void meta::ER1::Voice::setModulationType(meta::ER1::Voice::ModType type)
+void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type)
 {
     switch (type)
     {
-        case ModType::SAW:      m_ModOsc.shape = ER1::WaveShape::SAW;       break;
-        case ModType::SQUARE:   m_ModOsc.shape = ER1::WaveShape::SQUARE;    break;
-        case ModType::TRIANGLE: m_ModOsc.shape = ER1::WaveShape::TRIANGLE;  break;
+        case ModShape::SAW: m_ModOsc.shape = ER1::WaveShape::SAW;       break;
+        case ModShape::SQUARE: m_ModOsc.shape = ER1::WaveShape::SQUARE;    break;
+        case ModShape::TRIANGLE: m_ModOsc.shape = ER1::WaveShape::TRIANGLE;  break;
         default: break;
     }
 
@@ -146,7 +146,7 @@ void meta::ER1::Voice::setOscFreq(float freq)
     set_freq(meta::limit(20.0f, nyquist, freq));
 }
 
-void meta::ER1::Voice::setWaveType(meta::ER1::WaveShape waveType)
+void meta::ER1::Voice::setWaveShape(meta::ER1::WaveShape waveType)
 {
     this->shape = waveType;
 }
