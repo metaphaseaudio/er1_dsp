@@ -38,9 +38,11 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
     switch (m_ModType)
     {
 
-        case SAW:
-        case SQUARE:
+        case SINE:
         case TRIANGLE:
+        case SQUARE:
+        case SAW:
+        case INVERSE_SAW:
             m_ModOsc.processBlock(modData.data(), samps);
             break;
         case SANDH:
@@ -101,7 +103,7 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 void meta::ER1::Voice::reset()
 {
 	setOscFreq(pitch);
-    sync(0.0);
+    sync(MainOscillator::Max);
     m_ModOsc.sync(0.0);
     m_Env.reset(sampleRate);
     m_ModEnv.reset(sampleRate);
@@ -118,9 +120,11 @@ void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type)
 {
     switch (type)
     {
-        case ModShape::SAW: m_ModOsc.shape = ER1::WaveShape::SAW;       break;
-        case ModShape::SQUARE: m_ModOsc.shape = ER1::WaveShape::SQUARE;    break;
-        case ModShape::TRIANGLE: m_ModOsc.shape = ER1::WaveShape::TRIANGLE;  break;
+        case ModShape::SINE: m_ModOsc.shape = ER1::WaveShape::SINE; break;
+        case ModShape::TRIANGLE: m_ModOsc.shape = ER1::WaveShape::TRIANGLE; break;
+        case ModShape::SQUARE: m_ModOsc.shape = ER1::WaveShape::SQUARE; break;
+        case ModShape::SAW: m_ModOsc.shape = ER1::WaveShape::SAW; break;
+        case ModShape::INVERSE_SAW: m_ModOsc.shape = ER1::WaveShape::INVERSE_SAW; break;
         default: break;
     }
 
