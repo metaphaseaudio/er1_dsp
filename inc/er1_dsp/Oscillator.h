@@ -19,6 +19,7 @@ namespace meta::ER1
         using BaseOsc = BandLimitedOsc<bit_depth, sub_samples, blip_resolution>;
         using BandLimitedOsc<bit_depth, sub_samples, blip_resolution>::BandLimitedOsc;
         WaveShape shape;
+
     private:
         float wave_shape(float accumulator_state) override
         {
@@ -26,8 +27,8 @@ namespace meta::ER1
             const auto scaled = accumulator_state / scale_factor;
             switch (shape)
             {
-                case WaveShape::SINE:
-                    return Shapes ::sin(scaled) * scale_factor;
+                case WaveShape::COSINE:
+                    return Shapes::cosin(scaled) * scale_factor;
                 case WaveShape::TRIANGLE:
                     return Shapes::tri(scaled) * scale_factor;
                 case WaveShape::SQUARE:

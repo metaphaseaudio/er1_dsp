@@ -39,7 +39,7 @@ public:
 
     }
 
-    meta::ER1::Oscillator osc;
+    meta::ER1::Oscillator<12, 16, 8> osc;
 };
 
 TEST_F(OscillatorTest, generate_square)
@@ -69,14 +69,14 @@ TEST_F(OscillatorTest, generate_triangle_sync)
 {
     initializeTestFile("triangle_sync.wav");
     osc.shape = meta::ER1::WaveShape::TRIANGLE;
-    osc.sync(1.0f);
+    osc.sync(osc.Min);
     runOscillator(10000);
 }
 
 TEST_F(OscillatorTest, generate_sine)
 {
     initializeTestFile("sine.wav");
-    osc.shape = meta::ER1::WaveShape::SINE;
+    osc.shape = meta::ER1::WaveShape::COSINE;
     runOscillator(10000);
 }
 
@@ -84,8 +84,8 @@ TEST_F(OscillatorTest, generate_sine)
 TEST_F(OscillatorTest, generate_sine_sync)
 {
     initializeTestFile("sine_sync.wav");
-    osc.shape = meta::ER1::WaveShape::SINE;
-    osc.sync(1.0f);
+    osc.shape = meta::ER1::WaveShape::COSINE;
+    osc.sync(osc.Min);
     runOscillator(10000);
 }
 
@@ -100,6 +100,6 @@ TEST_F(OscillatorTest, generate_saw_sync)
 {
     initializeTestFile("saw_sync.wav");
     osc.shape = meta::ER1::WaveShape::SAW;
-    osc.sync(1.0f);
+    osc.sync(osc.Min);
     runOscillator(10000);
 }

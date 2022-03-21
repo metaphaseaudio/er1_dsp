@@ -103,8 +103,8 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 void meta::ER1::Voice::reset()
 {
 	setOscFreq(pitch);
-    sync(MainOscillator::Max);
-    m_ModOsc.sync(0.0);
+    sync(MainOscillator::Min);
+    m_ModOsc.sync(Modulator::Min);
     m_Env.reset(sampleRate);
     m_ModEnv.reset(sampleRate);
 }
@@ -120,7 +120,7 @@ void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type)
 {
     switch (type)
     {
-        case ModShape::SINE: m_ModOsc.shape = ER1::WaveShape::SINE; break;
+        case ModShape::SINE: m_ModOsc.shape = ER1::WaveShape::COSINE; break;
         case ModShape::TRIANGLE: m_ModOsc.shape = ER1::WaveShape::TRIANGLE; break;
         case ModShape::SQUARE: m_ModOsc.shape = ER1::WaveShape::SQUARE; break;
         case ModShape::SAW: m_ModOsc.shape = ER1::WaveShape::SAW; break;

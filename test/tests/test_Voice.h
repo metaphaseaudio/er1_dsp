@@ -18,7 +18,7 @@ public:
     VoiceTest()
         : voice(SAMP_RATE)
     {
-        voice.setWaveShape(meta::ER1::WaveShape::SINE);
+        voice.setWaveShape(meta::ER1::WaveShape::COSINE);
         voice.level = 1.0f;
         voice.setDecay(0.50f);
     };
@@ -31,7 +31,7 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
     voice.setModulationShape(meta::ER1::Voice::DECAY);
-    voice.setWaveShape(meta::ER1::WaveShape::SINE);
+    voice.setWaveShape(meta::ER1::WaveShape::COSINE);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(5.0f);
     voice.setPitch(40);

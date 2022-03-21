@@ -11,7 +11,7 @@ namespace meta::ER1
 {
     enum WaveShape
     {
-        SINE = 0,
+        COSINE = 0,
         TRIANGLE,
         SQUARE,
         SAW,
@@ -21,7 +21,7 @@ namespace meta::ER1
     template<typename NumType=float, size_t table_size=256>
     struct SimpleWaveShapeFunc
     {
-        static constexpr auto sin_table = BandlimitedWavetable<NumType, table_size>::makeSin();
+        static constexpr auto cosin_table = BandlimitedWavetable<NumType, table_size>::makeCosin();
 
         static constexpr NumType saw(NumType x)
             { return x; };
@@ -31,7 +31,7 @@ namespace meta::ER1
             { return x > 0 ? 1 : -1; };
         static constexpr NumType tri(NumType x)
             { return (std::abs(x) * 2.0f) - 1.0f; };
-        static constexpr NumType sin(NumType x)
+        static constexpr NumType cosin(NumType x)
         {
             const auto real_i = ((x + 1.0) / 2.0)  * (table_size);
 
@@ -39,8 +39,8 @@ namespace meta::ER1
             const size_t j = (i == table_size - 1) ? 0 : i + 1;
 
             const auto f = real_i - NumType(i);
-            const auto a = sin_table.at(i);
-            const auto b = sin_table.at(j);
+            const auto a = cosin_table.at(i);
+            const auto b = cosin_table.at(j);
             return (a * (1 - f)) + (b * f);
         };
     };
