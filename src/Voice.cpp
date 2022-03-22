@@ -30,7 +30,6 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
     std::vector<float> noiseData(samps);
     std::vector<float> oscData(samps);
     std::fill(modData.begin(), modData.end(), 0);
-    std::fill(envData.begin(), envData.end(), 0);
     std::fill(noiseData.begin(), noiseData.end(), 0);
     std::fill(oscData.begin(), oscData.end(), 0);
 
@@ -43,11 +42,11 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
         case SQUARE:
         case SAW:
         case INVERSE_SAW:
+        case NOISE:
             m_ModOsc.processBlock(modData.data(), samps);
             break;
         case SANDH:
-        case NOISE:
-            // These are handled in course of rendering the oscilator
+            // Sample and Hold is handled in course of rendering the oscilator.
             break;
         case DECAY:
             m_ModEnv.processBlock(modData.data(), samps);
@@ -66,7 +65,7 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
         }
 
         const auto modSample = modData[i];
-        envData[i] = m_Env.tick();
+        envData[i] = 1.0f; m_Env.tick();
         this->tick();
 
         if (m_ModType == SANDH)
@@ -94,7 +93,7 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 
     for (int i = 0; i < samps; i++)
     {
-        const auto sample = oscData[i] * envData[i] + noiseData[i];
+        const auto sample = oscData[i] + noiseData[i];
         data[0][i + offset] += sample * level * pan;
         data[1][i + offset] += sample * level * (1.0f - pan);
     }
@@ -125,6 +124,7 @@ void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type)
         case ModShape::SQUARE: m_ModOsc.shape = ER1::WaveShape::SQUARE; break;
         case ModShape::SAW: m_ModOsc.shape = ER1::WaveShape::SAW; break;
         case ModShape::INVERSE_SAW: m_ModOsc.shape = ER1::WaveShape::INVERSE_SAW; break;
+        case ModShape::NOISE: m_ModOsc.shape = ER1::WaveShape::COSINE; break;
         default: break;
     }
 
@@ -157,5 +157,10 @@ void meta::ER1::Voice::setWaveShape(meta::ER1::WaveShape waveType)
 
 void meta::ER1::Voice::setDecay(float time)
 {
-    m_Env.setSpeed(sampleRate, time);
+    m_Env.setSpeed(sampleRate, time / ER1::MainOscillator::OverSample);
+}
+
+float meta::ER1::Voice::wave_shape(float accumState)
+{
+    return ER1::MainOscillator::wave_shape(accumState) * m_Env.tick();
 }

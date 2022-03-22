@@ -54,6 +54,7 @@ namespace meta
             void setDecay(float time);
             bool hasEnded() noexcept { return m_Env.hasEnded(); }
 
+            float wave_shape(float accumState) override;
             float level;
             float pan;
 

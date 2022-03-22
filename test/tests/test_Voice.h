@@ -45,6 +45,37 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
+
+TEST_F(VoiceTest, generate_synth_bass_drum_retrigger)
+{
+    initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum_retrigger.wav"));
+
+    voice.setModulationShape(meta::ER1::Voice::DECAY);
+    voice.setWaveShape(meta::ER1::WaveShape::COSINE);
+    voice.setModulationDepth(200.0f);
+    voice.setModulationSpeed(5.0f);
+    voice.setPitch(40);
+    voice.reset();
+    voice.start();
+
+    juce::AudioBuffer<float> buffer(2, 24000);
+    buffer.clear();
+
+    voice.processBlock(buffer.getArrayOfWritePointers(), 24000, 0);
+    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+
+    buffer.clear();
+    voice.reset();
+    voice.start();
+
+    voice.processBlock(buffer.getArrayOfWritePointers(), 24000, 0);
+    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+
+    buffer.clear();
+    voice.processBlock(buffer.getArrayOfWritePointers(), 24000, 0);
+    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+}
+
 TEST_F(VoiceTest, generate_sample_and_hold_snare)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("sah_snare.wav"));

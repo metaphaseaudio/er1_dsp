@@ -20,7 +20,7 @@ namespace meta::ER1
         using BandLimitedOsc<bit_depth, sub_samples, blip_resolution>::BandLimitedOsc;
         WaveShape shape;
 
-    private:
+    protected:
         float wave_shape(float accumulator_state) override
         {
             constexpr auto scale_factor =  BaseOsc::Min * -1;
@@ -43,7 +43,7 @@ namespace meta::ER1
         }
     };
 
-    using MainOscillator = Oscillator<12, 16, 12>;
-    using Modulator = Oscillator<12, 4, 8>;  // Modulators can be of lower quality
+    using MainOscillator = Oscillator<12, 32, 12>;
+    using Modulator = Oscillator<12, 1, 8>;  // Modulators can be of lower quality
 }
 
