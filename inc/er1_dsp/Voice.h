@@ -52,7 +52,10 @@ namespace meta
             void setModulationSpeed(float speed);
             void setModulationDepth(float depth);
             void setDecay(float time);
-            bool hasEnded() noexcept { return m_Env.hasEnded(); }
+            void setTempo(float bpm);
+            void setDelayTime(float time);
+            void setDelayDepth(float depth);
+            [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
 
             float wave_shape(float accumState) override;
             float level;

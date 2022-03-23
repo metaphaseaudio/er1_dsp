@@ -164,3 +164,18 @@ float meta::ER1::Voice::wave_shape(float accumState)
 {
     return ER1::MainOscillator::wave_shape(accumState) * m_Env.tick();
 }
+
+void meta::ER1::Voice::setTempo(float bpm)
+{
+
+}
+
+void meta::ER1::Voice::setDelayTime(float time)
+{
+
+}
+
+void meta::ER1::Voice::setDelayDepth(float depth)
+{
+
+}
