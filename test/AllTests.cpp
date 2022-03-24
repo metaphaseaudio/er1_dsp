@@ -11,6 +11,7 @@
 #include "tests/test_SampleAndHold.h"
 #include "tests/test_TiltFilter.h"
 #include "tests/test_Envelope.h"
+#include "tests/test_Delay.h"
 #include "tests/test_Voice.h"
 
 int main(int argc, char **argv)
