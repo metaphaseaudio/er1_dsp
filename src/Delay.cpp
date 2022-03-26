@@ -13,28 +13,35 @@ meta::ER1::Delay::Delay(float sampleRate)
     , m_Time(0.5)
     , m_SampleRate(sampleRate)
     , m_Data{std::vector<float>(int(m_SampleRate * 2), 0.0f), std::vector<float>(int(m_SampleRate * 2), 0.0f)} // 2 seconds is the max delay time
-    , m_Writehead(0)
     , m_Playhead(0, m_SampleRate * 2, sampleRate)
-{ recalculatePlayheadAdvance(); }
+{
+    recalculatePlayheadAdvance();
+}
 
 void meta::ER1::Delay::processBlock(float** data, size_t samps)
 {
-    for (int i = 0; i < samps; i++)
+    for (int s = 0; s < samps; s++)
     {
         // save the data for later
         const auto ifj = meta::WavetableHelpers<float>::calculateIFJ(m_Data[0].size(), m_Playhead.getValue());
         const auto lsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[0].data(), ifj);
         const auto rsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[1].data(), ifj);
 
-        // swap L&R
-        data[0][i] += rsamp_out * m_Depth;
-        data[1][i] += lsamp_out * m_Depth;
+        // swap L&R and add to the output
+        data[0][s] += rsamp_out * m_Depth;
+        data[1][s] += lsamp_out * m_Depth;
 
-        m_Data[0][m_Writehead] = data[0][i];
-        m_Data[1][m_Writehead] = data[1][i];
+        // Insert the incoming data, interpolated.
+        const auto i = std::get<0>(ifj);
+        const auto f = std::get<1>(ifj);
+        const auto j = std::get<2>(ifj);
+        m_Data[0][i] = data[0][s] * (1.0f - f);
+        m_Data[0][j] = data[0][s] * f;
+        m_Data[1][i] = data[1][s] * (1.0f - f);
+        m_Data[1][j] = data[1][s] * f;
 
+        // Advance the playhead
         m_Playhead.tick();
-        m_Writehead = ++m_Writehead % m_Data[0].size();
     }
 }
 
@@ -45,7 +52,7 @@ void meta::ER1::Delay::recalculatePlayheadAdvance()
         const auto i = meta::remap_range(juce::Range<float>(0, ER1::Delay::tempoFractions.size() - 1), juce::Range<float>(0.5, 2), m_Time);
         const auto frac = ER1::Delay::tempoFractions[int(std::round(i))];
 
-        m_Playhead.set_freq((m_BPM * frac) / 60.0f);
+        m_Playhead.set_freq((m_BPM / 60.0f) / frac);
     }
     else { m_Playhead.set_freq(m_Time / 60.0f); }
 }

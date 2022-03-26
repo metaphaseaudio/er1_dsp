@@ -22,7 +22,6 @@ namespace meta::ER1
         void setDepth(float depth);
         void setTime(float time);
 
-
     private:
         static constexpr std::array<float, 16> tempoFractions = {
             1.0f / 4.0f,
@@ -41,7 +40,6 @@ namespace meta::ER1
         float m_Depth; // 0 - 100
         float m_Time;  // 5ms - 2s tempo sync'd
         float m_SampleRate;
-        int m_Writehead;
         LoopingAccumulator m_Playhead;
         std::vector<float> m_Data[2];
     };
