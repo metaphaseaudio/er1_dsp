@@ -34,13 +34,17 @@ namespace meta::ER1
             3, 4, 5, 6, 7, 8
         };
 
-        void recalculatePlayheadAdvance();
+        void recalculateDelaySamps(bool hard=true);
+
         bool m_Sync;
         float m_BPM;
         float m_Depth; // 0 - 100
         float m_Time;  // 5ms - 2s tempo sync'd
         float m_SampleRate;
-        LoopingAccumulator m_Playhead;
+        float m_DelaySampsTarget;
+        float m_DelaySampsCurrent;
+        float m_Playhead;
+        int m_Writehead;
         std::vector<float> m_Data[2];
     };
 }
