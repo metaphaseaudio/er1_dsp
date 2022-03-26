@@ -19,6 +19,7 @@ meta::ER1::Voice::Voice(float sampleRate)
     , level(1.0f)
     , m_ModDepth(0.0f)
     , m_ModOsc(sampleRate)
+    , m_Delay(sampleRate * ER1::MainOscillator::OverSample)
 {
     set_freq(250);
 }
@@ -97,6 +98,8 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
         data[0][i + offset] += sample * level * pan;
         data[1][i + offset] += sample * level * (1.0f - pan);
     }
+
+    m_Delay.processBlock(data, samps, offset);
 }
 
 void meta::ER1::Voice::reset()
@@ -134,6 +137,7 @@ void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type)
 void meta::ER1::Voice::setModulationSpeed(float speed)
 {
 	speed *= MOD_RATE_FACTOR;
+
     // TODO: this probably isn't just linear...
     m_ModEnv.setSpeed(sampleRate, speed);
     m_ModOsc.set_freq(speed);
@@ -165,17 +169,7 @@ float meta::ER1::Voice::wave_shape(float accumState)
     return ER1::MainOscillator::wave_shape(accumState) * m_Env.tick();
 }
 
-void meta::ER1::Voice::setTempo(float bpm)
-{
-
-}
-
-void meta::ER1::Voice::setDelayTime(float time)
-{
-
-}
-
-void meta::ER1::Voice::setDelayDepth(float depth)
-{
-
-}
+void meta::ER1::Voice::setTempo(float bpm) { m_Delay.setBPM(bpm); }
+void meta::ER1::Voice::setDelayTime(float time) { m_Delay.setTime(time); }
+void meta::ER1::Voice::setDelayDepth(float depth) { m_Delay.setDepth(depth); }
+void meta::ER1::Voice::setTempoSync(bool sync) { m_Delay.setTempoSync(sync); }

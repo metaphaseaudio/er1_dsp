@@ -15,7 +15,7 @@ namespace meta::ER1
     {
     public:
         explicit Delay(float sampleRate);
-        void processBlock(float** data, size_t samps);
+        void processBlock(float** data, size_t samps, int offset);
 
         void setTempoSync(bool sync);
         void setBPM(float bpm);
@@ -34,7 +34,7 @@ namespace meta::ER1
             3, 4, 5, 6, 7, 8
         };
 
-        void recalculateDelaySamps(bool hard=true);
+        void recalculateDelaySamps(bool hard=false);
 
         bool m_Sync;
         float m_BPM;

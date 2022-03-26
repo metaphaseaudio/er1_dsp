@@ -21,7 +21,6 @@ public:
     void run(int samples)
     {
         constexpr int chunk_size = 10000;
-        bool shouldImpulse = true;
         for (int mod = samples / chunk_size; --mod >= 0;)
         {
             const auto n_samps = std::min<int>(chunk_size, samples);
@@ -41,6 +40,7 @@ public:
         }
     }
 
+    bool shouldImpulse = true;
     meta::ER1::Delay delay = meta::ER1::Delay(SAMP_RATE);
 };
 
@@ -48,8 +48,10 @@ TEST_F(DelayTest, generate_delay_tempo_sync)
 {
     initializeTestFile("delay_tempo_sync.wav");
     delay.setTempoSync(true);
-    delay.setBPM(120);
-    delay.setDepth(0.5);
+    delay.setBPM(150);
+    delay.setDepth(0.5f);
     delay.setTime(0.0f);
+    run(20000);
+    delay.setTime(0.2f);
     run(100000);
 }

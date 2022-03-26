@@ -16,12 +16,13 @@ meta::ER1::Delay::Delay(float sampleRate)
     , m_Writehead(0)
     , m_DelaySampsTarget(0)
     , m_DelaySampsCurrent(m_SampleRate * 2)
-    , m_Data{std::vector<float>(int(m_SampleRate * 2), 0.0f), std::vector<float>(int(m_SampleRate * 2), 0.0f)} // 2 seconds is the max delay time
-{
-    recalculateDelaySamps(true);
-}
+    , m_Data{
+        std::vector<float>(int(m_SampleRate * 2), 0.0f),
+        std::vector<float>(int(m_SampleRate * 2), 0.0f)
+    } // 2 seconds is the max delay time
+{ recalculateDelaySamps(true); }
 
-void meta::ER1::Delay::processBlock(float** data, size_t samps)
+void meta::ER1::Delay::processBlock(float** data, size_t samps, int offset)
 {
     for (int s = 0; s < samps; s++)
     {
@@ -29,7 +30,7 @@ void meta::ER1::Delay::processBlock(float** data, size_t samps)
         // delay_time_current is set to reach delay_time_target over a period of time
         // delay_time_current speed towards delay_time_target is reduced as the
         // differential between them decreases
-        m_DelaySampsCurrent = m_DelaySampsCurrent + 0.00001 * (m_DelaySampsTarget - m_DelaySampsCurrent);
+        m_DelaySampsCurrent = m_DelaySampsCurrent + 0.0001 * (m_DelaySampsTarget - m_DelaySampsCurrent);
 
         // save the data for later
         const auto playhead = m_Playhead;//.getValue();
@@ -38,12 +39,12 @@ void meta::ER1::Delay::processBlock(float** data, size_t samps)
         const auto rsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[1].data(), ifj);
 
         // swap L&R and add to the output
-        data[0][s] += rsamp_out * m_Depth;
-        data[1][s] += lsamp_out * m_Depth;
+        data[0][s + offset] += rsamp_out * m_Depth;
+        data[1][s + offset] += lsamp_out * m_Depth;
 
         // Insert the incoming data
-        m_Data[0][m_Writehead] = data[0][s];
-        m_Data[1][m_Writehead] = data[1][s];
+        m_Data[0][m_Writehead] = data[0][s + offset];
+        m_Data[1][m_Writehead] = data[1][s + offset];
 
         // Advance the play/writeheads
         m_Writehead = ++m_Writehead % int(m_Data->size());

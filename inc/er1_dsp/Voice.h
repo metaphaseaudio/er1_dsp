@@ -8,75 +8,72 @@
 #include "Envelope.h"
 #include "Oscillator.h"
 #include "SampleAndHold.h"
+#include "Delay.h"
 
-namespace meta
+namespace meta:: ER1
 {
-    namespace ER1
+    /**
+     * Comprises one oscillator and two modulators (amp and pitch) with the
+     * associated handling code that allows them to be treated as a single
+     * ER-1 voice.
+     */
+    class Voice
+        : ER1::MainOscillator
     {
-        /**
-         * Comprises one oscillator and two modulators (amp and pitch) with the
-         * associated handling code that allows them to be treated as a single
-         * ER-1 voice.
-         */
-        class Voice
-            : ER1::MainOscillator
+    public:
+        explicit Voice(float sampleRate);
+
+        /// fill an array of floats with data from the voice
+        void processBlock(float** data, int samps, int offset);
+
+        /// silence the voice
+        void reset();
+
+        /// trigger the voice
+        void start();
+
+        enum ModShape
         {
-        public:
-            Voice(float sampleRate);
-
-            /// fill an array of floats with data from the voice
-            void processBlock(float** data, int samps, int offset);
-
-            /// silence the voice
-            void reset();
-
-            /// trigger the voice
-            void start();
-
-            enum ModShape
-            {
-                SINE = 0,
-                TRIANGLE,
-                SQUARE,
-                SAW,
-                INVERSE_SAW,
-                SANDH,
-                NOISE,
-                DECAY,
-            };
-
-            void setSampleRate(float sampleRate);
-            void setWaveShape(ER1::WaveShape waveType);
-            void setPitch(float freq);
-            void setModulationShape(ModShape type);
-            void setModulationSpeed(float speed);
-            void setModulationDepth(float depth);
-            void setDecay(float time);
-            void setTempo(float bpm);
-            void setDelayTime(float time);
-            void setDelayDepth(float depth);
-            [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
-
-            float wave_shape(float accumState) override;
-            float level;
-            float pan;
-
-        private:
-            void setOscFreq(float freq);
-
-            meta::ER1::Envelope m_Env;
-
-            float sampleRate;
-            float pitch;
-            float m_ModDepth;
-
-            ModShape m_ModType = ModShape::DECAY;
-            ER1::Modulator m_ModOsc;
-            meta::ER1::SampleAndHold m_SAH;
-            meta::ER1::Envelope m_ModEnv;
-
-            static meta::ER1::Noise m_Noise;
+            SINE = 0,
+            TRIANGLE,
+            SQUARE,
+            SAW,
+            INVERSE_SAW,
+            SANDH,
+            NOISE,
+            DECAY,
         };
-    }
-}
 
+        void setSampleRate(float sampleRate);
+        void setWaveShape(ER1::WaveShape waveType);
+        void setPitch(float freq);
+        void setModulationShape(ModShape type);
+        void setModulationSpeed(float speed);
+        void setModulationDepth(float depth);
+        void setDecay(float time);
+        void setTempo(float bpm);
+        void setTempoSync(bool sync);
+        void setDelayTime(float time);
+        void setDelayDepth(float depth);
+        [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
+
+        float wave_shape(float accumState) override;
+        float level;
+        float pan;
+
+    private:
+        void setOscFreq(float freq);
+
+        float sampleRate;
+        float pitch;
+        float m_ModDepth;
+
+        ModShape m_ModType = ModShape::DECAY;
+        ER1::Modulator m_ModOsc;
+        meta::ER1::SampleAndHold m_SAH;
+        meta::ER1::Envelope m_ModEnv;
+        meta::ER1::Envelope m_Env;
+        meta::ER1::Delay m_Delay;
+        static meta::ER1::Noise m_Noise;
+    };
+}
