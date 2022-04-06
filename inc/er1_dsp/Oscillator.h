@@ -21,7 +21,7 @@ namespace meta::ER1
         WaveShape shape;
 
     protected:
-        float wave_shape(float accumulator_state) override
+        float wave_shape(float accumulator_state, int) override
         {
             constexpr auto scale_factor =  BaseOsc::Min * -1;
             const auto scaled = accumulator_state / scale_factor;

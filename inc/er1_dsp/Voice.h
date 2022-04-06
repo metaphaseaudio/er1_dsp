@@ -57,7 +57,7 @@ namespace meta:: ER1
         void setDelayDepth(float depth);
         [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
 
-        float wave_shape(float accumState) override;
+        float wave_shape(float accumState, int chan) override;
         float level;
         float pan;
 

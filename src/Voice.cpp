@@ -19,7 +19,7 @@ meta::ER1::Voice::Voice(float sampleRate)
     , level(1.0f)
     , m_ModDepth(0.0f)
     , m_ModOsc(sampleRate)
-    , m_Delay(sampleRate * ER1::MainOscillator::OverSample)
+    , m_Delay(sampleRate)
 {
     set_freq(250);
 }
@@ -59,10 +59,10 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
     size_t tmp_offset = 0;
     for (int i = 0; i < samps; i++)
     {
-        if (m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail() == 0)
+        if (sampleRate - m_BlipBuffs[0].samples_avail() == 0)
         {
-            relocate_samples(oscData.data() + tmp_offset, m_BlipBuff.samples_avail());
-            tmp_offset = m_BlipBuff.sample_rate() - m_BlipBuff.samples_avail();
+            relocate_samples(oscData.data() + tmp_offset, m_BlipBuffs[0].samples_avail());
+            tmp_offset = m_BlipBuffs[0].sample_rate() - m_BlipBuffs[0].samples_avail();
         }
 
         const auto modSample = modData[i];
@@ -90,7 +90,7 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
     }
 
     // we can use this as temporary storage while we do the final mix
-    this->relocate_samples(oscData.data() + tmp_offset, m_BlipBuff.samples_avail());
+    this->relocate_samples(oscData.data() + tmp_offset, m_BlipBuffs[0].samples_avail());
 
     for (int i = 0; i < samps; i++)
     {
@@ -164,9 +164,10 @@ void meta::ER1::Voice::setDecay(float time)
     m_Env.setSpeed(sampleRate, time / ER1::MainOscillator::OverSample);
 }
 
-float meta::ER1::Voice::wave_shape(float accumState)
+float meta::ER1::Voice::wave_shape(float accumState, int chan)
 {
-    return ER1::MainOscillator::wave_shape(accumState) * m_Env.tick();
+
+    return ER1::MainOscillator::wave_shape(accumState, chan) * m_Env.tick();
 }
 
 void meta::ER1::Voice::setTempo(float bpm) { m_Delay.setBPM(bpm); }
