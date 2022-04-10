@@ -18,95 +18,67 @@ meta::ER1::Voice::Voice(float sampleRate)
     , pan(0.5f)
     , level(1.0f)
     , m_ModDepth(0.0f)
-    , m_ModOsc(sampleRate)
+    , m_ModOsc(ER1::MainOscillator::Min, ER1::MainOscillator::Max, sampleRate)
     , m_Delay(sampleRate)
 {
     set_freq(250);
 }
 
-void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
+std::array<float, 2> meta::ER1::Voice::onTick(float accumState)
 {
-    std::vector<float> modData(samps);
-    std::vector<float> envData(samps);
-    std::vector<float> noiseData(samps);
-    std::vector<float> oscData(samps);
-    std::fill(modData.begin(), modData.end(), 0);
-    std::fill(noiseData.begin(), noiseData.end(), 0);
-    std::fill(oscData.begin(), oscData.end(), 0);
+    auto sample = wave_shape(m_Shape, accumState);
+    const auto env = m_Env.tick();
+    auto noise = m_Noise.tick();
+    auto mix = 0.0f;
 
-    // The modulator isn't going to be changed during this block, we can just render it.
     switch (m_ModType)
     {
-
-        case SINE:
-        case TRIANGLE:
-        case SQUARE:
-        case SAW:
-        case INVERSE_SAW:
-        case NOISE:
-            m_ModOsc.processBlock(modData.data(), samps);
-            break;
-        case SANDH:
-            // Sample and Hold is handled in course of rendering the oscilator.
-            break;
-        case DECAY:
-            m_ModEnv.processBlock(modData.data(), samps);
-            break;
+        case ModShape::SINE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick())); break;
+        case ModShape::TRIANGLE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::TRIANGLE, m_ModOsc.tick())); break;
+        case ModShape::SQUARE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::SQUARE, m_ModOsc.tick())); break;
+        case ModShape::SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::SAW, m_ModOsc.tick())); break;
+        case ModShape::INVERSE_SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::INVERSE_SAW, m_ModOsc.tick())); break;
+        case ModShape::SANDH: setOscFreq(pitch + m_ModDepth * (m_SAH.tick(noise) / fixed_t::maxSigned()).toFloat()); break;
+        case ModShape::DECAY: setOscFreq(pitch + m_ModDepth * m_ModEnv.tick()); break;
+        case ModShape::NOISE: mix = wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick()); break;
+        default: break;
     }
 
-    // The oscillator needs to be modified by the modulator (in most cases) as it ticks.
-    // it also needs to keep track of how much room it has in the buffer
+    // Mix in the noise if appropriate
+    const auto invMix = 1.0f - mix; // How much of the raw osc
+    sample = ((sample * invMix) + (static_cast<float>(noise / fixed_t::maxSigned()) * 0.15f * mix)) * env * level;
+
+    const auto l = sample * pan;
+    const auto r = sample * (1.0f - pan);
+
+    return m_Delay.tick(l, r);
+}
+
+void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
+{
     size_t tmp_offset = 0;
-    for (int i = 0; i < samps; i++)
+    while (samps > 0)
     {
-        if (sampleRate - m_BlipBuffs[0].samples_avail() == 0)
-        {
-            relocate_samples(oscData.data() + tmp_offset, m_BlipBuffs[0].samples_avail());
-            tmp_offset = m_BlipBuffs[0].sample_rate() - m_BlipBuffs[0].samples_avail();
-        }
+        const auto to_render = std::min<int>(
+            samps - m_BlipBuffs[0].samples_avail(),
+            m_BlipBuffs[0].sample_rate() - m_BlipBuffs[0].samples_avail()
+        );
 
-        const auto modSample = modData[i];
-        envData[i] = 1.0f; m_Env.tick();
-        this->tick();
+        tick(to_render);
+        tmp_offset += m_BlipBuffs[0].samples_avail();
+        samps -= m_BlipBuffs[0].samples_avail();
 
-        if (m_ModType == SANDH)
-        {
-            const auto sah = m_SAH.tick(m_Noise.tick());
-            const auto modValue = sah / fixed_t::maxSigned();
-            setOscFreq(pitch + m_ModDepth * modValue.toFloat());
-        }
-        else if (m_ModType == NOISE)
-        {
-            const auto noise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned()) * 0.15f;
-            const auto mix = ((modSample + 1.0f) * 0.5f) * (m_ModDepth / 11000.0f); // How much of the noise
-            const auto invMix = 1.0f - mix; // How much of the raw osc
-            envData[i] *= invMix;
-            noiseData[i] += noise * mix;
-        }
-        else
-        {
-            setOscFreq(pitch + m_ModDepth * modSample);
-        }
+        for (int chan = 2; --chan >= 0;)
+            { relocate_samples(data[0] + tmp_offset, to_render, chan); }
+
     }
-
-    // we can use this as temporary storage while we do the final mix
-    this->relocate_samples(oscData.data() + tmp_offset, m_BlipBuffs[0].samples_avail());
-
-    for (int i = 0; i < samps; i++)
-    {
-        const auto sample = oscData[i] + noiseData[i];
-        data[0][i + offset] += sample * level * pan;
-        data[1][i + offset] += sample * level * (1.0f - pan);
-    }
-
-    m_Delay.processBlock(data, samps, offset);
 }
 
 void meta::ER1::Voice::reset()
 {
 	setOscFreq(pitch);
     sync(MainOscillator::Min);
-    m_ModOsc.sync(Modulator::Min);
+    m_ModOsc.sync(MainOscillator::Min);
     m_Env.reset(sampleRate);
     m_ModEnv.reset(sampleRate);
 }
@@ -118,21 +90,8 @@ void meta::ER1::Voice::start()
     m_ModEnv.start();
 }
 
-void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type)
-{
-    switch (type)
-    {
-        case ModShape::SINE: m_ModOsc.shape = ER1::WaveShape::COSINE; break;
-        case ModShape::TRIANGLE: m_ModOsc.shape = ER1::WaveShape::TRIANGLE; break;
-        case ModShape::SQUARE: m_ModOsc.shape = ER1::WaveShape::SQUARE; break;
-        case ModShape::SAW: m_ModOsc.shape = ER1::WaveShape::SAW; break;
-        case ModShape::INVERSE_SAW: m_ModOsc.shape = ER1::WaveShape::INVERSE_SAW; break;
-        case ModShape::NOISE: m_ModOsc.shape = ER1::WaveShape::COSINE; break;
-        default: break;
-    }
-
-    m_ModType = type;
-}
+void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type) 
+    { m_ModType = type; }
 
 void meta::ER1::Voice::setModulationSpeed(float speed)
 {
@@ -155,22 +114,36 @@ void meta::ER1::Voice::setOscFreq(float freq)
 }
 
 void meta::ER1::Voice::setWaveShape(meta::ER1::WaveShape waveType)
-{
-    this->shape = waveType;
-}
+    { m_Shape = waveType; }
 
 void meta::ER1::Voice::setDecay(float time)
 {
     m_Env.setSpeed(sampleRate, time / ER1::MainOscillator::OverSample);
 }
 
-float meta::ER1::Voice::wave_shape(float accumState, int chan)
-{
-
-    return ER1::MainOscillator::wave_shape(accumState, chan) * m_Env.tick();
-}
 
 void meta::ER1::Voice::setTempo(float bpm) { m_Delay.setBPM(bpm); }
 void meta::ER1::Voice::setDelayTime(float time) { m_Delay.setTime(time); }
 void meta::ER1::Voice::setDelayDepth(float depth) { m_Delay.setDepth(depth); }
 void meta::ER1::Voice::setTempoSync(bool sync) { m_Delay.setTempoSync(sync); }
+
+float meta::ER1::Voice::wave_shape(WaveShape shape, float accumulator_state)
+{
+    constexpr auto scale_factor =  MainOscillator ::Min * -1;
+    const auto scaled = accumulator_state / scale_factor;
+    switch (shape)
+    {
+        case WaveShape::COSINE:
+            return Shapes::cosin(scaled) * scale_factor;
+        case WaveShape::TRIANGLE:
+            return Shapes::tri(scaled) * scale_factor;
+        case WaveShape::SQUARE:
+            return Shapes::square(scaled) * scale_factor;
+        case WaveShape::SAW:
+            return accumulator_state;
+        case INVERSE_SAW:
+            return Shapes::inv_saw(accumulator_state);
+    }
+
+    return accumulator_state;
+}

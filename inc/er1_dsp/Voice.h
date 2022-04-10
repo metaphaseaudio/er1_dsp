@@ -57,19 +57,23 @@ namespace meta:: ER1
         void setDelayDepth(float depth);
         [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
 
-        float wave_shape(float accumState, int chan) override;
         float level;
         float pan;
 
     private:
+        std::array<float, 2> onTick(float accumState) override;
+
+        float wave_shape(WaveShape shape, float accumulator_state);
+
         void setOscFreq(float freq);
 
         float sampleRate;
         float pitch;
         float m_ModDepth;
 
+        WaveShape m_Shape = WaveShape::COSINE;
         ModShape m_ModType = ModShape::DECAY;
-        ER1::Modulator m_ModOsc;
+        LoopingAccumulator m_ModOsc;
         meta::ER1::SampleAndHold m_SAH;
         meta::ER1::Envelope m_ModEnv;
         meta::ER1::Envelope m_Env;

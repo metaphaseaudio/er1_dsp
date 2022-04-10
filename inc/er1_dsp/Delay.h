@@ -17,6 +17,7 @@ namespace meta::ER1
         explicit Delay(float sampleRate);
         void processBlock(float** data, size_t samps, int offset);
 
+        std::array<float, 2> tick(float left, float right);
         void setTempoSync(bool sync);
         void setBPM(float bpm);
         void setDepth(float depth);

@@ -95,3 +95,32 @@ void meta::ER1::Delay::setTempoSync(bool sync)
     m_Sync = sync;
     recalculateDelaySamps();
 }
+
+std::array<float, 2> meta::ER1::Delay::tick(float left, float right)
+{
+    // inertia of tape transport, creates pitching effect when changing delay time
+    // delay_time_current is set to reach delay_time_target over a period of time
+    // delay_time_current speed towards delay_time_target is reduced as the
+    // differential between them decreases
+    m_DelaySampsCurrent = m_DelaySampsCurrent + 0.0001 * (m_DelaySampsTarget - m_DelaySampsCurrent);
+
+    // save the data for later
+    const auto ifj = meta::WavetableHelpers<float>::calculateIFJ(m_Data[0].size(), m_Playhead);
+    const auto lsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[0].data(), ifj);
+    const auto rsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[1].data(), ifj);
+
+    // swap L&R and add to the output
+    const auto l = left + rsamp_out * m_Depth;
+    const auto r = right + lsamp_out * m_Depth;
+
+    // Insert the incoming data
+    m_Data[0][m_Writehead] = l;
+    m_Data[1][m_Writehead] = r;
+
+    // Advance the play/writeheads
+    m_Writehead = ++m_Writehead % int(m_Data->size());
+    m_Playhead = m_Writehead - m_DelaySampsCurrent;
+
+    if (m_Playhead < 0) { m_Playhead += m_Data->size(); }
+    return {l, r};
+}
