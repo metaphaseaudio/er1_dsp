@@ -33,7 +33,7 @@ void meta::ER1::Delay::processBlock(float** data, size_t samps, int offset)
         m_DelaySampsCurrent = m_DelaySampsCurrent + 0.0001 * (m_DelaySampsTarget - m_DelaySampsCurrent);
 
         // save the data for later
-        const auto playhead = m_Playhead;//.getValue();
+        const auto playhead = m_Playhead;
         const auto ifj = meta::WavetableHelpers<float>::calculateIFJ(m_Data[0].size(), playhead);
         const auto lsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[0].data(), ifj);
         const auto rsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[1].data(), ifj);
@@ -81,7 +81,7 @@ void meta::ER1::Delay::setTime(float time)
 
 void meta::ER1::Delay::setDepth(float depth)
 {
-    m_Depth = std::min(std::max(0.0f, depth), 1.0f);
+    m_Depth = std::min(std::max(0.0f, depth), 0.9f);
 }
 
 void meta::ER1::Delay::setBPM(float bpm)

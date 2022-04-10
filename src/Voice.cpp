@@ -18,7 +18,7 @@ meta::ER1::Voice::Voice(float sampleRate)
     , pan(0.5f)
     , level(1.0f)
     , m_ModDepth(0.0f)
-    , m_ModOsc(ER1::MainOscillator::Min, ER1::MainOscillator::Max, sampleRate * ER1::MainOscillator::OverSample)
+    , m_ModOsc(ER1::MainOscillator::Min, ER1::MainOscillator::Max, sampleRate)
     , m_Delay(sampleRate * ER1::MainOscillator::OverSample)
 {
     set_freq(250);
