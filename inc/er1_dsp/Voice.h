@@ -61,6 +61,7 @@ namespace meta:: ER1
         float pan;
 
     private:
+        void onSample(float accumState) override;
         std::array<float, 2> onTick(float accumState) override;
 
         float wave_shape(WaveShape shape, float accumulator_state);
@@ -70,6 +71,8 @@ namespace meta:: ER1
         float sampleRate;
         float pitch;
         float m_ModDepth;
+        float m_LastNoise;
+        float m_LastMix;
 
         WaveShape m_Shape = WaveShape::COSINE;
         ModShape m_ModType = ModShape::DECAY;

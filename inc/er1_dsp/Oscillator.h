@@ -10,6 +10,6 @@
 namespace meta::ER1
 {
     using Shapes = SimpleWaveShapeFunc<>;
-    using MainOscillator = BandLimitedOsc<12, 32, 12, 2>;
+    using MainOscillator = BandLimitedOsc<16, 16, 8, 2>;
 }
 

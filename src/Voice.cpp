@@ -18,45 +18,49 @@ meta::ER1::Voice::Voice(float sampleRate)
     , pan(0.5f)
     , level(1.0f)
     , m_ModDepth(0.0f)
-    , m_ModOsc(ER1::MainOscillator::Min, ER1::MainOscillator::Max, sampleRate)
-    , m_Delay(sampleRate)
+    , m_ModOsc(ER1::MainOscillator::Min, ER1::MainOscillator::Max, sampleRate * ER1::MainOscillator::OverSample)
+    , m_Delay(sampleRate * ER1::MainOscillator::OverSample)
 {
     set_freq(250);
+}
+
+void meta::ER1::Voice::onSample(float)
+{
+    constexpr auto scale = MainOscillator::Min;
+    switch (m_ModType)
+    {
+        case ModShape::SINE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick()) / scale); break;
+        case ModShape::TRIANGLE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::TRIANGLE, m_ModOsc.tick()) / scale); break;
+        case ModShape::SQUARE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::SQUARE, m_ModOsc.tick()) / scale); break;
+        case ModShape::SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::SAW, m_ModOsc.tick()) / scale); break;
+        case ModShape::INVERSE_SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::INVERSE_SAW, m_ModOsc.tick()) / scale); break;
+        case ModShape::SANDH: setOscFreq(pitch + m_ModDepth * (m_SAH.tick(m_Noise.tick()) / fixed_t::maxSigned()).toFloat()); break;
+        case ModShape::DECAY: setOscFreq(pitch + m_ModDepth * m_ModEnv.tick()); break;
+        case ModShape::NOISE:
+            m_LastNoise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned());
+            m_LastMix = wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick() / scale); break;
+        default: break;
+    }
 }
 
 std::array<float, 2> meta::ER1::Voice::onTick(float accumState)
 {
     auto sample = wave_shape(m_Shape, accumState);
     const auto env = m_Env.tick();
-    auto noise = m_Noise.tick();
-    auto mix = 0.0f;
-
-    switch (m_ModType)
-    {
-        case ModShape::SINE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick())); break;
-        case ModShape::TRIANGLE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::TRIANGLE, m_ModOsc.tick())); break;
-        case ModShape::SQUARE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::SQUARE, m_ModOsc.tick())); break;
-        case ModShape::SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::SAW, m_ModOsc.tick())); break;
-        case ModShape::INVERSE_SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::INVERSE_SAW, m_ModOsc.tick())); break;
-        case ModShape::SANDH: setOscFreq(pitch + m_ModDepth * (m_SAH.tick(noise) / fixed_t::maxSigned()).toFloat()); break;
-        case ModShape::DECAY: setOscFreq(pitch + m_ModDepth * m_ModEnv.tick()); break;
-        case ModShape::NOISE: mix = wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick()); break;
-        default: break;
-    }
 
     // Mix in the noise if appropriate
-    const auto invMix = 1.0f - mix; // How much of the raw osc
-    sample = ((sample * invMix) + (static_cast<float>(noise / fixed_t::maxSigned()) * 0.15f * mix)) * env * level;
+    const auto invMix = 1.0f - m_LastMix; // How much of the raw osc
+    sample = ((sample * invMix) + (m_LastNoise * 0.15f * m_LastMix)) * env * level;
 
     const auto l = sample * pan;
     const auto r = sample * (1.0f - pan);
 
+//    return {l, r};
     return m_Delay.tick(l, r);
 }
 
 void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
 {
-    size_t tmp_offset = 0;
     while (samps > 0)
     {
         const auto to_render = std::min<int>(
@@ -65,12 +69,13 @@ void meta::ER1::Voice::processBlock(float **data, int samps, int offset)
         );
 
         tick(to_render);
-        tmp_offset += m_BlipBuffs[0].samples_avail();
+        const auto tmp_offset = m_BlipBuffs[0].samples_avail();
         samps -= m_BlipBuffs[0].samples_avail();
 
         for (int chan = 2; --chan >= 0;)
-            { relocate_samples(data[0] + tmp_offset, to_render, chan); }
+            { relocate_samples(data[chan] + offset, to_render, chan); }
 
+        offset += tmp_offset;
     }
 }
 
@@ -91,7 +96,10 @@ void meta::ER1::Voice::start()
 }
 
 void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type) 
-    { m_ModType = type; }
+{
+    if (type != NOISE) { m_LastMix = 0.0f; }
+    m_ModType = type;
+}
 
 void meta::ER1::Voice::setModulationSpeed(float speed)
 {
@@ -129,7 +137,7 @@ void meta::ER1::Voice::setTempoSync(bool sync) { m_Delay.setTempoSync(sync); }
 
 float meta::ER1::Voice::wave_shape(WaveShape shape, float accumulator_state)
 {
-    constexpr auto scale_factor =  MainOscillator ::Min * -1;
+    constexpr auto scale_factor =  MainOscillator::Min * -1;
     const auto scaled = accumulator_state / scale_factor;
     switch (shape)
     {
@@ -147,3 +155,4 @@ float meta::ER1::Voice::wave_shape(WaveShape shape, float accumulator_state)
 
     return accumulator_state;
 }
+
