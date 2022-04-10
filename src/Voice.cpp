@@ -37,8 +37,8 @@ void meta::ER1::Voice::onSample(float)
         case ModShape::SANDH: setOscFreq(pitch + m_ModDepth * (m_SAH.tick(m_Noise.tick()) / fixed_t::maxSigned()).toFloat()); break;
         case ModShape::DECAY: setOscFreq(pitch + m_ModDepth * m_ModEnv.tick()); break;
         case ModShape::NOISE:
-            m_LastNoise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned());
-            m_LastMix = wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick() / scale); break;
+            m_LastNoise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned()) * scale;
+            m_LastMix = (1.0f + (wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick()) / scale) / 2) * m_ModDepth / 1100; break;
         default: break;
     }
 }
@@ -50,12 +50,11 @@ std::array<float, 2> meta::ER1::Voice::onTick(float accumState)
 
     // Mix in the noise if appropriate
     const auto invMix = 1.0f - m_LastMix; // How much of the raw osc
-    sample = ((sample * invMix) + (m_LastNoise * 0.15f * m_LastMix)) * env * level;
+    sample = ((sample * invMix) + (m_LastNoise * m_LastMix)) * env * level;
 
     const auto l = sample * pan;
     const auto r = sample * (1.0f - pan);
 
-//    return {l, r};
     return m_Delay.tick(l, r);
 }
 
