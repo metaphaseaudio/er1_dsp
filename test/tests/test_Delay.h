@@ -44,6 +44,40 @@ public:
     meta::ER1::Delay delay = meta::ER1::Delay(SAMP_RATE);
 };
 
+
+TEST_F(DelayTest, delay_times)
+{
+    delay.setTempoSync(true);
+    delay.setBPM(120);
+
+    int targets[16] = {
+            6000,
+            8000,
+            12000,
+            16000,
+            18000,
+            24000,
+            31920,
+            36000,
+            48000,
+            60000,
+            72000,
+            96000,
+            120000,
+            144000,
+            168000,
+            192000
+    };
+
+    for (int i = 0; i < 16; i++)
+    {
+        const auto value = float(i) / 15.0f;
+        delay.setTime(value);
+        ASSERT_EQ(targets[i], delay.getDelaySamps());
+    }
+}
+
+
 TEST_F(DelayTest, generate_delay_tempo_sync)
 {
     initializeTestFile("delay_tempo_sync.wav");

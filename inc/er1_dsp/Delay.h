@@ -23,6 +23,8 @@ namespace meta::ER1
         void setDepth(float depth);
         void setTime(float time);
 
+        float getDelaySamps() const { return m_DelaySampsTarget; }
+
     private:
         static constexpr std::array<float, 16> tempoFractions = {
             1.0f / 4.0f,
@@ -30,7 +32,7 @@ namespace meta::ER1
             1.0f / 2.0f,
             2.0f / 3.0f,
             3.0f / 4.0f,
-            1.33f, 1.5f,
+            1, 1.33f, 1.5f,
             2, 2.5,
             3, 4, 5, 6, 7, 8
         };

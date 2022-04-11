@@ -61,7 +61,8 @@ void meta::ER1::Delay::recalculateDelaySamps(bool hard)
     if (m_Sync)
     {
         const auto i = meta::remap_range(juce::Range<float>(0, ER1::Delay::tempoFractions.size() - 1), juce::Range<float>(0.5, 2), m_Time);
-        const auto frac = ER1::Delay::tempoFractions[int(std::round(i))];
+        const auto index = int(std::round(i));
+        const auto frac = ER1::Delay::tempoFractions[index];
 
         freq = (m_BPM / 60.0f) / frac;
     }
