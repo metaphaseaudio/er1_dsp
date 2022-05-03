@@ -9,6 +9,7 @@
 #include "Oscillator.h"
 #include "SampleAndHold.h"
 #include "Delay.h"
+#include "meta/util/Countdown.h"
 
 namespace meta:: ER1
 {
@@ -56,16 +57,15 @@ namespace meta:: ER1
         void setDelayTime(float time);
         void setDelayDepth(float depth);
         [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
-
-        void tickMod();
-        std::array<float, 2> tick();
-
+        
         float level;
         float pan;
 
     private:
-        float wave_shape(WaveShape shape, float accumulator_state);
+        void tickMod();
+        std::array<float, 2> tick();
 
+        float wave_shape(WaveShape shape, float accumulator_state);
         void setOscFreq(float freq);
 
         float sampleRate;
@@ -82,6 +82,7 @@ namespace meta:: ER1
         meta::ER1::Envelope m_ModEnv;
         meta::ER1::Envelope m_Env;
         meta::ER1::Delay m_Delay;
+        meta::Countdown<MainOscillator::OverSample> m_SampleCounter;
         static meta::ER1::Noise m_Noise;
     };
 }

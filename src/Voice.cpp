@@ -21,6 +21,7 @@ meta::ER1::Voice::Voice(float sampleRate)
     , m_ModOsc(-1.0f, 1.0f, sampleRate)
     , m_ModDepth(0.0f)
     , m_Delay(sampleRate * ER1::MainOscillator::OverSample)
+    , m_SampleCounter([this](){ tickMod(); })
 {}
 
 void meta::ER1::Voice::tickMod()
@@ -45,6 +46,7 @@ std::array<float, 2> meta::ER1::Voice::tick()
 {
     if (!m_Env.hasEnded())
     {
+        m_SampleCounter.tick();
         auto sample = wave_shape(m_Shape, m_MainOsc.tick());
         const auto env = m_Env.tick();
 
@@ -64,6 +66,7 @@ std::array<float, 2> meta::ER1::Voice::tick()
 void meta::ER1::Voice::reset()
 {
 	setOscFreq(pitch);
+    m_SampleCounter.sync(1);
     m_MainOsc.sync(MainOscillator::Min);
     m_ModOsc.sync(MainOscillator::Min);
     m_Env.reset(sampleRate);
@@ -134,5 +137,15 @@ float meta::ER1::Voice::wave_shape(WaveShape shape, float accumulator_state)
     }
 
     return accumulator_state;
+}
+
+void meta::ER1::Voice::processBlock(float** data, int samps, int offset)
+{
+    for (int s = samps; s < samps; s++)
+    {
+        const auto value = tick();
+        data[0][s + offset] = value[0];
+        data[1][s + offset] = value[1];
+    }
 }
 
