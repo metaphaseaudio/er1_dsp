@@ -144,8 +144,8 @@ void meta::ER1::Voice::processBlock(float** data, int samps, int offset)
     for (int s = 0; s < samps; s++)
     {
         const auto value = tick();
-        data[0][s + offset] = value[0];
-        data[1][s + offset] = value[1];
+        data[0][s + offset] += value[0];
+        data[1][s + offset] += value[1];
     }
 }
 
