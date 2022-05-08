@@ -22,6 +22,7 @@ namespace meta::ER1
         void setBPM(float bpm);
         void setDepth(float depth);
         void setTime(float time);
+        void setSampleRate(float sr);
 
         float getDelaySamps() const { return m_DelaySampsTarget; }
 

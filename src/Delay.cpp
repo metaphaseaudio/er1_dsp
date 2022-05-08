@@ -97,6 +97,12 @@ void meta::ER1::Delay::setTempoSync(bool sync)
     recalculateDelaySamps();
 }
 
+void meta::ER1::Delay::setSampleRate(float sr)
+{
+    m_SampleRate = sr;
+    recalculateDelaySamps();
+}
+
 std::array<float, 2> meta::ER1::Delay::tick(float left, float right)
 {
     // inertia of tape transport, creates pitching effect when changing delay time
@@ -125,3 +131,4 @@ std::array<float, 2> meta::ER1::Delay::tick(float left, float right)
     if (m_Playhead < 0) { m_Playhead += m_Data->size(); }
     return {l, r};
 }
+

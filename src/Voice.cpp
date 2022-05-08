@@ -18,10 +18,10 @@ meta::ER1::Voice::Voice(float sampleRate)
     , pan(0.5f)
     , level(1.0f)
     , m_MainOsc(-1.0f, 0.0f, sampleRate, 250)
-    , m_ModOsc(-1.0f, 0.0f, sampleRate)
+    , m_ModOsc(-1.0f, 0.0f, sampleRate / meta::ER1::MainOscillator::OverSample)
     , m_ModDepth(0.0f)
-    , m_Delay(sampleRate * ER1::MainOscillator::OverSample)
-    , m_SampleCounter([this](){ tickMod(); })
+    , m_Delay(sampleRate)
+    , m_SampleCounter([&](){ tickMod(); })
 {}
 
 void meta::ER1::Voice::tickMod()
@@ -97,7 +97,14 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
 }
 
 void meta::ER1::Voice::setPitch(float hz) { pitch = hz; }
-void meta::ER1::Voice::setSampleRate(float newRate) { sampleRate = newRate; }
+void meta::ER1::Voice::setSampleRate(float newRate)
+{
+    sampleRate = newRate;
+    m_Delay.setSampleRate(newRate);
+    m_MainOsc.set_sample_rate(newRate);
+    m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample); // run sample-accurate, not sub-sample accurate
+}
+
 void meta::ER1::Voice::setModulationDepth(float depth) { m_ModDepth = depth; }
 
 void meta::ER1::Voice::setOscFreq(float freq)
