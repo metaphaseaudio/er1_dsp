@@ -28,12 +28,12 @@ namespace meta::ER1
         static constexpr NumType inv_saw(NumType x)
             { return -x; };
         static constexpr NumType square(NumType x)
-            { return x > 0 ? 1 : -1; };
+            { return NumType(x > 0 ? 1 : -1); };
         static constexpr NumType tri(NumType x)
-            { return (std::abs(x) * 2.0f) - 1.0f; };
+            { return NumType((std::abs(x) * 2.0f) - 1.0f); };
         static constexpr NumType cosin(NumType x)
         {
-            const auto real_i = ((x + 1.0) / 2.0)  * (table_size);
+            const auto real_i = (x / 2.0f + 0.5f)  * (table_size - 1);
 
             const size_t i = real_i;
             const size_t j = (i == table_size - 1) ? 0 : i + 1;

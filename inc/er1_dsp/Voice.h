@@ -57,7 +57,7 @@ namespace meta:: ER1
         void setDelayTime(float time);
         void setDelayDepth(float depth);
         [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
-        
+
         float level;
         float pan;
 

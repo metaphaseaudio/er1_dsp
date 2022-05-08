@@ -17,8 +17,8 @@ meta::ER1::Voice::Voice(float sampleRate)
     , pitch(250)
     , pan(0.5f)
     , level(1.0f)
-    , m_MainOsc(-1.0f, 1.0f, sampleRate, 250)
-    , m_ModOsc(-1.0f, 1.0f, sampleRate)
+    , m_MainOsc(-1.0f, 0.0f, sampleRate, 250)
+    , m_ModOsc(-1.0f, 0.0f, sampleRate)
     , m_ModDepth(0.0f)
     , m_Delay(sampleRate * ER1::MainOscillator::OverSample)
     , m_SampleCounter([this](){ tickMod(); })
@@ -141,7 +141,7 @@ float meta::ER1::Voice::wave_shape(WaveShape shape, float accumulator_state)
 
 void meta::ER1::Voice::processBlock(float** data, int samps, int offset)
 {
-    for (int s = samps; s < samps; s++)
+    for (int s = 0; s < samps; s++)
     {
         const auto value = tick();
         data[0][s + offset] = value[0];
