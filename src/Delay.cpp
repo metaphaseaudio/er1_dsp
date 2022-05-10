@@ -31,12 +31,15 @@ void meta::ER1::Delay::processBlock(float** data, size_t samps, int offset)
         // delay_time_current speed towards delay_time_target is reduced as the
         // differential between them decreases
         m_DelaySampsCurrent = m_DelaySampsCurrent + 0.0001 * (m_DelaySampsTarget - m_DelaySampsCurrent);
+        const int table_size = m_SampleRate * m_Data[0].size();
 
         // save the data for later
-        const auto playhead = m_Playhead;
-        const auto ifj = meta::WavetableHelpers<float>::calculateIFJ(m_Data[0].size(), playhead);
-        const auto lsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[0].data(), ifj);
-        const auto rsamp_out = meta::WavetableHelpers<float>::calculate_sample(m_Data[1].data(), ifj);
+        auto i = static_cast<int>(m_Playhead) % table_size;
+        auto f = m_Playhead - static_cast<int>(m_Playhead);
+        auto j = (i == table_size - 1) ? 0 : i + 1;
+
+        const auto lsamp_out = meta::Interpolate<float>::linear(m_Data[0][i], m_Data[0][j], f);
+        const auto rsamp_out = meta::Interpolate<float>::linear(m_Data[1][i], m_Data[1][j], f);
 
         // swap L&R and add to the output
         data[0][s + offset] += rsamp_out * m_Depth;
@@ -47,10 +50,10 @@ void meta::ER1::Delay::processBlock(float** data, size_t samps, int offset)
         m_Data[1][m_Writehead] = data[1][s + offset];
 
         // Advance the play/writeheads
-        m_Writehead = ++m_Writehead % int(m_Data->size());
+        m_Writehead = ++m_Writehead % int(m_Data[0].size());
         m_Playhead = m_Writehead - m_DelaySampsCurrent;
 
-        if (m_Playhead < 0) { m_Playhead += m_Data->size(); }
+        if (m_Playhead < 0) { m_Playhead += m_Data[0].size(); }
     }
 }
 
