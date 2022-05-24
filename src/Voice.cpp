@@ -89,23 +89,11 @@ void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type)
 
 void meta::ER1::Voice::setModulationSpeed(float speed)
 {
-    m_ModEnv.setSpeed(
-        sampleRate,
-        meta::remap_range(
-            0.1f, 500.0f, 0.0f, 1.0f,
-            meta::Interpolate<float>::parabolic(0, 1, speed, 6)
-        )
-    );
-    m_ModOsc.set_freq(
-        meta::remap_range(
-            0.1f, 5000.0f, 0.0f, 1.0f,
-            meta::Interpolate<float>::parabolic(0, 1, speed, 6)
-        )
-    );
+    m_ModEnv.setSpeed(sampleRate, meta::Interpolate<float>::parabolic(0.1f, 500.0f, speed, 6));
+    m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 6));
     m_SAH.setResetCount(
-    meta::remap_range(
-            (sampleRate / meta::ER1::MainOscillator::OverSample) / 10.0f, 1.0f, 0.0f, 1.0f,
-            meta::Interpolate<float>::parabolic(0, 1, speed, -2)
+        meta::Interpolate<float>::parabolic(
+            (sampleRate / meta::ER1::MainOscillator::OverSample) / 10.0f, 1.0f, speed, -6
         )
     );
 }
