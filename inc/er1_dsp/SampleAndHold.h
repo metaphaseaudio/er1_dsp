@@ -18,10 +18,10 @@ namespace meta
         public:
             SampleAndHold();
 
-            void setResetCount(uint32_t count) 
-			{
-				m_ResetCount = count; 
-			};
+            void setResetCount(uint32_t count)
+            {
+                m_ResetCount = count;
+            };
 
             void start(fixed_t value) { m_Value = value; };
 

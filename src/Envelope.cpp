@@ -33,3 +33,7 @@ void meta::ER1::Envelope::processBlock(float* data, int n_samps)
     for (int i = 0; i < n_samps; i++)
         { data[i] += tick(); }
 }
+
+void meta::ER1::Envelope::setSampleRate(float sampleRate) {
+    setSpeed(m_Speed, sampleRate);
+}

@@ -19,6 +19,7 @@ namespace meta
 
             void reset(float sampleRate);
 
+            void setSampleRate(float sampleRate);
             void setSpeed(float sampleRate, float speed);
 
             void processBlock(float* data, int n_samps);

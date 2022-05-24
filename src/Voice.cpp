@@ -7,6 +7,7 @@
 #include <vector>
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../inc/er1_dsp/Voice.h"
+#include "meta/util/range.h"
 
 #define MOD_RATE_FACTOR 1
 
@@ -88,12 +89,25 @@ void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type)
 
 void meta::ER1::Voice::setModulationSpeed(float speed)
 {
-	speed *= MOD_RATE_FACTOR;
-
-    // TODO: this probably isn't just linear...
-    m_ModEnv.setSpeed(sampleRate, speed);
-    m_ModOsc.set_freq(speed);
-	m_SAH.setResetCount(static_cast<uint32_t>(sampleRate / (speed * 2.0f)));
+    m_ModEnv.setSpeed(
+        sampleRate,
+        meta::remap_range(
+            0.1f, 500.0f, 0.0f, 1.0f,
+            meta::Interpolate<float>::parabolic(0, 1, speed, 6)
+        )
+    );
+    m_ModOsc.set_freq(
+        meta::remap_range(
+            0.1f, 5000.0f, 0.0f, 1.0f,
+            meta::Interpolate<float>::parabolic(0, 1, speed, 6)
+        )
+    );
+    m_SAH.setResetCount(
+    meta::remap_range(
+            (sampleRate / meta::ER1::MainOscillator::OverSample) / 10.0f, 1.0f, 0.0f, 1.0f,
+            meta::Interpolate<float>::parabolic(0, 1, speed, -2)
+        )
+    );
 }
 
 void meta::ER1::Voice::setPitch(float hz) { pitch = hz; }
@@ -102,6 +116,8 @@ void meta::ER1::Voice::setSampleRate(float newRate)
     sampleRate = newRate;
     m_Delay.setSampleRate(newRate);
     m_MainOsc.set_sample_rate(newRate);
+    m_Env.setSampleRate(newRate);
+
     m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample); // run sample-accurate, not sub-sample accurate
 }
 
@@ -118,7 +134,7 @@ void meta::ER1::Voice::setWaveShape(meta::ER1::WaveShape waveType)
 
 void meta::ER1::Voice::setDecay(float time)
 {
-    m_Env.setSpeed(sampleRate, time / ER1::MainOscillator::OverSample);
+    m_Env.setSpeed(sampleRate, time);
 }
 
 
