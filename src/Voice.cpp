@@ -55,8 +55,8 @@ std::array<float, 2> meta::ER1::Voice::tick()
         const auto invMix = 1.0f - m_LastMix; // How much of the raw osc
         sample = ((sample * invMix) + (m_LastNoise * m_LastMix)) * env * level;
 
-        const auto l = sample * pan;
-        const auto r = sample * (1.0f - pan);
+        const auto l = sample * (1.0f - pan);
+        const auto r = sample * pan;
 
         return m_Delay.tick(l, r);
     }
