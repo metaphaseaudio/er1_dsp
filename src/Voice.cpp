@@ -109,7 +109,7 @@ void meta::ER1::Voice::setSampleRate(float newRate)
     m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample); // run sample-accurate, not sub-sample accurate
 }
 
-void meta::ER1::Voice::setModulationDepth(float depth) { m_ModDepth = depth; }
+void meta::ER1::Voice::setModulationDepth(float depth) { m_ModDepth = depth * 1100.0f; }
 
 void meta::ER1::Voice::setOscFreq(float freq)
 {
