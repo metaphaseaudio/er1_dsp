@@ -6,26 +6,23 @@
 #include <meta/util/math.h>
 #include <vector>
 #include <juce_audio_utils/juce_audio_utils.h>
-#include "../inc/er1_dsp/Voice.h"
+#include "../inc/er1_dsp/AnalogVoice.h"
 #include "meta/util/range.h"
 
 #define MOD_RATE_FACTOR 1
 
-meta::ER1::Noise meta::ER1::Voice::m_Noise = meta::ER1::Noise();
+meta::ER1::Noise meta::ER1::AnalogVoice::m_Noise = meta::ER1::Noise();
 
-meta::ER1::Voice::Voice(float sampleRate)
+meta::ER1::AnalogVoice::AnalogVoice(float sampleRate)
     : sampleRate(sampleRate)
     , pitch(250)
-    , pan(0.5f)
-    , level(1.0f)
     , m_MainOsc(-1.0f, 0.0f, sampleRate, 250)
     , m_ModOsc(-1.0f, 0.0f, sampleRate / meta::ER1::MainOscillator::OverSample)
     , m_ModDepth(0.0f)
-    , m_Delay(sampleRate)
     , m_SampleCounter([&](){ tickMod(); })
 {}
 
-void meta::ER1::Voice::tickMod()
+void meta::ER1::AnalogVoice::tickMod()
 {
     switch (m_ModType)
     {
@@ -43,7 +40,7 @@ void meta::ER1::Voice::tickMod()
     }
 }
 
-std::array<float, 2> meta::ER1::Voice::tick()
+float meta::ER1::AnalogVoice::tick()
 {
     if (!m_Env.hasEnded())
     {
@@ -53,18 +50,13 @@ std::array<float, 2> meta::ER1::Voice::tick()
 
         // Mix in the noise if appropriate
         const auto invMix = 1.0f - m_LastMix; // How much of the raw osc
-        sample = ((sample * invMix) + (m_LastNoise * m_LastMix)) * env * level;
-
-        const auto l = sample * (1.0f - pan);
-        const auto r = sample * pan;
-
-        return m_Delay.tick(l, r);
+        return ((sample * invMix) + (m_LastNoise * m_LastMix)) * env;
     }
 
-    return m_Delay.tick(0, 0);
+    return 0.0f;
 }
 
-void meta::ER1::Voice::reset()
+void meta::ER1::AnalogVoice::reset()
 {
 	setOscFreq(pitch);
     m_SampleCounter.sync(1);
@@ -74,20 +66,20 @@ void meta::ER1::Voice::reset()
     m_ModEnv.reset(sampleRate);
 }
 
-void meta::ER1::Voice::start()
+void meta::ER1::AnalogVoice::start()
 {
     m_Env.start();
     m_SAH.start(m_Noise.tick());
     m_ModEnv.start();
 }
 
-void meta::ER1::Voice::setModulationShape(meta::ER1::Voice::ModShape type) 
+void meta::ER1::AnalogVoice::setModulationShape(meta::ER1::AnalogVoice::ModShape type)
 {
     if (type != NOISE) { m_LastMix = 0.0f; }
     m_ModType = type;
 }
 
-void meta::ER1::Voice::setModulationSpeed(float speed)
+void meta::ER1::AnalogVoice::setModulationSpeed(float speed)
 {
     m_ModEnv.setSpeed(sampleRate, meta::Interpolate<float>::parabolic(0.1f, 500.0f, speed, 6));
     m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 6));
@@ -98,40 +90,34 @@ void meta::ER1::Voice::setModulationSpeed(float speed)
     );
 }
 
-void meta::ER1::Voice::setPitch(float hz) { pitch = hz; }
-void meta::ER1::Voice::setSampleRate(float newRate)
+void meta::ER1::AnalogVoice::setPitch(float hz) { pitch = hz; }
+void meta::ER1::AnalogVoice::setSampleRate(float newRate)
 {
     sampleRate = newRate;
-    m_Delay.setSampleRate(newRate);
     m_MainOsc.set_sample_rate(newRate);
     m_Env.setSampleRate(newRate);
 
-    m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample); // run sample-accurate, not sub-sample accurate
+    // run sample-accurate, not sub-sample accurate
+    m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample);
 }
 
-void meta::ER1::Voice::setModulationDepth(float depth) { m_ModDepth = depth * 1100.0f; }
+void meta::ER1::AnalogVoice::setModulationDepth(float depth) { m_ModDepth = depth * 1100.0f; }
 
-void meta::ER1::Voice::setOscFreq(float freq)
+void meta::ER1::AnalogVoice::setOscFreq(float freq)
 {
     const auto nyquist = sampleRate / 2.0f;
     m_MainOsc.set_freq(meta::limit(20.0f, nyquist, freq));
 }
 
-void meta::ER1::Voice::setWaveShape(meta::ER1::WaveShape waveType)
+void meta::ER1::AnalogVoice::setWaveShape(meta::ER1::WaveShape waveType)
     { m_Shape = waveType; }
 
-void meta::ER1::Voice::setDecay(float time)
+void meta::ER1::AnalogVoice::setDecay(float time)
 {
     m_Env.setSpeed(sampleRate, time);
 }
 
-
-void meta::ER1::Voice::setTempo(float bpm) { m_Delay.setBPM(bpm); }
-void meta::ER1::Voice::setDelayTime(float time) { m_Delay.setTime(time); }
-void meta::ER1::Voice::setDelayDepth(float depth) { m_Delay.setDepth(depth); }
-void meta::ER1::Voice::setTempoSync(bool sync) { m_Delay.setTempoSync(sync); }
-
-float meta::ER1::Voice::wave_shape(WaveShape shape, float accumulator_state)
+float meta::ER1::AnalogVoice::wave_shape(WaveShape shape, float accumulator_state)
 {
     switch (shape)
     {
@@ -150,13 +136,7 @@ float meta::ER1::Voice::wave_shape(WaveShape shape, float accumulator_state)
     return accumulator_state;
 }
 
-void meta::ER1::Voice::processBlock(float** data, int samps, int offset)
+void meta::ER1::AnalogVoice::processBlock(float* data, const float* ringData, int samps, int offset)
 {
-    for (int s = 0; s < samps; s++)
-    {
-        const auto value = tick();
-        data[0][s + offset] += value[0];
-        data[1][s + offset] += value[1];
-    }
+    for (int s = 0; s < samps; s++) { data[s + offset] = tick() * (ringData != nullptr ? ringData[s + offset] : 1.0f); }
 }
-

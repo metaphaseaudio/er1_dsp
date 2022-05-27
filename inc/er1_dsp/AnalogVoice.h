@@ -8,7 +8,6 @@
 #include "Envelope.h"
 #include "Oscillator.h"
 #include "SampleAndHold.h"
-#include "Delay.h"
 #include "meta/util/Countdown.h"
 
 namespace meta:: ER1
@@ -18,14 +17,14 @@ namespace meta:: ER1
      * associated handling code that allows them to be treated as a single
      * ER-1 voice.
      */
-    class Voice
+    class AnalogVoice
 //        : ER1::MainOscillator
     {
     public:
-        explicit Voice(float sampleRate);
+        explicit AnalogVoice(float sampleRate);
 
         /// fill an array of floats with data from the voice
-        void processBlock(float** data, int samps, int offset);
+        void processBlock(float* data, const float* ringData, int samps, int offset);
 
         /// silence the voice
         void reset();
@@ -52,18 +51,11 @@ namespace meta:: ER1
         void setModulationSpeed(float speed);
         void setModulationDepth(float depth);
         void setDecay(float time);
-        void setTempo(float bpm);
-        void setTempoSync(bool sync);
-        void setDelayTime(float time);
-        void setDelayDepth(float depth);
         [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
-
-        float level;
-        float pan;
 
     private:
         void tickMod();
-        std::array<float, 2> tick();
+        float tick();
 
         float wave_shape(WaveShape shape, float accumulator_state);
         void setOscFreq(float freq);
@@ -81,7 +73,6 @@ namespace meta:: ER1
         meta::ER1::SampleAndHold m_SAH;
         meta::ER1::Envelope m_ModEnv;
         meta::ER1::Envelope m_Env;
-        meta::ER1::Delay m_Delay;
         meta::Countdown<MainOscillator::OverSample> m_SampleCounter;
         static meta::ER1::Noise m_Noise;
     };
