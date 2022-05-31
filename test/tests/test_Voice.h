@@ -19,7 +19,6 @@ public:
         : voice(SAMP_RATE)
     {
         voice.setWaveShape(meta::ER1::WaveShape::COSINE);
-        voice.level = 1.0f;
         voice.setDecay(0.50f);
     };
 
@@ -41,7 +40,7 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers()[0], nullptr, 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
@@ -61,18 +60,18 @@ TEST_F(VoiceTest, generate_synth_bass_drum_retrigger)
     juce::AudioBuffer<float> buffer(2, 24000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 24000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers()[0], nullptr, 24000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 
     buffer.clear();
     voice.reset();
     voice.start();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 24000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers()[0], nullptr, 24000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 
     buffer.clear();
-    voice.processBlock(buffer.getArrayOfWritePointers(), 24000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers()[0], nullptr, 24000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
@@ -90,7 +89,7 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers()[0], nullptr, 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
@@ -110,6 +109,6 @@ TEST_F(VoiceTest, generate_lazer_sound)
     juce::AudioBuffer<float> buffer(2, 96000);
     buffer.clear();
 
-    voice.processBlock(buffer.getArrayOfWritePointers(), 96000, 0);
+    voice.processBlock(buffer.getArrayOfWritePointers()[0], nullptr, 96000, 0);
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
