@@ -19,6 +19,8 @@ void meta::ER1::Channel::processBlock(const float* inData, float** outData, int 
         const auto l = sample * (1.0f - pan);
         const auto r = sample * pan;
         const auto value = m_Delay.tick(l, r);
+
+        if (outData == nullptr) { continue; }
         outData[0][s + offset] += value[0]; // level application might be down here...
         outData[1][s + offset] += value[1];
     }
