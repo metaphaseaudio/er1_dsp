@@ -138,5 +138,6 @@ float meta::ER1::AnalogVoice::wave_shape(WaveShape shape, float accumulator_stat
 
 void meta::ER1::AnalogVoice::processBlock(float* data, const float* ringData, int samps, int offset)
 {
-    for (int s = 0; s < samps; s++) { data[s + offset] = tick() * (ringData != nullptr ? ringData[s + offset] : 1.0f); }
+    for (int s = 0; s < samps; s++)
+        { data[s + offset] = tick() * (ringData != nullptr ? ringData[s + offset] : 1.0f); }
 }
