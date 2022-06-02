@@ -28,30 +28,19 @@ namespace meta:: ER1
         void reset() override;
         void start() override;
 
-        enum ModShape
-        {
-            SINE = 0,
-            TRIANGLE,
-            SQUARE,
-            SAW,
-            INVERSE_SAW,
-            SANDH,
-            NOISE,
-            DECAY,
-        };
 
         void setSampleRate(float sampleRate) override;
-        void setWaveShape(ER1::WaveShape waveType);
-        void setPitch(float freq);
-        void setModulationShape(ModShape type);
-        void setModulationSpeed(float speed);
-        void setModulationDepth(float depth);
+        void setWaveShape(ER1::Wave::Shape waveType) override;
+        void setPitch(float freq) override;
+        void setModulationShape(ER1::Mod::Shape type) override;
+        void setModulationSpeed(float speed) override;
+        void setModulationDepth(float depth) override;
 
     private:
         void tickMod();
         float tick();
 
-        float wave_shape(WaveShape shape, float accumulator_state);
+        float wave_shape(Wave::Shape shape, float accumulator_state);
         void setOscFreq(float freq);
 
         float pitch;
@@ -59,8 +48,8 @@ namespace meta:: ER1
         float m_LastNoise;
         float m_LastMix;
 
-        WaveShape m_Shape = WaveShape::COSINE;
-        ModShape m_ModType = ModShape::DECAY;
+        Wave::Shape m_Shape = Wave::Shape::COSINE;
+        Mod::Shape m_ModType = Mod::Shape::DECAY;
         LoopingAccumulator m_MainOsc;
         LoopingAccumulator m_ModOsc;
         meta::ER1::SampleAndHold m_SAH;

@@ -16,11 +16,13 @@ namespace meta::ER1
             : sampleRate(sampleRate)
         { setDecay(decay); }
 
+        virtual ~Voice() = default;
+
         virtual void processBlock(float* data, const float* ringData, int samps, int offset) = 0;
 
         void setDecay(float time) { m_Env.setSpeed(sampleRate, time); };
 
-        virtual void setSampleRate(float sampleRate) { this->sampleRate = sampleRate; };
+        virtual void setSampleRate(float newRate) { sampleRate = newRate; };
 
         /// silence the voice
         virtual void reset() { m_Env.reset(sampleRate); };
@@ -30,6 +32,12 @@ namespace meta::ER1
 
         /// Indicates whether or not the envelope has reached 0.
         [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
+
+        virtual void setWaveShape(Wave::Shape waveType) {};
+        virtual void setPitch(float freq) {};
+        virtual void setModulationShape(Mod::Shape type) {};
+        virtual void setModulationSpeed(float speed) {};
+        virtual void setModulationDepth(float depth) {};
 
     protected:
         float sampleRate;

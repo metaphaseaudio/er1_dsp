@@ -26,16 +26,16 @@ void meta::ER1::AnalogVoice::tickMod()
 {
     switch (m_ModType)
     {
-        case ModShape::SINE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick())); break;
-        case ModShape::TRIANGLE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::TRIANGLE, m_ModOsc.tick())); break;
-        case ModShape::SQUARE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::SQUARE, m_ModOsc.tick())); break;
-        case ModShape::SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::SAW, m_ModOsc.tick())); break;
-        case ModShape::INVERSE_SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::WaveShape::INVERSE_SAW, m_ModOsc.tick())); break;
-        case ModShape::SANDH: setOscFreq(pitch + m_ModDepth * (m_SAH.tick(m_Noise.tick()) / fixed_t::maxSigned()).toFloat()); break;
-        case ModShape::DECAY: setOscFreq(pitch + m_ModDepth * m_ModEnv.tick()); break;
-        case ModShape::NOISE:
+        case Mod::Shape::SINE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::COSINE, m_ModOsc.tick())); break;
+        case Mod::Shape::TRIANGLE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::TRIANGLE, m_ModOsc.tick())); break;
+        case Mod::Shape::SQUARE: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SQUARE, m_ModOsc.tick())); break;
+        case Mod::Shape::SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SAW, m_ModOsc.tick())); break;
+        case Mod::Shape::INVERSE_SAW: setOscFreq(pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::INVERSE_SAW, m_ModOsc.tick())); break;
+        case Mod::Shape::SANDH: setOscFreq(pitch + m_ModDepth * (m_SAH.tick(m_Noise.tick()) / fixed_t::maxSigned()).toFloat()); break;
+        case Mod::Shape::DECAY: setOscFreq(pitch + m_ModDepth * m_ModEnv.tick()); break;
+        case Mod::Shape::NOISE:
             m_LastNoise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned());
-            m_LastMix = (1.0f + (wave_shape(ER1::WaveShape::COSINE, m_ModOsc.tick())) / 2) * m_ModDepth / 1100; break;
+            m_LastMix = (1.0f + (wave_shape(ER1::Wave::Shape::COSINE, m_ModOsc.tick())) / 2) * m_ModDepth / 1100; break;
         default: break;
     }
 }
@@ -73,9 +73,9 @@ void meta::ER1::AnalogVoice::start()
     m_ModEnv.start();
 }
 
-void meta::ER1::AnalogVoice::setModulationShape(meta::ER1::AnalogVoice::ModShape type)
+void meta::ER1::AnalogVoice::setModulationShape(meta::ER1::Mod::Shape type)
 {
-    if (type != NOISE) { m_LastMix = 0.0f; }
+    if (type != Mod::Shape::NOISE) { m_LastMix = 0.0f; }
     m_ModType = type;
 }
 
@@ -109,23 +109,23 @@ void meta::ER1::AnalogVoice::setOscFreq(float freq)
     m_MainOsc.set_freq(meta::limit(20.0f, nyquist, freq));
 }
 
-void meta::ER1::AnalogVoice::setWaveShape(meta::ER1::WaveShape waveType)
+void meta::ER1::AnalogVoice::setWaveShape(meta::ER1::Wave::Shape waveType)
     { m_Shape = waveType; }
 
 
-float meta::ER1::AnalogVoice::wave_shape(WaveShape shape, float accumulator_state)
+float meta::ER1::AnalogVoice::wave_shape(Wave::Shape shape, float accumulator_state)
 {
     switch (shape)
     {
-        case WaveShape::COSINE:
+        case Wave::Shape::COSINE:
             return Shapes::cosin(accumulator_state);
-        case WaveShape::TRIANGLE:
+        case Wave::Shape::TRIANGLE:
             return Shapes::tri(accumulator_state);
-        case WaveShape::SQUARE:
+        case Wave::Shape::SQUARE:
             return Shapes::square(accumulator_state);
-        case WaveShape::SAW:
+        case Wave::Shape::SAW:
             return accumulator_state;
-        case INVERSE_SAW:
+        case Wave::Shape::INVERSE_SAW:
             return Shapes::inv_saw(accumulator_state);
     }
 

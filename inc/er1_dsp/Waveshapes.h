@@ -9,14 +9,33 @@
 
 namespace meta::ER1
 {
-    enum WaveShape
+    namespace Wave
     {
-        COSINE = 0,
-        TRIANGLE,
-        SQUARE,
-        SAW,
-        INVERSE_SAW,
-    };
+        enum Shape
+        {
+            COSINE = 0,
+            TRIANGLE,
+            SQUARE,
+            SAW,
+            INVERSE_SAW,
+        };
+    }
+
+    namespace Mod
+    {
+        enum Shape
+        {
+            SINE = 0,
+            TRIANGLE,
+            SQUARE,
+            SAW,
+            INVERSE_SAW,
+            SANDH,
+            NOISE,
+            DECAY,
+        };
+    }
+
 
     template<typename NumType=float, size_t table_size=256>
     struct SimpleWaveShapeFunc
