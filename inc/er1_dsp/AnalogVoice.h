@@ -18,7 +18,6 @@ namespace meta:: ER1
      * ER-1 voice.
      */
     class AnalogVoice
-//        : ER1::MainOscillator
     {
     public:
         explicit AnalogVoice(float sampleRate);
