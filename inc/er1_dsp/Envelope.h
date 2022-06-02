@@ -4,7 +4,7 @@
 #pragma once
 
 #include <meta/audio/Asymp.h>
-#include "Oscillator.h"
+#include "Constants.h"
 #include "Noise.h"
 
 namespace meta

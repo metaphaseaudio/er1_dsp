@@ -2,11 +2,11 @@
 // Created by Matt Zapp on 4/3/2018.
 //
 
-#include <meta/audio/SingletonSampleRate.h>
-#include <meta/util/math.h>
+#include "meta/audio/SingletonSampleRate.h"
+#include "meta/util/math.h"
 #include <vector>
-#include <juce_audio_utils/juce_audio_utils.h>
-#include "../inc/er1_dsp/AnalogVoice.h"
+#include "juce_audio_utils/juce_audio_utils.h"
+#include "er1_dsp/voices/AnalogVoice.h"
 #include "meta/util/range.h"
 
 #define MOD_RATE_FACTOR 1
@@ -14,7 +14,7 @@
 meta::ER1::Noise meta::ER1::AnalogVoice::m_Noise = meta::ER1::Noise();
 
 meta::ER1::AnalogVoice::AnalogVoice(float sampleRate)
-    : sampleRate(sampleRate)
+    : Voice(sampleRate)
     , pitch(250)
     , m_MainOsc(-1.0f, 0.0f, sampleRate, 250)
     , m_ModOsc(-1.0f, 0.0f, sampleRate / meta::ER1::MainOscillator::OverSample)
@@ -58,17 +58,17 @@ float meta::ER1::AnalogVoice::tick()
 
 void meta::ER1::AnalogVoice::reset()
 {
+    Voice::reset();
 	setOscFreq(pitch);
     m_SampleCounter.sync(1);
     m_MainOsc.sync(MainOscillator::Min);
     m_ModOsc.sync(MainOscillator::Min);
-    m_Env.reset(sampleRate);
     m_ModEnv.reset(sampleRate);
 }
 
 void meta::ER1::AnalogVoice::start()
 {
-    m_Env.start();
+    Voice::start();
     m_SAH.start(m_Noise.tick());
     m_ModEnv.start();
 }
@@ -93,7 +93,7 @@ void meta::ER1::AnalogVoice::setModulationSpeed(float speed)
 void meta::ER1::AnalogVoice::setPitch(float hz) { pitch = hz; }
 void meta::ER1::AnalogVoice::setSampleRate(float newRate)
 {
-    sampleRate = newRate;
+    Voice::setSampleRate(newRate);
     m_MainOsc.set_sample_rate(newRate);
     m_Env.setSampleRate(newRate);
 
@@ -112,10 +112,6 @@ void meta::ER1::AnalogVoice::setOscFreq(float freq)
 void meta::ER1::AnalogVoice::setWaveShape(meta::ER1::WaveShape waveType)
     { m_Shape = waveType; }
 
-void meta::ER1::AnalogVoice::setDecay(float time)
-{
-    m_Env.setSpeed(sampleRate, time);
-}
 
 float meta::ER1::AnalogVoice::wave_shape(WaveShape shape, float accumulator_state)
 {

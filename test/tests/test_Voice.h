@@ -4,8 +4,8 @@
 
 #pragma once
 #include <meta/util/file/AudioFileHelpers.h>
-#include <er1_dsp/Oscillator.h>
-#include <er1_dsp/AnalogVoice.h>
+#include <er1_dsp/Constants.h>
+#include "er1_dsp/voices/AnalogVoice.h"
 #include <meta/testing/TestBase.h>
 #include <meta/testing/TestHelpers.h>
 #include "common_constants.h"

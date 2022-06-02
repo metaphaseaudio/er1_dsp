@@ -2,11 +2,11 @@
 // Created by Mattb on 6/1/2022.
 //
 
-#include "er1_dsp/AudioVoice.h"
+#include "er1_dsp/voices/AudioVoice.h"
 
 
 meta::ER1::AudioVoice::AudioVoice(float sampleRate)
-    : sampleRate(sampleRate)
+    : Voice(sampleRate)
 {}
 
 void meta::ER1::AudioVoice::processBlock(float* data, const float* ringData, int samps, int offset)

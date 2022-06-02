@@ -3,11 +3,11 @@
 //
 #pragma once
 
-#include <meta/dsp/BandlimitedOsc.h>
-#include "Noise.h"
-#include "Envelope.h"
-#include "Oscillator.h"
-#include "SampleAndHold.h"
+#include "BaseVoice.h"
+#include "../Noise.h"
+#include "../Envelope.h"
+#include "../Constants.h"
+#include "../SampleAndHold.h"
 #include "meta/util/Countdown.h"
 
 namespace meta:: ER1
@@ -18,18 +18,15 @@ namespace meta:: ER1
      * ER-1 voice.
      */
     class AnalogVoice
+        : public Voice
     {
     public:
         explicit AnalogVoice(float sampleRate);
 
         /// fill an array of floats with data from the voice
-        void processBlock(float* data, const float* ringData, int samps, int offset);
-
-        /// silence the voice
-        void reset();
-
-        /// trigger the voice
-        void start();
+        void processBlock(float* data, const float* ringData, int samps, int offset) override;
+        void reset() override;
+        void start() override;
 
         enum ModShape
         {
@@ -43,14 +40,12 @@ namespace meta:: ER1
             DECAY,
         };
 
-        void setSampleRate(float sampleRate);
+        void setSampleRate(float sampleRate) override;
         void setWaveShape(ER1::WaveShape waveType);
         void setPitch(float freq);
         void setModulationShape(ModShape type);
         void setModulationSpeed(float speed);
         void setModulationDepth(float depth);
-        void setDecay(float time);
-        [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
 
     private:
         void tickMod();
@@ -59,7 +54,6 @@ namespace meta:: ER1
         float wave_shape(WaveShape shape, float accumulator_state);
         void setOscFreq(float freq);
 
-        float sampleRate;
         float pitch;
         float m_ModDepth;
         float m_LastNoise;
@@ -71,7 +65,6 @@ namespace meta:: ER1
         LoopingAccumulator m_ModOsc;
         meta::ER1::SampleAndHold m_SAH;
         meta::ER1::Envelope m_ModEnv;
-        meta::ER1::Envelope m_Env;
         meta::Countdown<MainOscillator::OverSample> m_SampleCounter;
         static meta::ER1::Noise m_Noise;
     };
