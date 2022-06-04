@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "BaseVoice.h"
+#include "BaseSound.h"
 #include "../Noise.h"
 #include "../Envelope.h"
 #include "../Constants.h"
@@ -17,11 +17,11 @@ namespace meta:: ER1
      * associated handling code that allows them to be treated as a single
      * ER-1 voice.
      */
-    class AnalogVoice
-        : public Voice
+    class AnalogSound
+        : public BaseSound
     {
     public:
-        explicit AnalogVoice(float sampleRate);
+        explicit AnalogSound(float sampleRate);
 
         /// fill an array of floats with data from the voice
         void processBlock(float* data, const float* ringData, int samps, int offset) override;

@@ -6,15 +6,15 @@
 #include "meta/util/math.h"
 #include <vector>
 #include "juce_audio_utils/juce_audio_utils.h"
-#include "er1_dsp/voices/AnalogVoice.h"
+#include "er1_dsp/sounds/AnalogSound.h"
 #include "meta/util/range.h"
 
 #define MOD_RATE_FACTOR 1
 
-meta::ER1::Noise meta::ER1::AnalogVoice::m_Noise = meta::ER1::Noise();
+meta::ER1::Noise meta::ER1::AnalogSound::m_Noise = meta::ER1::Noise();
 
-meta::ER1::AnalogVoice::AnalogVoice(float sampleRate)
-    : Voice(sampleRate)
+meta::ER1::AnalogSound::AnalogSound(float sampleRate)
+    : BaseSound(sampleRate)
     , pitch(250)
     , m_MainOsc(-1.0f, 0.0f, sampleRate, 250)
     , m_ModOsc(-1.0f, 0.0f, sampleRate / meta::ER1::MainOscillator::OverSample)
@@ -22,7 +22,7 @@ meta::ER1::AnalogVoice::AnalogVoice(float sampleRate)
     , m_SampleCounter([&](){ tickMod(); })
 {}
 
-void meta::ER1::AnalogVoice::tickMod()
+void meta::ER1::AnalogSound::tickMod()
 {
     switch (m_ModType)
     {
@@ -40,7 +40,7 @@ void meta::ER1::AnalogVoice::tickMod()
     }
 }
 
-float meta::ER1::AnalogVoice::tick()
+float meta::ER1::AnalogSound::tick()
 {
     if (!m_Env.hasEnded())
     {
@@ -56,9 +56,9 @@ float meta::ER1::AnalogVoice::tick()
     return 0.0f;
 }
 
-void meta::ER1::AnalogVoice::reset()
+void meta::ER1::AnalogSound::reset()
 {
-    Voice::reset();
+    BaseSound::reset();
 	setOscFreq(pitch);
     m_SampleCounter.sync(1);
     m_MainOsc.sync(MainOscillator::Min);
@@ -66,20 +66,20 @@ void meta::ER1::AnalogVoice::reset()
     m_ModEnv.reset(sampleRate);
 }
 
-void meta::ER1::AnalogVoice::start()
+void meta::ER1::AnalogSound::start()
 {
-    Voice::start();
+    BaseSound::start();
     m_SAH.start(m_Noise.tick());
     m_ModEnv.start();
 }
 
-void meta::ER1::AnalogVoice::setModulationShape(meta::ER1::Mod::Shape type)
+void meta::ER1::AnalogSound::setModulationShape(meta::ER1::Mod::Shape type)
 {
     if (type != Mod::Shape::NOISE) { m_LastMix = 0.0f; }
     m_ModType = type;
 }
 
-void meta::ER1::AnalogVoice::setModulationSpeed(float speed)
+void meta::ER1::AnalogSound::setModulationSpeed(float speed)
 {
     m_ModEnv.setSpeed(sampleRate, meta::Interpolate<float>::parabolic(0.1f, 500.0f, speed, 6));
     m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 6));
@@ -90,10 +90,10 @@ void meta::ER1::AnalogVoice::setModulationSpeed(float speed)
     );
 }
 
-void meta::ER1::AnalogVoice::setPitch(float hz) { pitch = hz; }
-void meta::ER1::AnalogVoice::setSampleRate(float newRate)
+void meta::ER1::AnalogSound::setPitch(float hz) { pitch = hz; }
+void meta::ER1::AnalogSound::setSampleRate(float newRate)
 {
-    Voice::setSampleRate(newRate);
+    BaseSound::setSampleRate(newRate);
     m_MainOsc.set_sample_rate(newRate);
     m_Env.setSampleRate(newRate);
 
@@ -101,19 +101,19 @@ void meta::ER1::AnalogVoice::setSampleRate(float newRate)
     m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample);
 }
 
-void meta::ER1::AnalogVoice::setModulationDepth(float depth) { m_ModDepth = depth * 1100.0f; }
+void meta::ER1::AnalogSound::setModulationDepth(float depth) { m_ModDepth = depth * 1100.0f; }
 
-void meta::ER1::AnalogVoice::setOscFreq(float freq)
+void meta::ER1::AnalogSound::setOscFreq(float freq)
 {
     const auto nyquist = sampleRate / 2.0f;
     m_MainOsc.set_freq(meta::limit(20.0f, nyquist, freq));
 }
 
-void meta::ER1::AnalogVoice::setWaveShape(meta::ER1::Wave::Shape waveType)
+void meta::ER1::AnalogSound::setWaveShape(meta::ER1::Wave::Shape waveType)
     { m_Shape = waveType; }
 
 
-float meta::ER1::AnalogVoice::wave_shape(Wave::Shape shape, float accumulator_state)
+float meta::ER1::AnalogSound::wave_shape(Wave::Shape shape, float accumulator_state)
 {
     switch (shape)
     {
@@ -132,7 +132,7 @@ float meta::ER1::AnalogVoice::wave_shape(Wave::Shape shape, float accumulator_st
     return accumulator_state;
 }
 
-void meta::ER1::AnalogVoice::processBlock(float* data, const float* ringData, int samps, int offset)
+void meta::ER1::AnalogSound::processBlock(float* data, const float* ringData, int samps, int offset)
 {
     for (int s = 0; s < samps; s++)
         { data[s + offset] = tick() * (ringData != nullptr ? ringData[s + offset] : 1.0f); }

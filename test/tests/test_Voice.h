@@ -5,7 +5,7 @@
 #pragma once
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Constants.h>
-#include "er1_dsp/voices/AnalogVoice.h"
+#include "er1_dsp/voices/AnalogSound.h"
 #include <meta/testing/TestBase.h>
 #include <meta/testing/TestHelpers.h>
 #include "common_constants.h"
@@ -22,14 +22,14 @@ public:
         voice.setDecay(0.50f);
     };
 
-    meta::ER1::AnalogVoice voice;
+    meta::ER1::AnalogSound voice;
 };
 
 TEST_F(VoiceTest, generate_synth_bass_drum)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
-    voice.setModulationShape(meta::ER1::AnalogVoice::DECAY);
+    voice.setModulationShape(meta::ER1::AnalogSound::DECAY);
     voice.setWaveShape(meta::ER1::WaveShape::COSINE);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(5.0f);
@@ -49,7 +49,7 @@ TEST_F(VoiceTest, generate_synth_bass_drum_retrigger)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum_retrigger.wav"));
 
-    voice.setModulationShape(meta::ER1::AnalogVoice::DECAY);
+    voice.setModulationShape(meta::ER1::AnalogSound::DECAY);
     voice.setWaveShape(meta::ER1::WaveShape::COSINE);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(5.0f);
@@ -79,7 +79,7 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
 
-    voice.setModulationShape(meta::ER1::AnalogVoice::SANDH);
+    voice.setModulationShape(meta::ER1::AnalogSound::SANDH);
     voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(44100.0f);
     voice.setPitch(1000);
@@ -99,7 +99,7 @@ TEST_F(VoiceTest, generate_lazer_sound)
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
 
     voice.setWaveShape(meta::ER1::WaveShape::TRIANGLE);
-    voice.setModulationShape(meta::ER1::AnalogVoice::SAW);
+    voice.setModulationShape(meta::ER1::AnalogSound::SAW);
     voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(15.0f);
     voice.setPitch(1000);

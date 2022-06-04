@@ -9,14 +9,14 @@
 
 namespace meta::ER1
 {
-    class Voice
+    class BaseSound
     {
     public:
-        explicit Voice(float sampleRate, float decay=1.0f)
+        explicit BaseSound(float sampleRate, float decay=1.0f)
             : sampleRate(sampleRate)
         { setDecay(decay); }
 
-        virtual ~Voice() = default;
+        virtual ~BaseSound() = default;
 
         virtual void processBlock(float* data, const float* ringData, int samps, int offset) = 0;
 
@@ -38,6 +38,15 @@ namespace meta::ER1
         virtual void setModulationShape(Mod::Shape type) {};
         virtual void setModulationSpeed(float speed) {};
         virtual void setModulationDepth(float depth) {};
+
+        enum AudioChannel
+        {
+            NONE = 0,
+            LEFT,
+            RIGHT
+        };
+
+        virtual AudioChannel wantsAudioChannel() const { return NONE; }
 
     protected:
         float sampleRate;
