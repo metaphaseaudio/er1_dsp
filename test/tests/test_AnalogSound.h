@@ -5,32 +5,32 @@
 #pragma once
 #include <meta/util/file/AudioFileHelpers.h>
 #include <er1_dsp/Constants.h>
-#include "er1_dsp/voices/AnalogSound.h"
+#include "er1_dsp/sounds/AnalogSound.h"
 #include <meta/testing/TestBase.h>
 #include <meta/testing/TestHelpers.h>
 #include "common_constants.h"
 
 
-class VoiceTest
+class AnalogSoundTest
     : public meta::TestBase
 {
 public:
-    VoiceTest()
+    AnalogSoundTest()
         : voice(SAMP_RATE)
     {
-        voice.setWaveShape(meta::ER1::WaveShape::COSINE);
+        voice.setWaveShape(meta::ER1::Wave::Shape::COSINE);
         voice.setDecay(0.50f);
     };
 
     meta::ER1::AnalogSound voice;
 };
 
-TEST_F(VoiceTest, generate_synth_bass_drum)
+TEST_F(AnalogSoundTest, generate_synth_bass_drum)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
 
-    voice.setModulationShape(meta::ER1::AnalogSound::DECAY);
-    voice.setWaveShape(meta::ER1::WaveShape::COSINE);
+    voice.setModulationShape(meta::ER1::Mod::Shape::DECAY);
+    voice.setWaveShape(meta::ER1::Wave::Shape::COSINE);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(5.0f);
     voice.setPitch(40);
@@ -45,12 +45,12 @@ TEST_F(VoiceTest, generate_synth_bass_drum)
 }
 
 
-TEST_F(VoiceTest, generate_synth_bass_drum_retrigger)
+TEST_F(AnalogSoundTest, generate_synth_bass_drum_retrigger)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum_retrigger.wav"));
 
-    voice.setModulationShape(meta::ER1::AnalogSound::DECAY);
-    voice.setWaveShape(meta::ER1::WaveShape::COSINE);
+    voice.setModulationShape(meta::ER1::Mod::Shape::DECAY);
+    voice.setWaveShape(meta::ER1::Wave::Shape::COSINE);
     voice.setModulationDepth(200.0f);
     voice.setModulationSpeed(5.0f);
     voice.setPitch(40);
@@ -75,11 +75,11 @@ TEST_F(VoiceTest, generate_synth_bass_drum_retrigger)
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
-TEST_F(VoiceTest, generate_sample_and_hold_snare)
+TEST_F(AnalogSoundTest, generate_sample_and_hold_snare)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("sah_snare.wav"));
 
-    voice.setModulationShape(meta::ER1::AnalogSound::SANDH);
+    voice.setModulationShape(meta::ER1::Mod::Shape::SANDH);
     voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(44100.0f);
     voice.setPitch(1000);
@@ -94,12 +94,12 @@ TEST_F(VoiceTest, generate_sample_and_hold_snare)
 }
 
 
-TEST_F(VoiceTest, generate_lazer_sound)
+TEST_F(AnalogSoundTest, generate_lazer_sound)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("lazer_sound.wav"));
 
-    voice.setWaveShape(meta::ER1::WaveShape::TRIANGLE);
-    voice.setModulationShape(meta::ER1::AnalogSound::SAW);
+    voice.setWaveShape(meta::ER1::Wave::Shape::TRIANGLE);
+    voice.setModulationShape(meta::ER1::Mod::Shape::SAW);
     voice.setModulationDepth(2000.0f);
     voice.setModulationSpeed(15.0f);
     voice.setPitch(1000);

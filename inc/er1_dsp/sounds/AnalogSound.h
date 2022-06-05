@@ -13,7 +13,7 @@
 namespace meta:: ER1
 {
     /**
-     * Comprises one oscillator and two modulators (amp and pitch) with the
+     * Comprises one oscillator and two modulators (amp and m_Pitch) with the
      * associated handling code that allows them to be treated as a single
      * ER-1 voice.
      */
@@ -43,7 +43,7 @@ namespace meta:: ER1
         float wave_shape(Wave::Shape shape, float accumulator_state);
         void setOscFreq(float freq);
 
-        float pitch;
+        float m_Pitch;
         float m_ModDepth;
         float m_LastNoise;
         float m_LastMix;

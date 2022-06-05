@@ -11,7 +11,8 @@
 #include "tests/test_TiltFilter.h"
 #include "tests/test_Envelope.h"
 #include "tests/test_Delay.h"
-#include "tests/test_Voice.h"
+#include "tests/test_AnalogSound.h"
+#include "tests/test_PCMSound.h"
 
 int main(int argc, char **argv)
 {
