@@ -28,7 +28,11 @@ namespace meta::ER1
         virtual void reset() { m_Env.reset(sampleRate); };
 
         /// trigger the voice
-        virtual void start() { m_Env.start(); };
+        virtual void start()
+        {
+            m_Env.start();
+            for (auto sound : m_ChokeList) { sound->reset(); }
+        };
 
         /// Indicates whether or not the envelope has reached 0.
         [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
@@ -47,9 +51,13 @@ namespace meta::ER1
         };
 
         virtual AudioChannel wantsAudioChannel() const { return NONE; }
+        void addSoundToChokeList(BaseSound* other) { m_ChokeList.push_back(other); };
 
     protected:
         float sampleRate;
         meta::ER1::Envelope m_Env;
+
+    private:
+        std::vector<BaseSound*> m_ChokeList;
     };
 }
