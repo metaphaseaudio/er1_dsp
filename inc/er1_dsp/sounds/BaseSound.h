@@ -22,7 +22,11 @@ namespace meta::ER1
 
         void setDecay(float time) { m_Env.setSpeed(sampleRate, time); };
 
-        virtual void setSampleRate(float newRate) { sampleRate = newRate; };
+        virtual void setSampleRate(float newRate)
+        {
+            sampleRate = newRate;
+            m_Env.setSampleRate(sampleRate);
+        };
 
         /// silence the voice
         virtual void reset() { m_Env.reset(sampleRate); };

@@ -91,14 +91,15 @@ void meta::ER1::AnalogSound::setModulationSpeed(float speed)
 }
 
 void meta::ER1::AnalogSound::setPitch(float hz)
-    { m_Pitch = meta::Interpolate<float>::parabolic(20.0f, 12000.0, hz, 4); }
+{
+    m_Pitch = meta::Interpolate<float>::parabolic(20.0f, 12000.0, hz, 4);
+//    m_Pitch = hz;
+}
 
 void meta::ER1::AnalogSound::setSampleRate(float newRate)
 {
     BaseSound::setSampleRate(newRate);
     m_MainOsc.set_sample_rate(newRate);
-    m_Env.setSampleRate(newRate);
-
     // run sample-accurate, not sub-sample accurate
     m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample);
 }

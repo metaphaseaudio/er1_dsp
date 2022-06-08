@@ -52,7 +52,7 @@ TEST_F(AnalogSoundTest, generate_synth_bass_drum_retrigger)
     voice.setModulationShape(meta::ER1::Mod::Shape::DECAY);
     voice.setWaveShape(meta::ER1::Wave::Shape::COSINE);
     voice.setModulationDepth(200.0f);
-    voice.setModulationSpeed(5.0f);
+    voice.setModulationSpeed(0.5f);
     voice.setPitch(40);
     voice.reset();
     voice.start();
