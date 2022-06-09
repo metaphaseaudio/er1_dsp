@@ -13,6 +13,8 @@
 #include "tests/test_Delay.h"
 #include "tests/test_AnalogSound.h"
 #include "tests/test_PCMSound.h"
+#include "tests/test_LowBoost.h"
+
 
 int main(int argc, char **argv)
 {
