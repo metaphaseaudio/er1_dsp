@@ -12,13 +12,14 @@ meta::ER1::Channel::Channel(float pan, float level, float sampleRate)
     , level(level), boostGain(1.0f)
     , m_LowBoost(sampleRate, F, 0, S)
     , m_Delay(sampleRate)
+    , accentGain(1.0f)
 {}
 
 void meta::ER1::Channel::processBlock(const float* inData, float** outData, int nSamps, int offset)
 {
     for (int s = 0; s < nSamps; s++)
     {
-        auto sample = m_LowBoost.processSample(inData[s + offset] * 0.25) * level * boostGain;
+        auto sample = m_LowBoost.processSample(inData[s + offset] * 0.25) * level * boostGain * accentGain;
         // apply the distortion
         sample = (2.0f / meta::NumericConstants<float>::PI) * atan(sample);
         const auto l = sample * (1.0f - pan);
@@ -37,7 +38,7 @@ void meta::ER1::Channel::setLevel(float x) { level = std::max(std::min(x, 1.0f),
 void meta::ER1::Channel::setSampleRate(float sr)
 {
     m_Delay.setSampleRate(sr);
-    m_LowBoost.setFreq(sr, 1000);
+    m_LowBoost.setFreq(sr, F);
 }
 
 void meta::ER1::Channel::setTempo(float bpm) { m_Delay.setBPM(bpm); }
@@ -50,5 +51,8 @@ void meta::ER1::Channel::setLowBoost(float x)
     boostGain = meta::Interpolate<float>::parabolic(1.0f, 0.03125f, x, -2);
     m_LowBoost.setBoost(meta::Interpolate<float>::parabolic(0.0f, 60, x), S);
 }
+
+void meta::ER1::Channel::setAccentGain(float vol)
+    { accentGain = vol; }
 
 

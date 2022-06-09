@@ -25,10 +25,11 @@ namespace meta:: ER1
         void setTempoSync(bool sync);
         void setDelayTime(float time);
         void setDelayDepth(float depth);
+        void setAccentGain(float vol);
 
     private:
         float pan;
-        float level, boostGain;
+        float level, boostGain, accentGain;
         meta::ER1::LowBoost m_LowBoost;
         meta::ER1::Delay m_Delay;
     };
