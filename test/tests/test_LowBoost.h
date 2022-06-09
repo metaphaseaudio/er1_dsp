@@ -36,15 +36,16 @@ public:
 TEST_F(LowBoostTest, generate_white_noise_with_boost)
 {
     initializeTestFile("white_noise_boost.wav");
-    auto boost = meta::ER1::LowBoost(LowBoostTest::sample_rate, 1000, 50, 0.5);
+    auto boost = meta::ER1::LowBoost(LowBoostTest::sample_rate, 1000, 60, 0.75);
 
     juce::AudioBuffer<float> buffer(2, LowBoostTest::sample_rate);
     buffer.clear();
+
     for (int i = 0; i < LowBoostTest::sample_rate; i++)
     {
         auto sample = static_cast<float>(noise.tick() / meta::ER1::fixed_t::maxSigned()) * 0.25;
         buffer.setSample(0,i, sample);
-        sample = boost.processSample(sample) * 0.1f;
+        sample = boost.processSample(sample) * 0.03125f;
         buffer.setSample(1,i, sample);
     }
 

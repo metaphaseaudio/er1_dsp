@@ -4,6 +4,7 @@
 
 #pragma once
 #include "Delay.h"
+#include "LowBoost.h"
 
 
 namespace meta:: ER1
@@ -18,6 +19,7 @@ namespace meta:: ER1
 
         void setPan(float x);
         void setLevel(float x);
+        void setLowBoost(float x);
 
         void setTempo(float bpm);
         void setTempoSync(bool sync);
@@ -26,7 +28,8 @@ namespace meta:: ER1
 
     private:
         float pan;
-        float level;
+        float level, boostGain;
+        meta::ER1::LowBoost m_LowBoost;
         meta::ER1::Delay m_Delay;
     };
 }
