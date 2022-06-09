@@ -29,21 +29,31 @@ float meta::ER1::IIRFilter::processSample(float in)
 }
 
 
-meta::ER1::LowBoost::LowBoost(float sampleRate, float freq, float boost)
+meta::ER1::LowBoost::LowBoost(float sampleRate, float freq, float boost, float s)
 {
-    setBoost(sampleRate, freq, boost);
+    setFreq(sampleRate, freq, false);
+    setBoost(boost, s);
 }
 
-void meta::ER1::LowBoost::setBoost(float sampleRate, float freq, float boost)
+void meta::ER1::LowBoost::setFreq(float sampleRate, float freq, bool recalculate)
 {
     const float omega = meta::NumericConstants<float>::PI * 2 * (freq / sampleRate);
-    const float sn = sin(omega);
-    const float cs = cos(omega);
-    const float A = exp(log(10.f) * boost * 0.025f);
-    const float beta = sqrt(A + A);
-//    const float A = sqrt(pow(10, boost) / 20.0f);
-//    const float beta = 2 * sqrt(A);
+    sn = sin(omega);
+    cs = cos(omega);
+    if (recalculate)
+        { recalculateCoeffs(); }
+}
 
+void meta::ER1::LowBoost::setBoost(float boost, float s, bool recalculate)
+{
+    A = exp(log(10.f) * boost * 0.025f);
+    beta = sqrt((A + A) + (A * A + 1) * ((1.0f / s) - 1));
+    if (recalculate)
+        { recalculateCoeffs(); }
+}
+
+void meta::ER1::LowBoost::recalculateCoeffs()
+{
     b0 = A * ((A + 1.f) - (A - 1.f) * cs + beta * sn);
     b1 = 2.f * A * ((A - 1.f) - (A + 1.f) * cs);
     b2 = A * ((A + 1.f) - (A - 1.f) * cs - beta * sn);

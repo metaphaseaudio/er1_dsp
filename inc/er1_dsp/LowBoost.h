@@ -26,7 +26,12 @@ namespace meta::ER1
         : public IIRFilter
     {
     public:
-        LowBoost(float sampleRate, float freq, float boost);
-        void setBoost(float sampleRate, float freq, float boost);
+        LowBoost(float sampleRate, float freq, float boost, float s);
+        void setFreq(float sampleRate, float freq, bool recalculate = true);
+        void setBoost(float boost, float s, bool recalculate = true);
+
+    private:
+        void recalculateCoeffs();
+        float A, beta, cs, sn;
     };
 }
