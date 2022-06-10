@@ -28,7 +28,7 @@ namespace meta:: ER1
         void setAccentGain(float vol);
 
     private:
-        float pan;
+        float halfRoot2, leftAmp, rightAmp;
         float level, boostGain, accentGain;
         meta::ER1::LowBoost m_LowBoost;
         meta::ER1::Delay m_Delay;

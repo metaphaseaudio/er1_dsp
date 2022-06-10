@@ -3,17 +3,20 @@
 //
 
 #include "../inc/er1_dsp/Channel.h"
+#include "meta/audio/decibels.h"
 
 static float S = 0.75;
 static float F = 1000;
 
 meta::ER1::Channel::Channel(float pan, float level, float sampleRate)
-    : pan(pan)
+    : halfRoot2(std::sqrt(2.0f) / 2.0f)
     , level(level), boostGain(1.0f)
     , m_LowBoost(sampleRate, F, 0, S)
     , m_Delay(sampleRate)
     , accentGain(1.0f)
-{}
+{
+    setPan(0);
+}
 
 void meta::ER1::Channel::processBlock(const float* inData, float** outData, int nSamps, int offset)
 {
@@ -22,18 +25,26 @@ void meta::ER1::Channel::processBlock(const float* inData, float** outData, int 
         auto sample = m_LowBoost.processSample(inData[s + offset] * 0.25) *  boostGain;
         // apply the distortion *then* do the level and accent.
         sample = ((2.0f / meta::NumericConstants<float>::PI) * atan(sample)) * level * accentGain;
-        const auto l = sample * (1.0f - pan);
-        const auto r = sample * pan;
+        const auto l = sample * leftAmp;
+        const auto r = sample * rightAmp;
         const auto value = m_Delay.tick(l, r);
 
         if (outData == nullptr) { continue; }
-        outData[0][s + offset] += value[0]; // level application might be down here...
+        outData[0][s + offset] += value[0];
         outData[1][s + offset] += value[1];
     }
 }
 
-void meta::ER1::Channel::setPan(float x) { pan = std::max(std::min(x, 1.0f), -1.0f); }
-void meta::ER1::Channel::setLevel(float x) { level = std::max(std::min(x, 1.0f), 0.0f); }
+void meta::ER1::Channel::setPan(float x)
+{
+    x = std::max(std::min(x, 1.0f), -1.0f);
+    x = x * meta::NumericConstants<float>::QUARTER_PI;
+    leftAmp = halfRoot2 * (std::cos(x) - std::sin(x));
+    rightAmp = halfRoot2 * (std::cos(x) + std::sin(x));
+}
+
+void meta::ER1::Channel::setLevel(float x)
+    { level = meta::Interpolate<float>::parabolic(0.0f, 1.0f, x, -2); }
 
 void meta::ER1::Channel::setSampleRate(float sr)
 {

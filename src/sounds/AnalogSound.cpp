@@ -26,11 +26,11 @@ void meta::ER1::AnalogSound::tickMod()
 {
     switch (m_ModType)
     {
-        case Mod::Shape::SINE: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::COSINE, m_ModOsc.tick())); break;
-        case Mod::Shape::TRIANGLE: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::TRIANGLE, m_ModOsc.tick())); break;
-        case Mod::Shape::SQUARE: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SQUARE, m_ModOsc.tick())); break;
-        case Mod::Shape::SAW: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SAW, m_ModOsc.tick())); break;
-        case Mod::Shape::INVERSE_SAW: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::INVERSE_SAW, m_ModOsc.tick())); break;
+        case Mod::Shape::SINE: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::COSINE, m_ModOsc.tick()) * -1.0f); break;
+        case Mod::Shape::TRIANGLE: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::TRIANGLE, m_ModOsc.tick()) * -1.0f); break;
+        case Mod::Shape::SQUARE: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SQUARE, m_ModOsc.tick()) * -1.0f); break;
+        case Mod::Shape::SAW: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SAW, m_ModOsc.tick()) * -1.0f); break;
+        case Mod::Shape::INVERSE_SAW: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::INVERSE_SAW, m_ModOsc.tick()) * -1.0f); break;
         case Mod::Shape::SANDH: setOscFreq(m_Pitch + m_ModDepth * (m_SAH.tick(m_Noise.tick()) / fixed_t::maxSigned()).toFloat()); break;
         case Mod::Shape::DECAY: setOscFreq(m_Pitch + m_ModDepth * m_ModEnv.tick()); break;
         case Mod::Shape::NOISE:
@@ -82,7 +82,7 @@ void meta::ER1::AnalogSound::setModulationShape(meta::ER1::Mod::Shape type)
 void meta::ER1::AnalogSound::setModulationSpeed(float speed)
 {
     m_ModEnv.setSpeed(sampleRate, meta::Interpolate<float>::parabolic(0.1f, 500.0f, speed, 3));
-    m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 6));
+    m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 10));
     m_SAH.setResetCount(
         meta::Interpolate<float>::parabolic(
             (sampleRate / meta::ER1::MainOscillator::OverSample) / 10.0f, 1.0f, speed, -6
