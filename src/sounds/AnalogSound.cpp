@@ -81,7 +81,7 @@ void meta::ER1::AnalogSound::setModulationShape(meta::ER1::Mod::Shape type)
 
 void meta::ER1::AnalogSound::setModulationSpeed(float speed)
 {
-    m_ModEnv.setSpeed(sampleRate, meta::Interpolate<float>::parabolic(0.1f, 500.0f, speed, 3));
+    m_ModEnv.setSpeed(sampleRate, meta::Interpolate<float>::parabolic(0.1f, 200.0f, speed, 3));
     m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 10));
     m_SAH.setResetCount(
         meta::Interpolate<float>::parabolic(
@@ -92,8 +92,7 @@ void meta::ER1::AnalogSound::setModulationSpeed(float speed)
 
 void meta::ER1::AnalogSound::setPitch(float hz)
 {
-    m_Pitch = meta::Interpolate<float>::parabolic(20.0f, 12000.0, hz, 5);
-//    m_Pitch = hz;
+    m_Pitch = meta::Interpolate<float>::parabolic(20.0f, 20000.0, hz, 5);
 }
 
 void meta::ER1::AnalogSound::setSampleRate(float newRate)
@@ -104,7 +103,12 @@ void meta::ER1::AnalogSound::setSampleRate(float newRate)
     m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample);
 }
 
-void meta::ER1::AnalogSound::setModulationDepth(float depth) { m_ModDepth = depth * 1100.0f; }
+void meta::ER1::AnalogSound::setModulationDepth(float depth)
+{
+    auto sign = depth >= 0 ? 1 : -1;
+    depth = meta::Interpolate<float>::parabolic(0.0f, 1.0f, std::abs(depth)) * sign;
+    m_ModDepth = depth * 7500.0f;
+}
 
 void meta::ER1::AnalogSound::setOscFreq(float freq)
 {
