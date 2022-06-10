@@ -20,7 +20,10 @@ namespace meta::ER1
 
         virtual void processBlock(float* data, const float* ringData, int samps, int offset) = 0;
 
-        void setDecay(float time) { m_Env.setSpeed(sampleRate, time); };
+        void setDecay(float time)
+        {
+            m_Env.setSpeed(sampleRate, meta::Interpolate<float>::parabolic(30, 0.05, time, -5));
+        };
 
         virtual void setSampleRate(float newRate)
         {
