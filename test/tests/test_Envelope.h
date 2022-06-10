@@ -21,7 +21,7 @@ public:
     void run(int samples)
     {
         constexpr int chunk_size = 10000;
-        for (int mod = samples / chunk_size; --mod >= 0;)
+        for (int mod = (samples / chunk_size) + 1; --mod >= 0;)
         {
             const auto n_samps = std::min<int>(chunk_size, samples);
             juce::AudioBuffer<float> buffer(1, n_samps);
@@ -46,4 +46,14 @@ TEST_F(EnvelopeTest, generate_envelope_short)
     envelope.setSpeed(SAMP_RATE, 10);
     envelope.start();
     run(100000);
+}
+
+TEST_F(EnvelopeTest, generate_envelope_till_end)
+{
+    initializeTestFile("full_envelope.wav");
+    envelope.setSpeed(SAMP_RATE, 10);
+    envelope.start();
+
+    while(!envelope.hasEnded())
+        { run(1000); }
 }

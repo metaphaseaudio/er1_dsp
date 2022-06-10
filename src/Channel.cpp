@@ -19,9 +19,9 @@ void meta::ER1::Channel::processBlock(const float* inData, float** outData, int 
 {
     for (int s = 0; s < nSamps; s++)
     {
-        auto sample = m_LowBoost.processSample(inData[s + offset] * 0.25) * level * boostGain * accentGain;
-        // apply the distortion
-        sample = (2.0f / meta::NumericConstants<float>::PI) * atan(sample);
+        auto sample = m_LowBoost.processSample(inData[s + offset] * 0.25) *  boostGain;
+        // apply the distortion *then* do the level and accent.
+        sample = ((2.0f / meta::NumericConstants<float>::PI) * atan(sample)) * level * accentGain;
         const auto l = sample * (1.0f - pan);
         const auto r = sample * pan;
         const auto value = m_Delay.tick(l, r);
