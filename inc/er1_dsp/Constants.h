@@ -12,6 +12,19 @@ namespace meta::ER1
 {
     using Shapes = SimpleWaveShapeFunc<>;
     using MainOscillator = BandLimitedOsc<16, 16, 8, 2>;
-    using Downsampler = meta::OversampledBuffer<16, 16, 8, 2>;
+    using Downsampler = meta::OversampledBuffer<16, 16, 8>;
+
+
+// Various numbers
+#ifdef _DEBUG
+    static constexpr int ANALOG_SOUND_COUNT = 3;
+    static constexpr int NumOutBuses = 4;
+#else
+    static constexpr int ANALOG_SOUND_COUNT = 10;
+    static constexpr int NumOutBuses = 16;
+#endif
+    static constexpr int SAMPLE_SOUND_COUNT = 4;
+    static constexpr int AUDIO_SOUND_COUNT = 2;
+    static constexpr int ER1_SOUND_COUNT = ANALOG_SOUND_COUNT + AUDIO_SOUND_COUNT + SAMPLE_SOUND_COUNT;
 }
 
