@@ -7,29 +7,26 @@
 #include "Constants.h"
 #include "Noise.h"
 
-namespace meta
+namespace meta::ER1
 {
-    namespace ER1
+    class Envelope
     {
-        class Envelope
-        {
-        public:
+    public:
+        void start();
 
-			void start();
+        void reset(float sampleRate);
 
-            void reset(float sampleRate);
+        void setSampleRate(float sampleRate);
+        void setSpeed(float sampleRate, float speed);
 
-            void setSampleRate(float sampleRate);
-            void setSpeed(float sampleRate, float speed);
+        void processBlock(float* data, int n_samps);
+        inline float tick() { return m_Ramp.tick(); }
 
-            void processBlock(float* data, int n_samps);
-            inline float tick() { return m_Ramp.tick(); }
+        [[nodiscard]] float getValue() const { return m_Ramp.getValue(); }
+        [[nodiscard]] bool hasEnded() const;
 
-            bool hasEnded() const;
-
-        private:
-            float m_Speed;
-            meta::Asymp m_Ramp;
-        };
-    }
+    private:
+        float m_Speed;
+        meta::Asymp m_Ramp;
+    };
 }

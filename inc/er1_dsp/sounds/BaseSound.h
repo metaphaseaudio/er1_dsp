@@ -42,6 +42,7 @@ namespace meta::ER1
         };
 
         /// Indicates whether or not the envelope has reached 0.
+        [[nodiscard]] float getEnvValue() const noexcept { return m_Env.getValue(); }
         [[nodiscard]] bool hasEnded() const noexcept { return m_Env.hasEnded(); }
 
         virtual void setWaveShape(Wave::Shape waveType) {};
