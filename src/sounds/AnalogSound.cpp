@@ -90,10 +90,7 @@ void meta::ER1::AnalogSound::setModulationSpeed(float speed)
     );
 }
 
-void meta::ER1::AnalogSound::setPitch(float hz)
-{
-    m_Pitch = meta::Interpolate<float>::parabolic(20.0f, 20000.0, hz, 5);
-}
+void meta::ER1::AnalogSound::setPitch(float hz) { m_Pitch = hz; }
 
 void meta::ER1::AnalogSound::setSampleRate(float newRate)
 {
