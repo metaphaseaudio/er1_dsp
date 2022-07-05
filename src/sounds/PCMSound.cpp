@@ -19,6 +19,7 @@ void meta::ER1::PCMSound::processBlock(float* data, const float* ringData, int s
 {
     for (int s = 0; s < samps; s++)
     {
+        const auto envVal = m_Env.tick();
         if (m_Phase >= m_PCMData.size())
         {
             data[s + offset] = 0.0f;
@@ -29,7 +30,7 @@ void meta::ER1::PCMSound::processBlock(float* data, const float* ringData, int s
         auto i = static_cast<int>(m_Phase) % table_size;
         auto f = m_Phase - static_cast<int>(m_Phase);
         auto j = (i == table_size - 1) ? 0 : i + 1;
-        data[s + offset] = meta::Interpolate<float>::linear(m_PCMData[i], m_PCMData[j], f) * m_Env.tick();
+        data[s + offset] = meta::Interpolate<float>::linear(m_PCMData[i], m_PCMData[j], f) * envVal;
         m_Phase += m_Delta;
     }
 }

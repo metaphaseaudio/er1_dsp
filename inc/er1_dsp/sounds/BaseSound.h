@@ -58,7 +58,7 @@ namespace meta::ER1
             RIGHT
         };
 
-        virtual AudioChannel wantsAudioChannel() const { return NONE; }
+        [[nodiscard]] virtual AudioChannel wantsAudioChannel() const { return NONE; }
         void addSoundToChokeList(BaseSound* other) { m_ChokeList.push_back(other); };
 
     protected:

@@ -35,5 +35,5 @@ void meta::ER1::Envelope::processBlock(float* data, int n_samps)
 }
 
 void meta::ER1::Envelope::setSampleRate(float sampleRate) {
-    setSpeed(m_Speed, sampleRate);
+    setSpeed(sampleRate, m_Speed);
 }
