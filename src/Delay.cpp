@@ -17,8 +17,8 @@ meta::ER1::Delay::Delay(float sampleRate)
     , m_DelaySampsTarget(0)
     , m_DelaySampsCurrent(m_SampleRate * 2)
     , m_Data{
-        std::vector<float>(int(m_SampleRate * 2), 0.0f),
-        std::vector<float>(int(m_SampleRate * 2), 0.0f)
+        std::vector<float>(int(m_SampleRate * 4), 0.0f),
+        std::vector<float>(int(m_SampleRate * 4), 0.0f)
     } // 2 seconds is the max delay time
 { recalculateDelaySamps(true); }
 
@@ -103,6 +103,8 @@ void meta::ER1::Delay::setTempoSync(bool sync)
 void meta::ER1::Delay::setSampleRate(float sr)
 {
     m_SampleRate = sr;
+    m_Data[0] = std::vector<float>(int(m_SampleRate * 4), 0.0f);
+    m_Data[1] = std::vector<float>(int(m_SampleRate * 4), 0.0f);
     recalculateDelaySamps();
 }
 
