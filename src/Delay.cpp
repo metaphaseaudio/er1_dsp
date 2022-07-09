@@ -43,7 +43,10 @@ void meta::ER1::Delay::recalculateDelaySamps(bool hard)
 
 void meta::ER1::Delay::setTime(float time)
 {
-    time = meta::Interpolate<float>::parabolic(0.0f, 1.0f, time, 5);
+    // Sync seems to make decent sense mapped linearly, but when controlling by
+    // raw time, there needs to be a curve to it.
+    if (!m_Sync)
+        { time = meta::Interpolate<float>::parabolic(0.0f, 1.0f, time, 5); }
     m_Time = std::min(std::max(0.0f, time), 1.0f) * 1.5f + 0.005f;
     recalculateDelaySamps();
 }
