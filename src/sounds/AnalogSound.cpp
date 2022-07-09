@@ -85,7 +85,7 @@ void meta::ER1::AnalogSound::setModulationSpeed(float speed)
     m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 10));
     m_SAH.setResetCount(
         meta::Interpolate<float>::parabolic(
-            (sampleRate / meta::ER1::MainOscillator::OverSample) / 10.0f, 1.0f, speed, -6
+            (sampleRate / meta::ER1::MainOscillator::OverSample) * 6.0f, 1.0f, speed, -10
         )
     );
 }

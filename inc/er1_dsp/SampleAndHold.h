@@ -23,7 +23,11 @@ namespace meta
                 m_ResetCount = count;
             };
 
-            void start(fixed_t value) { m_Value = value; };
+            void start(fixed_t value)
+            {
+                m_Value = value;
+                m_Count = 0;
+            };
 
             /// Produce the next sample of the waveform
             fixed_t tick(fixed_t in);
