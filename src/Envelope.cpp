@@ -25,7 +25,7 @@ void meta::ER1::Envelope::setSpeed(float sampleRate, float speed)
 
 bool meta::ER1::Envelope::hasEnded() const
 {
-    return m_Ramp.getState() == 0;
+    return m_Ramp.hasEnded();
 }
 
 void meta::ER1::Envelope::processBlock(float* data, int n_samps)
