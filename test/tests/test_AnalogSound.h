@@ -25,6 +25,27 @@ public:
     meta::ER1::AnalogSound voice;
 };
 
+
+TEST_F(AnalogSoundTest, generate_simple_tone)
+{
+    initializeTestFile(meta::TestHelpers::testFolder.getChildFile("simple_tone.wav"));
+
+    voice.setModulationShape(meta::ER1::Mod::Shape::DECAY);
+    voice.setWaveShape(meta::ER1::Wave::Shape::COSINE);
+    voice.setModulationDepth(0.0f);
+    voice.setPitch(20000);
+    voice.reset();
+    voice.start();
+
+    juce::AudioBuffer<float> buffer(2, 96000);
+    buffer.clear();
+
+    voice.processBlock(buffer.getArrayOfWritePointers()[0], nullptr, 96000, 0);
+    m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+}
+
+
+
 TEST_F(AnalogSoundTest, generate_synth_bass_drum)
 {
     initializeTestFile(meta::TestHelpers::testFolder.getChildFile("bass_drum.wav"));
@@ -100,8 +121,9 @@ TEST_F(AnalogSoundTest, generate_lazer_sound)
 
     voice.setWaveShape(meta::ER1::Wave::Shape::TRIANGLE);
     voice.setModulationShape(meta::ER1::Mod::Shape::SAW);
-    voice.setModulationDepth(2000.0f);
-    voice.setModulationSpeed(15.0f);
+    voice.setModulationDepth(0.3f);
+    voice.setModulationSpeed(0.45f);
+    voice.setDecay(0.75f);
     voice.setPitch(1000);
     voice.reset();
     voice.start();

@@ -16,7 +16,7 @@ meta::ER1::Noise meta::ER1::AnalogSound::m_Noise = meta::ER1::Noise();
 meta::ER1::AnalogSound::AnalogSound(float sampleRate)
     : BaseSound(sampleRate)
     , m_Pitch(250)
-    , m_MainOsc(-1.0f, 0.0f, sampleRate, 250)
+    , m_MainOsc(-1.0f, 1.0f, sampleRate, 250)
     , m_ModOsc(-1.0f, 0.0f, sampleRate / meta::ER1::MainOscillator::OverSample)
     , m_ModDepth(0.0f)
     , m_SampleCounter([&](){ tickMod(); })

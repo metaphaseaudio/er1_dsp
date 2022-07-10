@@ -34,7 +34,7 @@ public:
                 shouldImpulse = false;
             }
 
-            delay.processBlock(buffer.getArrayOfWritePointers(), n_samps, 0);
+//            delay.processBlock(buffer.getArrayOfWritePointers(), n_samps, 0);
             samples -= chunk_size;
             m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
         }
