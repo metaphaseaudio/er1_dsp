@@ -35,7 +35,8 @@ void meta::ER1::Delay::recalculateDelaySamps(bool hard)
     }
 
     // At least two samples are required to represent nyquist. Higher than this shall not pass.
-    m_DelaySampsTarget = std::max(2.0f, newTarget);
+    // The play head shouldn't ever be more than the total length of the delay line behind the write head.
+    m_DelaySampsTarget = std::min(std::max(2.0f, newTarget), float(m_Data[0].size()));
 
     if (hard)
         { m_DelaySampsCurrent = m_DelaySampsTarget; }
@@ -105,7 +106,12 @@ std::array<float, 2> meta::ER1::Delay::tick(float left, float right)
     m_Writehead = ++m_Writehead % int(m_Data[0].size());
     m_Playhead = m_Writehead - m_DelaySampsCurrent;
 
-    if (m_Playhead < 0) { m_Playhead += m_Data[0].size(); }
+
+    if (m_Playhead < 0) { m_Playhead += table_size; }
+    if (m_Playhead < 0 || m_Playhead > table_size)
+    {
+        std::cout << "bad playhead detected" << std::endl;
+    }
     return {l, r};
 }
 

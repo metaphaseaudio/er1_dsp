@@ -17,7 +17,7 @@ meta::ER1::AnalogSound::AnalogSound(float sampleRate)
     : BaseSound(sampleRate)
     , m_Pitch(250)
     , m_MainOsc(-1.0f, 1.0f, sampleRate, 250)
-    , m_ModOsc(-1.0f, 0.0f, sampleRate / meta::ER1::MainOscillator::OverSample)
+    , m_ModOsc(-1.0f, 0.0f, sampleRate / meta::ER1::Downsampler::OverSample)
     , m_ModDepth(0.0f)
     , m_SampleCounter([&](){ tickMod(); })
 {}
@@ -61,8 +61,8 @@ void meta::ER1::AnalogSound::reset()
     BaseSound::reset();
 	setOscFreq(m_Pitch);
     m_SampleCounter.sync(1);
-    m_MainOsc.sync(MainOscillator::Min);
-    m_ModOsc.sync(MainOscillator::Min);
+    m_MainOsc.sync(m_MainOsc.min);
+    m_ModOsc.sync(m_ModOsc.min);
     m_ModEnv.reset(sampleRate);
 }
 
@@ -85,7 +85,7 @@ void meta::ER1::AnalogSound::setModulationSpeed(float speed)
     m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 10));
     m_SAH.setResetCount(
         meta::Interpolate<float>::parabolic(
-            (sampleRate / meta::ER1::MainOscillator::OverSample) * 6.0f, 1.0f, speed, -10
+            (sampleRate / meta::ER1::Downsampler::OverSample) * 6.0f, 1.0f, speed, -10
         )
     );
 }

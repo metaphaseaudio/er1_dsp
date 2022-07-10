@@ -28,7 +28,6 @@ namespace meta:: ER1
         void reset() override;
         void start() override;
 
-
         void setSampleRate(float sampleRate) override;
         void setWaveShape(ER1::Wave::Shape waveType) override;
         void setPitch(float freq) override;
@@ -54,7 +53,7 @@ namespace meta:: ER1
         LoopingAccumulator m_ModOsc;
         meta::ER1::SampleAndHold m_SAH;
         meta::ER1::Envelope m_ModEnv;
-        meta::Countdown<MainOscillator::OverSample> m_SampleCounter;
+        meta::Countdown<Downsampler::OverSample> m_SampleCounter;
         static meta::ER1::Noise m_Noise;
     };
 }
