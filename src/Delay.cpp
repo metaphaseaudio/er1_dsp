@@ -74,6 +74,11 @@ void meta::ER1::Delay::setSampleRate(float sr)
     m_SampleRate = sr;
     m_Data[0] = std::vector<float>(int(m_SampleRate * 2), 0.0f);
     m_Data[1] = std::vector<float>(int(m_SampleRate * 2), 0.0f);
+    m_Playhead = 0;
+
+    const auto table_size = m_Data[0].size();
+    m_Playhead = m_Writehead - m_DelaySampsCurrent;
+    if (m_Playhead < 0) { m_Playhead += table_size; }
     recalculateDelaySamps(true);
 }
 
@@ -105,13 +110,7 @@ std::array<float, 2> meta::ER1::Delay::tick(float left, float right)
     // Advance the play/writeheads
     m_Writehead = ++m_Writehead % int(m_Data[0].size());
     m_Playhead = m_Writehead - m_DelaySampsCurrent;
-
-
     if (m_Playhead < 0) { m_Playhead += table_size; }
-    if (m_Playhead < 0 || m_Playhead > table_size)
-    {
-        std::cout << "bad playhead detected" << std::endl;
-    }
     return {l, r};
 }
 

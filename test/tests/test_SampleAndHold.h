@@ -32,7 +32,7 @@ TEST_F(SampleAndHoldTest, pass_noise)
     for (int i = 0; i < 48000; i++)
     {
         auto sample = sah.tick(noise.tick());
-        buffer.setSample(0,i, static_cast<float>(sample / meta::ER1::fixed_t::maxSigned()));
+        buffer.setSample(0,i, 0.5 * static_cast<float>(sample / meta::ER1::fixed_t::maxSigned()));
     }
 
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
