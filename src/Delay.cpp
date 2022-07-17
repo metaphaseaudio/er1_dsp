@@ -77,6 +77,7 @@ void meta::ER1::Delay::setSampleRate(float sr)
     m_Playhead = 0;
 
     const auto table_size = m_Data[0].size();
+    m_Writehead = 0;
     m_Playhead = m_Writehead - m_DelaySampsCurrent;
     if (m_Playhead < 0) { m_Playhead += table_size; }
     recalculateDelaySamps(true);
