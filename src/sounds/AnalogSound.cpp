@@ -33,7 +33,7 @@ void meta::ER1::AnalogSound::tickMod()
         case Mod::Shape::SAW: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SAW, m_ModOsc.tick()) * -1.0f); break;
         case Mod::Shape::INVERSE_SAW: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::INVERSE_SAW, m_ModOsc.tick()) * -1.0f); break;
         case Mod::Shape::SANDH:
-            setOscFreq(meta::limit(20.0f, 14400.0f, m_Pitch + m_ModDepth * (m_SAH.tick(m_Noise.tick()) / fixed_t::maxSigned()).toFloat()));
+            setOscFreq(m_Pitch + m_ModDepth * (m_SAH.tick(m_Noise.tick()) / fixed_t::maxSigned()).toFloat());
             break;
         case Mod::Shape::DECAY: setOscFreq(m_Pitch + m_ModDepth * m_ModEnv.tick()); break;
         case Mod::Shape::NOISE:
@@ -93,7 +93,7 @@ void meta::ER1::AnalogSound::setModulationSpeed(float speed)
     );
 }
 
-void meta::ER1::AnalogSound::setPitch(float hz) { m_Pitch = meta::limit(20.0f, 9000.0f, hz); }
+void meta::ER1::AnalogSound::setPitch(float hz) { m_Pitch = meta::limit(20.0f, 8768.0f, hz); }
 
 void meta::ER1::AnalogSound::setSampleRate(float newRate)
 {
@@ -106,14 +106,13 @@ void meta::ER1::AnalogSound::setSampleRate(float newRate)
 void meta::ER1::AnalogSound::setModulationDepth(float depth)
 {
     auto sign = depth >= 0 ? 1 : -1;
-    depth = meta::Interpolate<float>::parabolic(0.0f, 1.0f, std::abs(depth), 4) * sign;
-    m_ModDepth = depth * 12000.0f;
+    depth = meta::Interpolate<float>::parabolic(0.0f, 1.0f, std::abs(depth), -4) * sign;
+    m_ModDepth = depth * 10000.0f;  // ER-1 does 10k on either side of neutral
 }
 
 void meta::ER1::AnalogSound::setOscFreq(float freq)
 {
-    const auto nyquist = sampleRate / 2.0f;
-    m_MainOsc.set_freq(meta::limit(20.0f, nyquist, freq));
+    m_MainOsc.set_freq(meta::limit(20.0f, 21000.0f, freq));
 }
 
 void meta::ER1::AnalogSound::setWaveShape(meta::ER1::Wave::Shape waveType)
