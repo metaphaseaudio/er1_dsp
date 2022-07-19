@@ -42,7 +42,7 @@ TEST_F(NoiseTest, generate_white_noise)
     for (int i = 0; i < 48000; i++)
     {
         auto sample = noise.tick();
-        buffer.setSample(0,i, static_cast<float>(sample));
+        buffer.setSample(0,i, (static_cast<float>(sample) / static_cast<float>(meta::ER1::fixed_t::maxSigned())));
     }
 
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());

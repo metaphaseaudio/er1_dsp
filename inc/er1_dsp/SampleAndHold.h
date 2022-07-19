@@ -6,38 +6,39 @@
 
 #include <meta/util/BitMask.h>
 #include <meta/util/fixed_point/Math.h>
+#include <juce_dsp/juce_dsp.h>
 #include "Types.h"
 #include "Noise.h"
 
-namespace meta
+namespace meta::ER1
 {
-    namespace ER1
+    class SampleAndHold
     {
-        class SampleAndHold
+    public:
+        SampleAndHold();
+
+        void setSampleRate(float sr);
+
+        void setResetCount(uint32_t count)
+            { m_ResetCount = count; };
+
+        void start(float value)
         {
-        public:
-            SampleAndHold();
-
-            void setResetCount(uint32_t count)
-            {
-                m_ResetCount = count;
-            };
-
-            void start(fixed_t value)
-            {
-                m_Value = value;
-                m_Count = 0;
-            };
-
-            /// Produce the next sample of the waveform
-            fixed_t tick(fixed_t in);
-
-        private:
-            fixed_t m_Value;
-            uint32_t m_Count;
-            uint32_t m_ResetCount;
+            m_Value = value;
+            m_Filter.reset();
+            m_Count = 0;
         };
-    }
+
+        /// Produce the next sample of the waveform
+        float tick(float in);
+
+    private:
+        float sampleRate;
+        float m_Value;
+        uint32_t m_Count;
+        uint32_t m_ResetCount;
+        juce::dsp::IIR::Filter<float> m_Filter;
+    };
 };
 
 

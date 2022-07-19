@@ -31,7 +31,7 @@ void meta::ER1::AnalogSound::tickMod()
         case Mod::Shape::SQUARE: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SQUARE, m_ModOsc.tick()) * -1.0f); break;
         case Mod::Shape::SAW: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::SAW, m_ModOsc.tick()) * -1.0f); break;
         case Mod::Shape::INVERSE_SAW: setOscFreq(m_Pitch + m_ModDepth * wave_shape(ER1::Wave::Shape::INVERSE_SAW, m_ModOsc.tick()) * -1.0f); break;
-        case Mod::Shape::SANDH: setOscFreq(m_Pitch + m_ModDepth * (m_SAH.tick(m_Noise.tick()) / fixed_t::maxSigned()).toFloat()); break;
+        case Mod::Shape::SANDH: setOscFreq(m_Pitch + m_ModDepth * m_SAH.tick(static_cast<float>(m_Noise.tick() / fixed_t::maxSigned()))); break;
         case Mod::Shape::DECAY: setOscFreq(m_Pitch + m_ModDepth * m_ModEnv.tick()); break;
         case Mod::Shape::NOISE:
             m_LastNoise = static_cast<float>(m_Noise.tick() / fixed_t::maxSigned());
@@ -69,7 +69,7 @@ void meta::ER1::AnalogSound::reset()
 void meta::ER1::AnalogSound::start()
 {
     BaseSound::start();
-    m_SAH.start(m_Noise.tick());
+    m_SAH.start(static_cast<float>(m_Noise.tick() / meta::ER1::fixed_t::maxSigned()));
     m_ModEnv.start();
 }
 

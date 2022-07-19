@@ -24,6 +24,7 @@ public:
 TEST_F(SampleAndHoldTest, pass_noise)
 {
     initializeTestFile("pass_noise.wav");
+    sah.setSampleRate(48000);
 
     juce::AudioBuffer<float> buffer(2, 48000);
     buffer.clear();
@@ -31,8 +32,8 @@ TEST_F(SampleAndHoldTest, pass_noise)
 
     for (int i = 0; i < 48000; i++)
     {
-        auto sample = sah.tick(noise.tick());
-        buffer.setSample(0,i, static_cast<float>(sample / meta::ER1::fixed_t::maxSigned()));
+        auto sample = sah.tick(static_cast<float>(noise.tick() / meta::ER1::fixed_t::maxSigned()));
+        buffer.setSample(0,i, sample * 0.75);
     }
 
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
@@ -43,11 +44,12 @@ TEST_F(SampleAndHoldTest, single_value)
     juce::AudioBuffer<float> buffer(2, 4800);
     buffer.clear();
     sah.setResetCount(4800);
+    sah.start(static_cast<float>(noise.tick() / meta::ER1::fixed_t::maxSigned()));
 
     for (int i = 0; i < 4800; i++)
     {
-        auto sample = sah.tick(noise.tick());
-        buffer.setSample(0,i, static_cast<float>(sample));
+        auto sample = sah.tick(static_cast<float>(noise.tick() / meta::ER1::fixed_t::maxSigned()));
+        buffer.setSample(0,i, sample * 0.5);
     }
 
     auto max = juce::FloatVectorOperations::findMaximum(buffer.getArrayOfReadPointers()[0], 4800);
