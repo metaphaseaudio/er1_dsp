@@ -2,14 +2,11 @@
 // Created by Matt Zapp on 4/3/2018.
 //
 
-#include "meta/audio/SingletonSampleRate.h"
-#include "meta/util/math.h"
+#include <juce_dsp/juce_dsp.h>
+#include <meta/util/math.h>
 #include <vector>
-#include "juce_audio_utils/juce_audio_utils.h"
 #include "er1_dsp/sounds/AnalogSound.h"
-#include "meta/util/range.h"
 
-#define MOD_RATE_FACTOR 1
 
 meta::ER1::Noise meta::ER1::AnalogSound::m_Noise = meta::ER1::Noise();
 
@@ -99,6 +96,7 @@ void meta::ER1::AnalogSound::setSampleRate(float newRate)
 {
     BaseSound::setSampleRate(newRate);
     m_MainOsc.set_sample_rate(newRate);
+
     // run sample-accurate, not sub-sample accurate
     m_ModOsc.set_sample_rate(newRate / meta::ER1::Downsampler::OverSample);
 }
@@ -112,7 +110,7 @@ void meta::ER1::AnalogSound::setModulationDepth(float depth)
 
 void meta::ER1::AnalogSound::setOscFreq(float freq)
 {
-    m_MainOsc.set_freq(meta::limit(20.0f, 21000.0f, freq));
+    m_MainOsc.set_freq(meta::limit(20.0f, 20000.0f, freq));
 }
 
 void meta::ER1::AnalogSound::setWaveShape(meta::ER1::Wave::Shape waveType)
@@ -142,4 +140,9 @@ void meta::ER1::AnalogSound::processBlock(float* data, const float* ringData, in
 {
     for (int s = 0; s < samps; s++)
         { data[s + offset] = tick() * (ringData != nullptr ? ringData[s + offset] : 1.0f); }
+}
+
+float meta::ER1::AnalogSound::tickNews()
+{
+    return 0;
 }

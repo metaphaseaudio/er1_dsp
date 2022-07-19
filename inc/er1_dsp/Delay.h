@@ -15,6 +15,7 @@ namespace meta::ER1
     {
     public:
         explicit Delay(float sampleRate);
+        void reset();
 
         std::array<float, 2> tick(float left, float right);
         void setTempoSync(bool sync);

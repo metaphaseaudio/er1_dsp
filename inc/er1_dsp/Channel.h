@@ -27,6 +27,8 @@ namespace meta:: ER1
         void setDelayDepth(float depth);
         void setAccentGain(float vol);
 
+        void reset();
+
     private:
         float halfRoot2, leftAmp, rightAmp;
         float level, boostGain, accentGain;

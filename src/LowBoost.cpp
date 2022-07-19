@@ -10,6 +10,13 @@ meta::ER1::IIRFilter::IIRFilter()
     : xn1(0), xn2(0), yn1(0), yn2(0)
 {}
 
+void meta::ER1::IIRFilter::reset()
+{
+    xn1 = 0;
+    xn2 = 0;
+    yn1 = 0;
+    yn2 = 0;
+}
 
 float meta::ER1::IIRFilter::processSample(float in)
 {

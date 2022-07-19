@@ -17,6 +17,8 @@ namespace meta::ER1
 
         float processSample(float in);
 
+        void reset();
+
         float xn1, xn2, yn1, yn2;
         float b0, b1, b2, a1, a2;
     };

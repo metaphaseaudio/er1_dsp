@@ -66,4 +66,10 @@ void meta::ER1::Channel::setLowBoost(float x)
 void meta::ER1::Channel::setAccentGain(float vol)
     { accentGain = vol; }
 
+void meta::ER1::Channel::reset()
+{
+    m_Delay.reset();
+    m_LowBoost.reset();
+}
+
 

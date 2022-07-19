@@ -72,15 +72,7 @@ void meta::ER1::Delay::setTempoSync(bool sync)
 void meta::ER1::Delay::setSampleRate(float sr)
 {
     m_SampleRate = sr;
-    m_Data[0] = std::vector<float>(int(m_SampleRate * 2), 0.0f);
-    m_Data[1] = std::vector<float>(int(m_SampleRate * 2), 0.0f);
-    m_Playhead = 0;
-
-    const auto table_size = m_Data[0].size();
-    m_Writehead = 0;
-    m_Playhead = m_Writehead - m_DelaySampsCurrent;
-    if (m_Playhead < 0) { m_Playhead += table_size; }
-    recalculateDelaySamps(true);
+    reset();
 }
 
 std::array<float, 2> meta::ER1::Delay::tick(float left, float right)
@@ -113,5 +105,19 @@ std::array<float, 2> meta::ER1::Delay::tick(float left, float right)
     m_Playhead = m_Writehead - m_DelaySampsCurrent;
     if (m_Playhead < 0) { m_Playhead += table_size; }
     return {l, r};
+}
+
+void meta::ER1::Delay::reset()
+{
+    m_Data[0] = std::vector<float>(int(m_SampleRate * 2), 0.0f);
+    m_Data[1] = std::vector<float>(int(m_SampleRate * 2), 0.0f);
+
+    recalculateDelaySamps(true);
+
+    const auto table_size = m_Data[0].size();
+    m_Playhead = 0;
+    m_Writehead = 0;
+    m_Playhead = m_Writehead - m_DelaySampsCurrent;
+    if (m_Playhead < 0) { m_Playhead += table_size; }
 }
 
