@@ -26,13 +26,15 @@ TEST_F(SampleAndHoldTest, pass_noise)
     initializeTestFile("pass_noise.wav");
 
     juce::AudioBuffer<float> buffer(2, 48000);
+    sah.setSampleRate(48000);
+
     buffer.clear();
     sah.setResetCount(0);
 
     for (int i = 0; i < 48000; i++)
     {
-        auto sample = sah.tick(noise.tick());
-        buffer.setSample(0,i, 0.5 * static_cast<float>(sample / meta::ER1::fixed_t::maxSigned()));
+        auto sample = sah.tick(noise.tick()) * 0.25f;
+        buffer.setSample(0, i, sample);
     }
 
     m_Writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());

@@ -6,8 +6,10 @@
 
 #include <meta/util/BitMask.h>
 #include <meta/util/fixed_point/Math.h>
+#include <juce_dsp/juce_dsp.h>
 #include "Types.h"
 #include "Noise.h"
+
 
 namespace meta
 {
@@ -23,17 +25,20 @@ namespace meta
                 m_ResetCount = count;
             };
 
+            void setSampleRate(float sr);
+
             void start(fixed_t value)
             {
-                m_Value = value;
+                m_Value = static_cast<float>(value / meta::ER1::fixed_t::maxSigned());
                 m_Count = 0;
             };
 
             /// Produce the next sample of the waveform
-            fixed_t tick(fixed_t in);
+            float tick(fixed_t in);
 
         private:
-            fixed_t m_Value;
+            juce::dsp::IIR::Filter<float> m_Filter;
+            float m_Value;
             uint32_t m_Count;
             uint32_t m_ResetCount;
         };
