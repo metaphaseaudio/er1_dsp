@@ -33,8 +33,15 @@ namespace meta
                 m_Count = 0;
             };
 
+            void start(float value)
+            {
+                m_Value = value;
+                m_Count = 0;
+            };
+
             /// Produce the next sample of the waveform
             float tick(fixed_t in);
+            float tick(float in);
 
         private:
             juce::dsp::IIR::Filter<float> m_Filter;

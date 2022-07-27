@@ -36,3 +36,16 @@ void meta::ER1::SampleAndHold::setSampleRate(float sr)
     m_Filter.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sr, 20000, 0.21, meta::db_to_gain_coeff(10));
     m_Filter.reset();
 }
+
+float meta::ER1::SampleAndHold::tick(float in)
+{
+    m_Count++;
+    if (m_Count > m_ResetCount)
+    {
+        m_Value = m_Filter.coefficients != nullptr ? m_Filter.processSample(in) : in;
+        m_Filter.snapToZero();
+        m_Count = 0;
+    }
+
+    return m_Value;
+}

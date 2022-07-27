@@ -9,6 +9,7 @@
 #include "../Constants.h"
 #include "../SampleAndHold.h"
 #include "meta/util/Countdown.h"
+#include "meta/util/random.h"
 
 namespace meta:: ER1
 {
@@ -38,7 +39,6 @@ namespace meta:: ER1
     private:
         void tickMod();
         float tick();
-        float tickNews();
 
         float wave_shape(Wave::Shape shape, float accumulator_state);
         void setOscFreq(float freq);
@@ -55,6 +55,8 @@ namespace meta:: ER1
         meta::ER1::SampleAndHold m_SAH;
         meta::ER1::Envelope m_ModEnv;
         meta::Countdown<Downsampler::OverSample> m_SampleCounter;
-        static meta::ER1::Noise m_Noise;
+//        meta::Countdown<1> m_SampleCounter;
+//        meta::RandomRangeGenerator<float, std::lognormal_distribution<float>> m_StdNoise;
+        meta::RandomRangeGenerator<float, std::uniform_real_distribution<float>> m_StdNoise;
     };
 }
