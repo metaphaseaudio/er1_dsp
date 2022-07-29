@@ -44,7 +44,8 @@ void meta::ER1::AnalogSound::tickMod()
         case Mod::Shape::DECAY: modVal = m_ModEnv.tick(); break;
         case Mod::Shape::NOISE:
             m_LastNoise = m_StdNoise.next();
-            m_LastMix = (1.0f + (wave_shape(ER1::Wave::Shape::COSINE, m_ModOsc.tick())) / 2) * m_ModDepth;
+            m_LastMix = std::abs(wave_shape(ER1::Wave::Shape::TRIANGLE, m_ModOsc.tick()));
+            modVal = 0.0f;
             break;
         default: break;
     }
@@ -66,7 +67,7 @@ void meta::ER1::AnalogSound::tickMod()
 
     // Close enough.
     auto modValAdd = meta::Interpolate<float>::parabolic(-10000, 10000 + m_Pitch, (m_ModDepth * modVal + 1) / 2.0f, 2);
-    setOscFreq(m_Pitch + modValAdd);
+    setOscFreq(m_Pitch + (m_ModType != Mod::Shape::NOISE ? modValAdd :  0));
 
 }
 
@@ -79,8 +80,8 @@ float meta::ER1::AnalogSound::tick()
         const auto env = m_Env.tick();
 
         // Mix in the noise if appropriate
-        const auto invMix = 1.0f - m_LastMix; // How much of the raw osc
-        return ((sample * invMix) + (m_LastNoise * m_LastMix)) * env;
+        const auto invMix = 1.0f - (m_LastMix * m_ModDepth); // How much of the raw osc
+        return ((sample * invMix) + (m_LastNoise * m_LastMix * m_ModDepth)) * env;
     }
 
     return 0.0f;
