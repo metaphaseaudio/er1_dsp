@@ -42,9 +42,10 @@ namespace meta:: ER1
 
         float wave_shape(Wave::Shape shape, float accumulator_state);
         void setOscFreq(float freq);
+        juce::NormalisableRange<float> af;
 
         float m_Pitch;
-        float m_ModDepth;
+        float m_ModDepth, m_ModDepthExp;
         float m_LastNoise;
         float m_LastMix;
 
@@ -58,5 +59,6 @@ namespace meta:: ER1
 //        meta::Countdown<1> m_SampleCounter;
 //        meta::RandomRangeGenerator<float, std::lognormal_distribution<float>> m_StdNoise;
         meta::RandomRangeGenerator<float, std::uniform_real_distribution<float>> m_StdNoise;
+        juce::NormalisableRange<float> m_ModRange;
     };
 }

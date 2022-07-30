@@ -18,15 +18,14 @@ meta::ER1::AnalogSound::AnalogSound(float sampleRate)
     , m_MainOsc(-1.0f, 1.0f, sampleRate, 250)
     , m_ModOsc(-1.0f, 1.0f, sampleRate / meta::ER1::Downsampler::OverSample)
     , m_ModDepth(0.0f)
+    , m_ModDepthExp(0.0f)
     , m_SampleCounter([&](){ tickMod(); })
     , m_LastMix(0.0f)
     , m_StdNoise(-1.0f, 1.0f)
     , m_LastNoise(0)
 {
     m_ModOsc.onReset = [&](float x)
-    {
-        m_LastNoise = m_StdNoise.next();
-    };
+        { m_LastNoise = m_StdNoise.next(); };
 }
 
 void meta::ER1::AnalogSound::tickMod()
@@ -65,8 +64,10 @@ void meta::ER1::AnalogSound::tickMod()
     // This is too linear, doesn't get the right sort of range
     //    setOscFreq(m_Pitch + m_ModDepth * modVal * 10000);
 
-    // Close enough.
-    auto modValAdd = meta::Interpolate<float>::parabolic(-10000, 10000 + m_Pitch, (m_ModDepth * modVal + 1) / 2.0f, 2);
+    // Close, but the center offset is screwy.
+    // auto modValAdd = meta::Interpolate<float>::parabolic(-10000, 10000 + m_Pitch, (m_ModDepthExp * modVal + 1) / 2.0f, 2);
+
+    auto modValAdd = m_ModRange.convertFrom0to1((m_ModDepthExp * modVal + 1) / 2.0f);
     setOscFreq(m_Pitch + (m_ModType != Mod::Shape::NOISE ? modValAdd :  0));
 
 }
@@ -80,8 +81,8 @@ float meta::ER1::AnalogSound::tick()
         const auto env = m_Env.tick();
 
         // Mix in the noise if appropriate
-        const auto invMix = 1.0f - (m_LastMix * m_ModDepth); // How much of the raw osc
-        return ((sample * invMix) + (m_LastNoise * m_LastMix * m_ModDepth)) * env;
+        const auto invMix = 1.0f - (m_LastMix * std::abs(m_ModDepth)); // How much of the raw osc
+        return (sample * invMix + m_LastNoise * m_LastMix * std::abs(m_ModDepth)) * env;
     }
 
     return 0.0f;
@@ -113,7 +114,7 @@ void meta::ER1::AnalogSound::setModulationShape(meta::ER1::Mod::Shape type)
 void meta::ER1::AnalogSound::setModulationSpeed(float speed)
 {
     m_ModEnv.setSpeed(sampleRate, meta::Interpolate<float>::parabolic(0.1f, 200.0f, speed, 8));
-    m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 19000.0f, speed, 13));
+    m_ModOsc.set_freq(meta::Interpolate<float>::parabolic(0.1f, 5000.0f, speed, 13));
     m_SAH.setResetCount(
         meta::Interpolate<float>::parabolic(
             (sampleRate / meta::ER1::Downsampler::OverSample) * 6.0f, 1.0f, speed, -10
@@ -124,6 +125,8 @@ void meta::ER1::AnalogSound::setModulationSpeed(float speed)
 void meta::ER1::AnalogSound::setPitch(float hz)
 {
     m_Pitch = meta::limit(MIN_USER_FREQ, MAX_USER_FREQ, hz);
+    m_ModRange = juce::NormalisableRange<float>(-10000, 10000 + m_Pitch);
+    m_ModRange.setSkewForCentre(0);
 }
 
 void meta::ER1::AnalogSound::setSampleRate(float newRate)
@@ -137,9 +140,9 @@ void meta::ER1::AnalogSound::setSampleRate(float newRate)
 
 void meta::ER1::AnalogSound::setModulationDepth(float depth)
 {
+    m_ModDepth = depth;
     auto sign = depth >= 0 ? 1.0f : -1.0f;
-    depth = meta::Interpolate<float>::parabolic(0.0f, 1.0f, std::abs(depth));
-    m_ModDepth = depth * sign;
+    m_ModDepthExp = sign * meta::Interpolate<float>::parabolic(0.0f, 1.0f, std::abs(depth));
 }
 
 void meta::ER1::AnalogSound::setOscFreq(float freq)
