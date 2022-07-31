@@ -4,6 +4,7 @@
 
 #include "er1_dsp/LowBoost.h"
 #include "meta/util/NumericConstants.h"
+#include "meta/util/math.h"
 #include <cmath>
 
 meta::ER1::IIRFilter::IIRFilter()

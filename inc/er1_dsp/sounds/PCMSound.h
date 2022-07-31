@@ -13,7 +13,7 @@ namespace meta::ER1
     {
     public:
         PCMSound(float sampleRate, std::vector<float> data, float dataSampleRate);
-        void processBlock(float* data, const float* ringData, int samps, int offset) override;
+        void processBlockInternal(float* data, const float* ringData, int samps, int offset) override;
         void setSampleRate(float newRate) override;
         void setPitch(float freq) override;
         void start() override;

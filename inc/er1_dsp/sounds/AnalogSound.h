@@ -25,7 +25,7 @@ namespace meta:: ER1
         explicit AnalogSound(float sampleRate);
 
         /// fill an array of floats with data from the voice
-        void processBlock(float* data, const float* ringData, int samps, int offset) override;
+        void processBlockInternal(float* data, const float* ringData, int samps, int offset) override;
         void reset() override;
         void start() override;
 

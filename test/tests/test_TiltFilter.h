@@ -12,7 +12,9 @@ class TiltFilterTest
     : public meta::TestBase
 {
 public:
-    TiltFilterTest() { filter.setCutoff(1000); };
+    TiltFilterTest()
+        : filter(48000, 1000, 5)
+    {};
 
     void initializeTestFile(const juce::String& filename)
     {
@@ -22,12 +24,12 @@ public:
 
     void runFilter()
     {
-        juce::AudioBuffer<float> buffer(2, 4800);
+        juce::AudioBuffer<float> buffer(2, 48000);
         buffer.clear();
-        for (int i = 0; i < 4800; i++)
+        for (int i = 0; i < 48000; i++)
         {
             auto fixed = noise.tick();
-            auto sample = static_cast<float>(fixed) / static_cast<float>(fixed.maxSigned());
+            auto sample = static_cast<float>(fixed) / static_cast<float>(fixed.maxSigned()) * 0.05;
             buffer.setSample(0,i, filter.tick(sample));
         }
 
@@ -48,13 +50,13 @@ TEST_F(TiltFilterTest, flat)
 TEST_F(TiltFilterTest, boost_low)
 {
     initializeTestFile("tilt_filter_boost_low.wav");
-    filter.setTilt(1);
+    filter.setTilt(-6);
     runFilter();
 }
 
 TEST_F(TiltFilterTest, boost_hi)
 {
     initializeTestFile("tilt_filter_boost_hi.wav");
-    filter.setTilt(0);
+    filter.setTilt(6);
     runFilter();
 }

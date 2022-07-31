@@ -15,7 +15,7 @@ meta::ER1::PCMSound::PCMSound(float sampleRate, std::vector<float> data, float d
     recalculateDeltas();
 }
 
-void meta::ER1::PCMSound::processBlock(float* data, const float* ringData, int samps, int offset)
+void meta::ER1::PCMSound::processBlockInternal(float* data, const float* ringData, int samps, int offset)
 {
     for (int s = 0; s < samps; s++)
     {

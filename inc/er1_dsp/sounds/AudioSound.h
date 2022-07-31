@@ -15,7 +15,7 @@ namespace meta::ER1
         AudioSound(float sampleRate, AudioChannel channel);
 
         /// modify the incoming data by the envelope and ring modulation data
-        void processBlock(float* data, const float* ringData, int samps, int offset) override;
+        void processBlockInternal(float* data, const float* ringData, int samps, int offset) override;
 
         AudioChannel wantsAudioChannel() const override { return m_Chan; }
 

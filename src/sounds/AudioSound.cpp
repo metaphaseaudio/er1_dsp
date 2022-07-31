@@ -10,7 +10,7 @@ meta::ER1::AudioSound::AudioSound(float sampleRate, AudioChannel channel)
     , m_Chan(channel)
 {}
 
-void meta::ER1::AudioSound::processBlock(float* data, const float* ringData, int samps, int offset)
+void meta::ER1::AudioSound::processBlockInternal(float* data, const float* ringData, int samps, int offset)
 {
     for (int i = 0; i < samps; i++)
     {

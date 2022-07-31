@@ -5,7 +5,9 @@
 #pragma once
 
 #include "../Envelope.h"
-
+#include "../LowBoost.h"
+#include "../TiltFilter.h"
+#include "meta/audio/decibels.h"
 
 namespace meta::ER1
 {
@@ -14,11 +16,23 @@ namespace meta::ER1
     public:
         explicit BaseSound(float sampleRate, float decay=1.0f)
             : sampleRate(sampleRate)
+            , m_LowBoost(0.0f)
+            , m_TiltFilter(sampleRate, F, 5)
         { setDecay(decay); }
 
         virtual ~BaseSound() = default;
 
-        virtual void processBlock(float* data, const float* ringData, int samps, int offset) = 0;
+        void processBlock(float* data, const float* ringData, int samps, int offset)
+        {
+            processBlockInternal(data, ringData, samps, offset);
+
+            for (int s = offset; s < samps + offset; s++)
+            {
+                auto x = m_TiltFilter.tick(data[s]) * m_BoostGain;
+                x = (2.0f / meta::NumericConstants<float>::PI) * atan(x);
+                data[s] = x;
+            }
+        }
 
         void setDecay(float time)
         {
@@ -29,10 +43,15 @@ namespace meta::ER1
         {
             sampleRate = newRate;
             m_Env.setSampleRate(sampleRate);
+            m_TiltFilter.setFreq(sampleRate, F);
         };
 
         /// silence the voice
-        virtual void reset() { m_Env.reset(sampleRate); };
+        virtual void reset()
+        {
+            m_Env.reset(sampleRate);
+            m_TiltFilter.reset();
+        };
 
         /// trigger the voice
         virtual void start()
@@ -51,6 +70,12 @@ namespace meta::ER1
         virtual void setModulationSpeed(float speed) {};
         virtual void setModulationDepth(float depth) {};
 
+        void setLowBoost(float x)
+        {
+            m_TiltFilter.setTilt(-6 * x);
+            m_BoostGain = meta::db_to_gain_coeff(-6 * std::abs(x));
+        };
+
         enum AudioChannel
         {
             NONE = 0,
@@ -62,10 +87,14 @@ namespace meta::ER1
         void addSoundToChokeList(BaseSound* other) { m_ChokeList.push_back(other); };
 
     protected:
+        virtual void processBlockInternal(float* data, const float* ringData, int samps, int offset) = 0;
         float sampleRate;
         meta::ER1::Envelope m_Env;
 
     private:
+        static constexpr float F = 1000;
+        float m_LowBoost, m_BoostGain;
+        meta::ER1::TiltFilter m_TiltFilter;
         std::vector<BaseSound*> m_ChokeList;
     };
 }

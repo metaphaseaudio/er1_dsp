@@ -173,7 +173,7 @@ float meta::ER1::AnalogSound::wave_shape(Wave::Shape shape, float accumulator_st
     return accumulator_state;
 }
 
-void meta::ER1::AnalogSound::processBlock(float* data, const float* ringData, int samps, int offset)
+void meta::ER1::AnalogSound::processBlockInternal(float* data, const float* ringData, int samps, int offset)
 {
     for (int s = 0; s < samps; s++)
         { data[s + offset] = tick() * (ringData != nullptr ? ringData[s + offset] : 1.0f); }
