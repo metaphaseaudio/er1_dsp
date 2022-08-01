@@ -142,7 +142,7 @@ void meta::ER1::AnalogSound::setModulationDepth(float depth)
 {
     m_ModDepth = depth;
     auto sign = depth >= 0 ? 1.0f : -1.0f;
-    m_ModDepthExp = sign * meta::Interpolate<float>::parabolic(0.0f, 1.0f, std::abs(depth));
+    m_ModDepthExp = sign * meta::Interpolate<float>::parabolic(0.0f, 1.0f, std::abs(depth), 5);
 }
 
 void meta::ER1::AnalogSound::setOscFreq(float freq)
