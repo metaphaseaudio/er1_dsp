@@ -19,7 +19,7 @@ void meta::ER1::Channel::processBlock(const float* inData, float** outData, int 
 {
     for (int s = 0; s < nSamps; s++)
     {
-        auto sample = inData[s + offset];
+        auto sample = inData[s + offset] * level;
         const auto l = sample * leftAmp;
         const auto r = sample * rightAmp;
         const auto value = m_Delay.tick(l, r);
