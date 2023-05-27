@@ -5,8 +5,6 @@
 #pragma once
 #include "Delay.h"
 
-static float S = 0.75;
-static float F = 1000;
 
 namespace meta:: ER1
 {
