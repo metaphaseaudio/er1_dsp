@@ -12,7 +12,7 @@ namespace meta:: ER1
     {
     public:
         explicit Channel(float pan=0.0f, float level=1.0f, float sampleRate=48000);
-        void processBlock(const float* inData, float** outData, int nSamps, int offset);
+        void processBlock(const float* inData, float* const* outData, int nSamps, int offset);
 
         void setSampleRate(float sr);
 

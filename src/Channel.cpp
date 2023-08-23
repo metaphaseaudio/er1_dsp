@@ -15,11 +15,11 @@ meta::ER1::Channel::Channel(float pan, float level, float sampleRate)
     setPan(0);
 }
 
-void meta::ER1::Channel::processBlock(const float* inData, float** outData, int nSamps, int offset)
+void meta::ER1::Channel::processBlock(const float* inData, float* const* outData, int nSamps, int offset)
 {
     for (int s = 0; s < nSamps; s++)
     {
-        auto sample = inData[s + offset] * level;
+        auto sample = inData[s + offset] * level * accentGain;
         const auto l = sample * leftAmp;
         const auto r = sample * rightAmp;
         const auto value = m_Delay.tick(l, r);

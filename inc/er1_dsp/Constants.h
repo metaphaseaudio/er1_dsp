@@ -15,17 +15,15 @@ namespace meta::ER1
 // Various numbers
 #ifdef _DEBUG
     static constexpr int TWO_N_OVERSAMPLE = 3;
-    static constexpr int ANALOG_SOUND_COUNT = 10;
     static constexpr int NumOutBuses = 4;
-    using Downsampler = meta::OversampledBuffer<16, meta::static_power<2, TWO_N_OVERSAMPLE>::value, 16>;
 #else
     static constexpr int TWO_N_OVERSAMPLE = 4;
-    static constexpr int ANALOG_SOUND_COUNT = 10;
-    static constexpr int NumOutBuses = 16;
-    using Downsampler = meta::OversampledBuffer<16, meta::static_power<2, TWO_N_OVERSAMPLE>::value, 8>;
+    static constexpr int NumOutBuses = 8;
 #endif
+    static constexpr int ANALOG_SOUND_COUNT = 10;
     static constexpr int SAMPLE_SOUND_COUNT = 4;
     static constexpr int AUDIO_SOUND_COUNT = 2;
     static constexpr int ER1_SOUND_COUNT = ANALOG_SOUND_COUNT + AUDIO_SOUND_COUNT + SAMPLE_SOUND_COUNT;
+    using Downsampler = meta::OversampledBuffer<16, meta::static_power<2, TWO_N_OVERSAMPLE>::value, 16>;
 }
 
