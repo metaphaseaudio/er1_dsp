@@ -74,18 +74,16 @@ void meta::ER1::AnalogSound::tickMod()
 
 float meta::ER1::AnalogSound::tick()
 {
-    if (!m_Env.hasEnded())
-    {
-        m_SampleCounter.tick();
-        auto sample = wave_shape(m_Shape, m_MainOsc.tick());
-        const auto env = m_Env.tick();
+    if (m_Env.hasEnded())
+        { return 0.0f; }
 
-        // Mix in the noise if appropriate
-        const auto invMix = 1.0f - (m_LastMix * std::abs(m_ModDepth)); // How much of the raw osc
-        return (sample * invMix + m_LastNoise * m_LastMix * std::abs(m_ModDepth)) * env;
-    }
+    m_SampleCounter.tick();
+    auto sample = wave_shape(m_Shape, m_MainOsc.tick());
+    const auto env = m_Env.tick();
 
-    return 0.0f;
+    // Mix in the noise if appropriate
+    const auto invMix = 1.0f - (m_LastMix * std::abs(m_ModDepth)); // How much of the raw osc
+    return (sample * invMix + m_LastNoise * m_LastMix * std::abs(m_ModDepth)) * env;
 }
 
 void meta::ER1::AnalogSound::reset()

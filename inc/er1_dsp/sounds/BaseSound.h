@@ -24,7 +24,10 @@ namespace meta::ER1
 
         void processBlock(float* data, const float* ringData, int samps, int offset)
         {
-            processBlockInternal(data, ringData, samps, offset);
+            if (m_Env.hasEnded())
+                { std::memset(data + offset, 0, samps * sizeof(float)); }
+            else
+                { processBlockInternal(data, ringData, samps, offset); }
 
             for (int s = offset; s < samps + offset; s++)
             {
